@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>probe</title>
+  </head>
+  <body>
+    <iframe id="frame" src="/_seed.html" width="100%" height="700"></iframe>
+    <pre id="out">pending</pre>
+    <script>
+      function report() {
+        var doc
+        try {
+          doc = document.getElementById('frame').contentDocument
+        } catch (error) {
+          document.getElementById('out').textContent = 'cross-origin: ' + error
+          return
+        }
+        if (!doc || !doc.body) {
+          document.getElementById('out').textContent = 'no body yet'
+          return
+        }
+        var win = document.getElementById('frame').contentWindow
+        var info = { url: doc.location.pathname, innerWidth: win.innerWidth }
+        info.docScrollWidth = doc.documentElement.scrollWidth
+        info.bodyScrollWidth = doc.body.scrollWidth
+        function probe(sel, props) {
+          var el = doc.querySelector(sel)
+          if (!el) return 'NOT FOUND'
+          var cs = win.getComputedStyle(el)
+          var out = {}
+          props.forEach(function (p) {
+            out[p] = cs[p]
+          })
+          var r = el.getBoundingClientRect()
+          out.rect = Math.round(r.left) + '..' + Math.round(r.right) + ' (' + Math.round(r.width) + ')'
+          return out
+        }
+        info['.sheet-grid'] = probe('.sheet-grid', ['display', 'gridTemplateColumns'])
+        info['.page'] = probe('.page', ['display', 'flexDirection', 'width'])
+        info['.page-head'] = probe('.page-head', ['display', 'justifyContent', 'flexWrap'])
+        info['.app-main'] = probe('.app-main', ['width', 'maxWidth', 'display'])
+        info['.card'] = probe('.card', ['display', 'flexDirection', 'width'])
+        info['.card-body'] = probe('.card-body', ['display', 'width'])
+        info['.card-head'] = probe('.card-head', ['display', 'justifyContent'])
+        info['.panel'] = probe('.panel', ['display', 'width'])
+        document.getElementById('out').textContent = JSON.stringify(info, null, 2)
+      }
+      setTimeout(report, 3000)
+      setTimeout(report, 6000)
+    </script>
+  </body>
+</html>

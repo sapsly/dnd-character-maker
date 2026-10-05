@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>D&D Character Manager</title>
+    <!--
+      Colour mode pre-paint. Runs synchronously while <head> is still being
+      parsed, so `data-theme` is on <html> before the stylesheet is applied
+      and before the first paint — a remembered mode never flashes the other
+      one. It mirrors lib/theme.ts on purpose (same storage key, same three
+      values, same matchMedia resolution) rather than importing it: this must
+      work with no bundle, and it must work before the bundle exists.
+      The default below is `dark`, matching DEFAULT_THEME_MODE in theme.ts.
+    -->
+    <script>
+      (function () {
+        var KEY = 'dnd-character-manager.theme.v1'
+        var mode = 'dark'
+        try {
+          var stored = window.localStorage.getItem(KEY)
+          if (stored === 'light' || stored === 'dark' || stored === 'system') {
+            mode = stored
+          }
+        } catch (error) {
+          // Private mode, sandboxed iframe or a full quota: keep the default.
+        }
+        var resolved = mode
+        if (mode === 'system') {
+          resolved =
+            typeof window.matchMedia === 'function'
+              ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : 'dark'
+        }
+        document.documentElement.setAttribute('data-theme', resolved)
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

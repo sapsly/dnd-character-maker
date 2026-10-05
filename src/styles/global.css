@@ -1,0 +1,187 @@
+/* ==========================================================================
+   Design Tokens — Dark Fantasy Theme
+   ==========================================================================
+
+   This block is BOTH the no-JS fallback and the `dark` colour mode:
+   `:root` keeps the app looking exactly as it always has when nothing has
+   chosen a mode yet, and `[data-theme='dark']` (written by the pre-paint
+   script in index.html and by lib/theme.ts) re-points the same declarations
+   at the explicit dark scope. One set of values, zero duplication, so the
+   default gold trio below can never drift from `[data-accent='gold']` in
+   theme.css.
+
+   Light mode is additive: it lives in styles/mode.css, which is imported
+   after theme.css so `[data-theme='light']` wins the specificity tie against
+   both this block and the accent blocks — while the accent blocks still win
+   over everything declared here.
+   ========================================================================== */
+
+:root,
+[data-theme='dark'] {
+  /* Color Tokens */
+  --bg: #0f0e10;
+  --bg-elevated: #1a181d;
+  --surface: #1f1d23;
+  --surface-hover: #28252d;
+  --border: #3a3642;
+  --border-strong: #5a5366;
+  --text: #e8e4eb;
+  --text-muted: #a8a1b0;
+  --text-faint: #6a6472;
+  --accent: #c9a84c;
+  --accent-hover: #d4b85e;
+  --accent-contrast: #1a181d;
+  --danger: #c45a5a;
+  /* Lighter red for danger text — --danger itself fails contrast on surfaces. */
+  --danger-text: #e08c8c;
+  --warning: #d4a84c;
+  --success: #5aa87a;
+
+  /* Ink for the character swatches, which are painted with a user-chosen
+     colour instead of a theme token. It is deliberately NOT part of the
+     light/dark ladder: the ground under it never changes with the mode, so
+     neither may the ink that has to stay readable on it. */
+  --swatch-ink-dark: #0f0e10;
+  --swatch-ink-light: #f4f1f7;
+  --swatch-ring: rgba(0, 0, 0, 0.35);
+
+  /* Scrim behind modals. Same value in both modes — a dark veil reads
+     correctly over either palette. */
+  --scrim: rgba(8, 7, 9, 0.72);
+
+  /* Ability Score Hues */
+  --ability-str: #e06c75;
+  --ability-dex: #98c379;
+  --ability-con: #56b6c2;
+  --ability-int: #c678dd;
+  --ability-wis: #d19a66;
+  --ability-cha: #e06c75;
+
+  /* Semantic Aliases */
+  --hp-color: var(--ability-con);
+  --temp-hp-color: var(--ability-cha);
+  --ac-color: var(--ability-dex);
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 3rem;     /* 48px */
+  --space-8: 4rem;     /* 64px */
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-pill: 9999px;
+
+  /* Typography Stacks */
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+
+  /* Type Scale */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 2rem;      /* 32px */
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Focus Ring */
+  --focus-ring: 0 0 0 2px var(--accent);
+
+  /* Layout */
+  --content-max: 72rem;
+  --row-radius: var(--radius-md);
+}
+
+/* ==========================================================================
+   Reduced Motion Guard
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Baseline Resets
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Base Interaction — one visible focus treatment everywhere
+   ========================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+/* Visually hidden but still read aloud. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

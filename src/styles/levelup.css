@@ -1,0 +1,405 @@
+/* ==========================================================================
+   Level Up — choice resolution for one class level
+   ========================================================================== */
+
+.levelup-page {
+  gap: var(--space-4);
+}
+
+.levelup-card {
+  gap: var(--space-3);
+}
+
+.levelup-arrow {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.levelup-field {
+  max-width: 24rem;
+}
+
+/* --- Blocking summary ------------------------------------------------------ */
+
+.levelup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+  position: sticky;
+  bottom: var(--space-3);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- ASI mode toggle -------------------------------------------------------- */
+
+.levelup-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.levelup-mode {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* --- Ability increase inputs -------------------------------------------------- */
+
+.levelup-abilities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--space-3);
+}
+
+.levelup-ability {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+.levelup-ability-preview {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* --- Option lists -------------------------------------------------------------- */
+
+.levelup-options {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* The rows are bare <li> shells around labels that carry multi-sentence
+   subclass, feat and skill descriptions; the shell needs an explicit shrinkable
+   basis so those paragraphs wrap inside the list instead of widening it. */
+.levelup-options > li {
+  min-width: 0;
+}
+
+.levelup-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.levelup-option:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-hover);
+}
+
+.levelup-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.levelup-option input {
+  margin-top: 0.2rem;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.levelup-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.levelup-option-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.levelup-option-desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* --- Mastery chips ---------------------------------------------------------------- */
+
+.levelup-masteries {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.levelup-option--chip {
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+}
+
+.levelup-option--chip input {
+  margin-top: 0;
+}
+
+/* --- Feat detail ------------------------------------------------------------------ */
+
+.levelup-note {
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+.levelup-note--warn {
+  border-left-color: var(--warning);
+}
+
+.levelup-note-name {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.levelup-note-desc {
+  margin: 0.2rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.levelup-note-prereq {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}
+
+/* --- Errors ------------------------------------------------------------------------- */
+
+.levelup-errors {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--danger);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+.levelup-error {
+  font-size: var(--text-sm);
+  color: var(--danger-text);
+  overflow-wrap: anywhere;
+}
+
+/* --- Spell Picker ------------------------------------------------------------ */
+
+.spell-picker-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.spell-picker-toolbar .field {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.spell-picker-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.spell-picker-status--satisfied {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.spell-picker-status--warning {
+  color: var(--warning);
+}
+
+.spell-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* An unstyled <li> shell around the option, which is where the picker's longest
+   text lives (spell descriptions, focus, classes). The shell needs an explicit
+   basis so those descriptions wrap inside the list instead of widening it. */
+.spell-picker-item {
+  margin: 0;
+  min-width: 0;
+}
+
+.spell-picker-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.spell-picker-option:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-hover);
+}
+
+.spell-picker-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.spell-picker-option.is-selected {
+  border-color: var(--accent);
+  background-color: var(--surface-hover);
+}
+
+.spell-picker-option.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spell-picker-option input {
+  margin-top: 0.2rem;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.spell-picker-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.spell-picker-option-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.spell-picker-option-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.spell-picker-level-tag {
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.spell-picker-option-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.spell-picker-school::before {
+  content: '📖 ';
+}
+
+.spell-picker-casting-time::before {
+  content: '⏱️ ';
+}
+
+.spell-picker-range::before {
+  content: '📏 ';
+}
+
+.spell-picker-components::before {
+  content: '✨ ';
+}
+
+.spell-picker-duration::before {
+  content: '⏳ ';
+}
+
+.spell-picker-concentration {
+  font-size: var(--text-xs);
+}
+
+.spell-picker-description {
+  margin: var(--space-1) 0 0;
+  padding-top: var(--space-1);
+  border-top: 1px dashed var(--border);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.spell-picker-empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.spell-picker-empty p {
+  margin: var(--space-1) 0;
+}
+
+/* --- Narrow screens ------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .levelup-actions {
+    flex-direction: column;
+    align-items: stretch;
+    position: static;
+  }
+
+  .levelup-abilities {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spell-picker-toolbar {
+    flex-direction: column;
+  }
+
+  .spell-picker-toolbar .field {
+    min-width: 0;
+  }
+}

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>audit</title>
+  </head>
+  <body>
+    <pre id="out">pending</pre>
+    <iframe id="frame" width="100%" height="800" src="about:blank"></iframe>
+    <script>
+      var target = new URLSearchParams(location.search).get('url') || '/'
+      var step = new URLSearchParams(location.search).get('step') || ''
+      var frameWidth = new URLSearchParams(location.search).get('w') || ''
+      var frame = document.getElementById('frame')
+      if (frameWidth) {
+        frame.style.width = frameWidth + 'px'
+        frame.style.border = '0'
+      }
+
+      function textOf(el) {
+        return (el.innerText || '').replace(/\s+/g, ' ').trim()
+      }
+
+      function audit() {
+        var doc, win
+        try {
+          doc = frame.contentDocument
+          win = frame.contentWindow
+        } catch (error) {
+          document.getElementById('out').textContent = 'ERR ' + error
+          return
+        }
+        if (!doc || !doc.body || !doc.querySelector('.app-shell')) {
+          document.getElementById('out').textContent = 'NOT READY: ' + (doc && doc.location ? doc.location.pathname : '?')
+          return
+        }
+        var report = {
+          url: doc.location.pathname,
+          h1: (doc.querySelector('h1') || { innerText: '' }).innerText.replace(/\s+/g, ' ').trim(),
+          innerWidth: win.innerWidth,
+          docScrollWidth: doc.documentElement.scrollWidth,
+          gaps: []
+        }
+        var all = doc.body.querySelectorAll('*')
+        for (var i = 0; i < all.length; i++) {
+          var el = all[i]
+          if (el.closest('.visually-hidden')) continue
+          if (el.tagName === 'IFRAME' || el.tagName === 'SCRIPT' || el.tagName === 'STYLE') continue
+          var text = textOf(el)
+          if (text.length < 80) continue
+          var r = el.getBoundingClientRect()
+          if (r.width < 1) continue
+          var p = el.parentElement
+          if (!p) continue
+          var pr = p.getBoundingClientRect()
+          if (pr.width - r.width > 60 && r.width < pr.width * 0.75) {
+            var pcs = win.getComputedStyle(p)
+            report.gaps.push({
+              tag: el.tagName.toLowerCase() + (el.className ? '.' + String(el.className).split(' ').join('.') : ''),
+              w: Math.round(r.width),
+              text: text.slice(0, 60),
+              parent: p.tagName.toLowerCase() + (p.className ? '.' + String(p.className).split(' ').join('.') : ''),
+              pw: Math.round(pr.width),
+              pDisplay: pcs.display,
+              pJustify: pcs.justifyContent,
+              pAlign: pcs.alignItems
+            })
+          }
+        }
+        document.getElementById('out').textContent = JSON.stringify(report, null, 2)
+      }
+
+      var drivenName = false
+      var drivenClass = false
+
+      function fillName() {
+        if (drivenName) return
+        var doc, win
+        try { doc = frame.contentDocument; win = frame.contentWindow } catch (error) { return }
+        if (!doc || !doc.querySelector('.app-shell')) return
+        var input = doc.querySelector('input[placeholder="e.g. Thia Blackwood"]')
+        if (!input) return
+        var setter = Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, 'value').set
+        setter.call(input, 'Thurgin Ironhand Blackwood')
+        input.dispatchEvent(new win.Event('input', { bubbles: true }))
+        var buttons = Array.prototype.slice.call(doc.querySelectorAll('button'))
+        var next = buttons.filter(function (b) { return /^Next$/.test(b.textContent.trim()) })[0]
+        if (next) next.click()
+        drivenName = true
+      }
+
+      function pickClass() {
+        if (drivenClass || !drivenName) return
+        var doc
+        try { doc = frame.contentDocument } catch (error) { return }
+        if (!doc) return
+        var buttons = Array.prototype.slice.call(doc.querySelectorAll('button, [role="button"]'))
+        var fighter = buttons.filter(function (b) { return /^Fighter/.test(b.textContent.trim()) })[0]
+        if (!fighter) return
+        fighter.click()
+        drivenClass = true
+      }
+
+      var clicks = [
+        { at: 2500, run: fillName },
+        { at: 5000, run: pickClass },
+        { at: 7000, run: nextStep },
+        { at: 9000, run: nextStep }
+      ]
+
+      function nextStep() {
+        var doc
+        try { doc = frame.contentDocument } catch (error) { return }
+        if (!doc) return
+        var buttons = Array.prototype.slice.call(doc.querySelectorAll('button'))
+        var next = buttons.filter(function (b) { return /^Next$/.test(b.textContent.trim()) })[0]
+        if (next) next.click()
+      }
+
+      frame.src = target
+      clicks.forEach(function (c) { setTimeout(c.run, c.at) })
+      setTimeout(audit, 13000)
+      setTimeout(audit, 16000)
+    </script>
+  </body>
+</html>

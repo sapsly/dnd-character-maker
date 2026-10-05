@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-density="comfortable">
+  <head>
+    <meta charset="UTF-8" />
+    <title>long text probe</title>
+    <link rel="stylesheet" href="/src/styles/global.css" />
+    <link rel="stylesheet" href="/src/styles/app.css" />
+    <link rel="stylesheet" href="/src/styles/ui.css" />
+    <link rel="stylesheet" href="/src/styles/density.css" />
+    <style>
+      /* Test bed only — removed with the probe files when the audit ends. */
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <main class="app-main">
+        <div class="page" id="pageA">
+          <header class="page-head">
+            <div>
+              <h1 class="page-title">Heading</h1>
+              <p class="page-subtitle" id="t-subtitle">
+                A deliberately long subtitle paragraph that keeps going and going so it has to wrap over
+                several lines inside whatever width this header block decides to give it, which is the
+                whole point of the test: if it wraps narrow while the header is wide, that is the bug.
+              </p>
+            </div>
+          </header>
+
+          <section class="card">
+            <header class="card-head">
+              <h2 class="card-title" id="t-cardtitle">
+                A card title that is really a whole long sentence describing the section in detail so it
+                has to wrap
+              </h2>
+            </header>
+            <div class="card-body">
+              <p id="t-cardbody">
+                Card body paragraph. This is the standard body copy slot that hosts most of the app's
+                prose: feature rules, spell text, inventory notes. When the paragraph runs long it should
+                still fill the card's full inner width instead of hugging one side and leaving dead space
+                beside it. Anything else is a layout bug.
+              </p>
+              <div class="field">
+                <span class="field-label">Label</span>
+                <div class="field-control"><input class="input" /></div>
+                <p class="field-hint" id="t-hint">
+                  A field hint long enough to wrap: the hint should span the field's full width, not stop
+                  halfway across and leave a hole to its right.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <p class="panel-title">Panel title</p>
+            <p id="t-panel">
+              Panel paragraph. Same test, plain container: long prose must occupy the panel's whole
+              content width, wrapping across as many lines as it needs, with no reserved empty lane on
+              either side of the text block.
+            </p>
+          </section>
+
+          <section class="empty-state">
+            <p class="empty-title">Empty state</p>
+            <p class="empty-desc" id="t-empty">
+              Empty state description long enough to wrap several times, testing whether the capped
+              measure here is centered inside the card or thrown to one side with a lopsided gap.
+            </p>
+          </section>
+
+          <div class="modal-backdrop" style="position: static; background: none; padding: 0">
+            <div class="modal modal--md">
+              <header class="modal-head">
+                <h2 class="modal-title">Modal title</h2>
+              </header>
+              <p class="modal-desc" id="t-modaldesc">
+                Modal description paragraph that runs long on purpose, because modal descriptions are
+                exactly where the app puts explanatory prose, and it must fill the modal's width evenly.
+              </p>
+              <div class="modal-body">
+                <p id="t-modalbody">
+                  Modal body paragraph. Same contract: wrap at the modal's inner width, fill it, leave no
+                  empty lane beside the text.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <pre id="out">pending</pre>
+    <script>
+      var ids = [
+        't-subtitle',
+        't-cardtitle',
+        't-cardbody',
+        't-hint',
+        't-panel',
+        't-empty',
+        't-modaldesc',
+        't-modalbody'
+      ]
+      var report = { innerWidth: innerWidth, docScrollWidth: document.documentElement.scrollWidth, rows: [] }
+      ids.forEach(function (id) {
+        var el = document.getElementById(id)
+        if (!el) return
+        var r = el.getBoundingClientRect()
+        var p = el.parentElement
+        var pr = p.getBoundingClientRect()
+        var pcs = getComputedStyle(p)
+        var elcs = getComputedStyle(el)
+        report.rows.push({
+          id: id,
+          w: Math.round(r.width),
+          parent: p.tagName.toLowerCase() + '.' + String(p.className || '').split(' ').join('.'),
+          pw: Math.round(pr.width),
+          fill: Math.round((r.width / pr.width) * 100) + '%',
+          elMax: elcs.maxWidth,
+          parentDisplay: pcs.display,
+          parentAlign: pcs.alignItems
+        })
+      })
+      document.getElementById('out').textContent = JSON.stringify(report, null, 2)
+    </script>
+  </body>
+</html>

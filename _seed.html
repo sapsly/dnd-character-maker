@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>seed</title>
+  </head>
+  <body>
+    <p>seeding…</p>
+    <script type="module">
+      import { createCharacter } from '/src/lib/characterFactory.ts'
+
+      const KEY = 'dnd-character-manager.characters.v1'
+      const c = createCharacter({
+        name: 'Thurgin Ironhand Blackwood',
+        speciesId: 'dwarf',
+        backgroundId: 'acolyte',
+        classId: 'fighter',
+      })
+      c.level = 6
+      c.notes.backstory =
+        'Born under a falling star in the hills east of Neverwinter, Thurgin was raised by the acolytes of the Temple of the All-Father. ' +
+        'He spent twenty years copying manuscripts before taking up the blade, and he still writes in a hand so fine that merchants pay him for it. ' +
+        'He travels now to recover the Ashen Codex, a liturgy stolen by a cult of necromancers who believe its pages can unmake the dead.'
+      try {
+        localStorage.setItem(KEY, JSON.stringify([c]))
+      } catch (error) {
+        /* ignore */
+      }
+      var to = new URLSearchParams(location.search).get('to') || 'sheet'
+      location.replace(
+        to === 'roster'
+          ? '/'
+          : to === 'edit'
+            ? '/character/' + c.id + '/edit'
+            : to === 'levelup'
+              ? '/character/' + c.id + '/level-up'
+              : '/character/' + c.id
+      )
+    </script>
+  </body>
+</html>

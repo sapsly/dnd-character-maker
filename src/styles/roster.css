@@ -1,0 +1,310 @@
+/* ==========================================================================
+   Roster — list, rows, banners, loading skeleton
+   ========================================================================== */
+
+.roster-page {
+  gap: var(--space-3);
+}
+
+/* --- Banners -------------------------------------------------------------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  font-size: var(--text-sm);
+}
+
+.banner > svg {
+  flex: none;
+}
+
+/* Banners carry the app's longest transient paragraphs (import, save and parse
+   errors) and this is the text child of a flex row. A flex child defaults to
+   `min-width: auto`, so without `min-width: 0` it refuses to shrink below its
+   content's intrinsic width: a long run blows the paragraph out past the
+   banner's edge and shoves the dismiss button out with it instead of wrapping
+   inside the width that is actually available. */
+.banner-text {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--text);
+}
+
+.banner--error {
+  border-color: var(--danger);
+}
+
+.banner--error > svg {
+  color: var(--danger-text);
+}
+
+.banner--success {
+  border-color: var(--success);
+}
+
+.banner--success > svg {
+  color: var(--success);
+}
+
+/* --- Filter --------------------------------------------------------------- */
+
+.roster-filter {
+  max-width: 26rem;
+}
+
+/* --- Loading -------------------------------------------------------------- */
+
+.roster-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.roster-loading-text {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.skeleton-row {
+  height: 4rem;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-hover);
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton-row:nth-child(3) {
+  opacity: 0.75;
+}
+
+.skeleton-row:nth-child(4) {
+  opacity: 0.5;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* --- List ----------------------------------------------------------------- */
+
+.roster-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.roster-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  transition: background-color 120ms ease;
+}
+
+.roster-row:last-child {
+  border-bottom: none;
+}
+
+.roster-row:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Favorites read as marked pages: gold rule, warmer ground, star beside the name. */
+.roster-row--favorite {
+  border-left-color: var(--accent);
+  background-color: var(--bg-elevated);
+}
+
+.roster-row--favorite:hover {
+  background-color: var(--surface-hover);
+}
+
+/* --- Avatar ---------------------------------------------------------------- */
+
+.roster-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--swatch-ring);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  flex: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.roster-row--favorite .roster-avatar {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* --- Row text -------------------------------------------------------------- */
+
+.roster-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.roster-name-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+/* Character names are unbounded user input and this link is the text child of
+   .roster-name-line's flex row, so `min-width: 0` lets it shrink with the row
+   instead of forcing the line to the name's intrinsic width. It pairs with
+   `overflow-wrap: anywhere` below, which supplies the actual break points so a
+   long name wraps and fills the info column rather than pushing the level tag
+   and the action buttons sideways. */
+.roster-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.roster-name:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.roster-fav {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.roster-level {
+  margin-left: auto;
+}
+
+/* Marks a character that overrides the app-wide accent. It sits next to the
+   level tag, whose `margin-left: auto` keeps both pinned to the row's right
+   edge. `var(--accent)` resolves to the character's own accent because the row
+   carries `data-character-accent` (see `styles/tint.css`), so no colour value
+   appears here. */
+.roster-accent-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: none;
+  align-self: center;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--swatch-ring);
+}
+
+.roster-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.roster-dot {
+  color: var(--text-faint);
+}
+
+.roster-multiclass {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+/* --- Row actions ------------------------------------------------------------ */
+
+.roster-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.roster-icon-action.btn {
+  width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  aspect-ratio: 1;
+}
+
+/* --- Delete confirmation ---------------------------------------------------- */
+
+.delete-detail {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.delete-detail-name {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* --- Narrow screens ---------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .roster-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    row-gap: var(--space-3);
+  }
+
+  .roster-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-3);
+  }
+
+  .roster-level {
+    margin-left: 0;
+  }
+
+  .roster-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .roster-actions {
+    justify-content: stretch;
+  }
+
+  .roster-actions > a {
+    flex: 1;
+  }
+}

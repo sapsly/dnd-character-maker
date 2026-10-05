@@ -1,0 +1,644 @@
+/* ==========================================================================
+   Create Character — five-step wizard
+   ========================================================================== */
+
+.create-page {
+  gap: var(--space-4);
+}
+
+.create-card {
+  gap: var(--space-3);
+}
+
+.create-field {
+  max-width: 24rem;
+}
+
+/* --- Step rail ------------------------------------------------------------ */
+
+.create-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.create-step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+}
+
+.create-step:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.create-step.is-current {
+  border-color: var(--accent);
+  background-color: var(--surface-hover);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.create-step.is-done {
+  color: var(--success);
+}
+
+.create-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: none;
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-elevated);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.create-step.is-current .create-step-index {
+  background-color: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 700;
+}
+
+.create-step.is-done .create-step-index {
+  color: var(--success);
+}
+
+.create-step-label {
+  white-space: nowrap;
+}
+
+/* --- Selectable option cards ------------------------------------------------ */
+
+.create-choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-2);
+}
+
+.create-choices--inline {
+  display: flex;
+  flex-wrap: wrap;
+  grid-template-columns: none;
+}
+
+/* A grid item as well as a flex pill. Equipment options carry long item lists
+   and background options carry a name plus a PHB tag, so the card needs an
+   explicit shrinkable basis: without it the cell's content minimum is wider
+   than the 11rem track and the row spills sideways instead of wrapping. */
+.create-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.create-choice:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-hover);
+}
+
+.create-choice:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.create-choice.is-selected {
+  border-color: var(--accent);
+  background-color: var(--surface-hover);
+}
+
+.create-choice input {
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.create-choice--inline {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+}
+
+.create-choice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.create-choice-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Provenance badge: marks a background that came from the PHB, not the SRD. */
+.create-source-tag {
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  vertical-align: middle;
+}
+
+.create-choice-meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* --- Lineage choice ---------------------------------------------------------- */
+
+/* Lineage summaries are full sentences ("Prestidigitation, extra tool
+   proficiency; Detect Magic at 3, Misty Step at 5."), so the track is wider
+   than the generic 11rem cell and the radio aligns to the top of the card
+   instead of centring against a multi-line summary. At ~360px auto-fit drops
+   to a single full-width column, which is the width the summary needs. */
+.create-choices--lineage {
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.create-choice--lineage {
+  align-items: flex-start;
+}
+
+/* With the radio top-aligned it would otherwise sit a hair above the name's
+   first line; this drops it back onto the text baseline. */
+.create-choice--lineage input {
+  margin-top: 0.2rem;
+}
+
+/* The spellcasting-ability read-out: a title, three ability tags and one long
+   explanatory sentence. A plain column lets the tags wrap on their own line and
+   gives the sentence a shrinkable block inside `.create-detail`. */
+.create-lineage-ability {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.create-lineage-ability-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.create-lineage-ability-tag {
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+}
+
+/* --- Selected-option detail --------------------------------------------------- */
+
+.create-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+/* The detail panel carries the wizard's longest prose (trait descriptions,
+   origin feats, proficiency lists) in each of its flex children. An explicit
+   shrinkable basis keeps every block inside the card so the text wraps within
+   the panel instead of feeding the panel's content minimum. */
+.create-detail > div {
+  min-width: 0;
+}
+
+.create-trait-name,
+.create-list-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.create-trait-desc,
+.create-list-body {
+  margin: 0.1rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.create-lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--space-3);
+}
+
+.create-lists--wide {
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+/* Each cell is a bare <div> grid item holding a paragraph (proficiency lists,
+   origin feat, starting equipment). Without an explicit basis the cell refuses
+   to shrink below its content minimum, so long prose can spill out of the
+   13rem track rather than wrapping inside it. */
+.create-lists > div {
+  min-width: 0;
+}
+
+.create-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}
+
+/* --- Background ability increases ------------------------------------------------- */
+
+.create-background-scores {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.create-bg-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+.create-bg-preview {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* --- Ability scores ------------------------------------------------------------------ */
+
+.create-budget {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+/* The budget note shares this flex line with the budget tag, so long prose
+   needs an explicit shrinkable basis to wrap across the row instead of pinning
+   the line to its content width. */
+.create-budget > .create-note {
+  min-width: 0;
+}
+
+/* --- Ability scores ------------------------------------------------------------------ */
+
+.create-scores {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Cards, not rows: each ability is a self-contained unit so the number can
+     sit centred and the stepper directly beneath it. auto-fit keeps them from
+     shrinking below a legible width, which is what caused the overflow. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+}
+
+.create-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  text-align: center;
+}
+
+.create-score-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.create-score-key {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* The score itself: large, centred, and the visual anchor of the card. */
+.create-score-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.create-score-mod {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+
+/* Stepper sits directly under the number it edits, not off to one side. */
+.create-score-control {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.create-score-control > * {
+  width: 100%;
+}
+
+.create-score-preview {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.create-score-preview--final {
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+.create-scores--readonly .create-score {
+  background-color: transparent;
+  border-style: dashed;
+}
+
+/* --- Review gaps ------------------------------------------------------------------------ */
+
+.create-gaps {
+  margin: 0;
+  padding-left: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+/* --- Actions ---------------------------------------------------------------------------------- */
+
+.create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface);
+}
+
+.create-cancel {
+  margin-left: auto;
+}
+
+/* --- Spell Picker ------------------------------------------------------------ */
+
+.spell-picker-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.spell-picker-toolbar .field {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.spell-picker-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.spell-picker-status--satisfied {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.spell-picker-status--warning {
+  color: var(--warning);
+}
+
+.spell-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+/* An unstyled <li> shell around the option, which is where the picker's longest
+   text lives (spell descriptions, focus, classes). The shell needs an explicit
+   basis so those descriptions wrap inside the list instead of widening it. */
+.spell-picker-item {
+  margin: 0;
+  min-width: 0;
+}
+
+.spell-picker-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.spell-picker-option:hover {
+  border-color: var(--border-strong);
+  background-color: var(--surface-hover);
+}
+
+.spell-picker-option:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.spell-picker-option.is-selected {
+  border-color: var(--accent);
+  background-color: var(--surface-hover);
+}
+
+.spell-picker-option.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spell-picker-option input {
+  margin-top: 0.2rem;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.spell-picker-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.spell-picker-option-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.spell-picker-option-name {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.spell-picker-level-tag {
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Source badge ("Race" / "Class"), shown beside the neutral level badge once a
+   lineage is in play. Letter-spaced and capped at the xs size so the two tags
+   read as different kinds of label rather than one longer badge. The header
+   already wraps, so a third badge only pushes the name to the next line on
+   narrow screens instead of overflowing. */
+.spell-picker-source-tag {
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+}
+
+.spell-picker-option-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.spell-picker-school::before {
+  content: '📖 ';
+}
+
+.spell-picker-casting-time::before {
+  content: '⏱️ ';
+}
+
+.spell-picker-range::before {
+  content: '📏 ';
+}
+
+.spell-picker-components::before {
+  content: '✨ ';
+}
+
+.spell-picker-duration::before {
+  content: '⏳ ';
+}
+
+.spell-picker-concentration {
+  font-size: var(--text-xs);
+}
+
+.spell-picker-description {
+  margin: var(--space-1) 0 0;
+  padding-top: var(--space-1);
+  border-top: 1px dashed var(--border);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.spell-picker-empty {
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.spell-picker-empty p {
+  margin: var(--space-1) 0;
+}
+
+/* --- Narrow screens -------------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  .create-step-label {
+    white-space: normal;
+  }
+
+  .create-cancel {
+    margin-left: 0;
+  }
+
+  /* Score cards are already a single column at this width; keep them from
+     getting so narrow that the stepper crowds the number. */
+  .create-scores {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spell-picker-toolbar {
+    flex-direction: column;
+  }
+
+  .spell-picker-toolbar .field {
+    min-width: 0;
+  }
+}
+
+/* --- Starting Equipment pickers ------------------------------------------------ */
+
+.create-choice-body .create-choice-meta {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+/* Error text for pickers */
+.create-error {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--danger-text);
+}

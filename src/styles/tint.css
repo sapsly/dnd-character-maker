@@ -1,0 +1,164 @@
+/**
+ * Per-character accent tint.
+ *
+ * The app-wide accent lives on `<html data-accent="…">` (see `theme.css`) and
+ * reaches every route through the cascade. A *character's* accent has a much
+ * narrower blast radius, so it gets its own attribute and its own token
+ * blocks: `data-character-accent` is written only onto the character sheet's
+ * root element and onto a roster row, never onto `document.documentElement`.
+ * Writing it on `<html>` would tint the roster, the header and every other
+ * character at once — the exact bug this file exists to avoid.
+ *
+ * Why re-declaring `--accent` is enough: custom properties inherit, and the
+ * nearest defining ancestor wins. No specificity battle with the `[data-accent]`
+ * blocks is needed, and no component has to change — everything already reads
+ * `var(--accent)` and simply picks up the nearer definition. Hex values are
+ * mirrored from `theme.css` / `mode.css` because this file is part of the token
+ * layer; there are no literals anywhere else in the app.
+ *
+ * Ordering: the dark blocks come first and the light blocks after, so light
+ * mode wins the cascade inside this file too, mirroring `mode.css`.
+ */
+
+[data-character-accent='gold'] {
+  --accent: #c9a84c;
+  --accent-hover: #d4b85e;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='amethyst'] {
+  --accent: #b98cf0;
+  --accent-hover: #c9a3f5;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='crimson'] {
+  --accent: #ef6a7a;
+  --accent-hover: #f48492;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='emerald'] {
+  --accent: #4bd67f;
+  --accent-hover: #67dd95;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='azure'] {
+  --accent: #5fb3f0;
+  --accent-hover: #79c2f5;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='rose'] {
+  --accent: #ef7ab5;
+  --accent-hover: #f494c1;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='copper'] {
+  --accent: #d97a45;
+  --accent-hover: #e28f5f;
+  --accent-contrast: #1a181d;
+}
+
+[data-character-accent='verdigris'] {
+  --accent: #46c9b8;
+  --accent-hover: #5fd4c5;
+  --accent-contrast: #1a181d;
+}
+
+/* Light mode, scoped the same way `mode.css` scopes the app-wide accent. */
+[data-theme='light'] [data-character-accent='gold'] {
+  --accent: #7a5c12;
+  --accent-hover: #6b4f0d;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='amethyst'] {
+  --accent: #5f3799;
+  --accent-hover: #523080;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='crimson'] {
+  --accent: #a8253a;
+  --accent-hover: #91202f;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='emerald'] {
+  --accent: #146f45;
+  --accent-hover: #115f3b;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='azure'] {
+  --accent: #1c66a8;
+  --accent-hover: #175791;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='rose'] {
+  --accent: #ad2668;
+  --accent-hover: #95205a;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='copper'] {
+  --accent: #8a4312;
+  --accent-hover: #773a0e;
+  --accent-contrast: #fffdf7;
+}
+
+[data-theme='light'] [data-character-accent='verdigris'] {
+  --accent: #0d6c60;
+  --accent-hover: #0b5c51;
+  --accent-contrast: #fffdf7;
+}
+
+/*
+ * "Follows the app accent" chip in the character picker.
+ *
+ * It is the escape hatch, so it must not read as a ninth colour: the chip is
+ * deliberately not filled with any accent, and instead wears the app-wide
+ * accent as a thin corner wedge. That says "whatever is set out there" without
+ * implying a fixed hue. The chip carries its own `data-accent` for the app
+ * accent, so the wedge previews the live value even while a character override
+ * is tinting the sheet around it.
+ *
+ * `:hover` has to be neutralised explicitly — `.theme-swatch:hover` is more
+ * specific than a single class and would fill the chip with a solid accent,
+ * destroying the wedge that is the whole point of the chip.
+ */
+.theme-swatch--inherit,
+.theme-swatch--inherit:hover,
+.theme-swatch--inherit.is-active:hover {
+  background-color: transparent;
+}
+
+.theme-swatch--inherit {
+  position: relative;
+  overflow: hidden;
+  border-style: dashed;
+  border-color: var(--swatch-ring);
+}
+
+.theme-swatch--inherit::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 60%;
+  height: 60%;
+  background: var(--accent);
+  opacity: 0.85;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+/* Matches the selected state of a normal chip: same outline treatment, so the
+   escape hatch reads as a peer rather than as a disabled control. */
+.theme-swatch--inherit.is-active {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: transparent;
+}

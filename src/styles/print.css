@@ -1,0 +1,387 @@
+/* ==========================================================================
+   Print — ink on paper
+   ==========================================================================
+
+   A character sheet is a document, not a screen. It has to leave the printer
+   as black-on-white, fully expanded, and paginated so no heading is stranded
+   at the foot of a page. This file is imported last in `src/main.tsx` (after
+   `mode.css`) so every rule wins the cascade tie against the token layer,
+   the accent blocks, the light-mode block and the density block — without
+   touching any of them.
+
+   Three jobs, in order:
+
+   1. Re-point the token ladder at a print-only palette. The single block
+      below holds every colour literal in this file; everything else
+      references `--print-*` or the theme tokens the components already use.
+      `:root[data-theme]` is the hook: `index.html` and `lib/theme.ts` both
+      guarantee `data-theme` is on `<html>` before first paint, and at
+      specificity 0-2-0 it beats `[data-theme='light']` (0-1-0) *and* the
+      paired `[data-accent][data-theme]` blocks (0-2-0) that would otherwise
+      win the accent trio — with print.css last, the tie breaks our way.
+      Neither dark nor light is "the print mode": paper is. A user on
+      `data-theme="dark"` gets exactly the same legible sheet as one on
+      light, so Ctrl+P can never produce white-on-white.
+
+   2. Remove everything you can only click, and strip back everything you
+      can only type into. Where a control *carries* data — coin values,
+      carried quantities — the control is reduced to plain text instead of
+      being dropped, so nothing in the content list is lost.
+
+   3. Put the page in order: a masthead that carries the character's name
+      and level first, headings that cannot be orphaned, and
+      `break-inside: avoid` on every atomic row so a skill, save, spell,
+      feature or inventory line never straddles two pages.
+
+   Nothing here matches at a normal viewing width: every rule sits inside
+   `@media print`, and `@page` is paged-media only by definition, so the
+   on-screen render is untouched.
+   ========================================================================== */
+
+/* ~0.55in: clears a printer's unprintable edge while leaving the two-column
+   sheet a readable measure (~710px on Letter, ~688px on A4). */
+@page {
+  margin: 14mm;
+}
+
+@media print {
+  /* ======================================================================
+     1. Print tokens — the only colour literals in this file
+     ====================================================================== */
+
+  :root[data-theme] {
+    /* Paper and ink. Warm-neutral greys so the sheet sits with the app's
+       warm light palette rather than fighting it. The three ink tiers are
+       18:1, 10:1 and 6.9:1 against the paper — all clear AA even at the
+       9pt label size; the hairline is structure, not text, so it is held
+       at 3.4:1 where it does the work of a table rule. */
+    --print-paper: #ffffff;
+    --print-ink: #16130f;
+    --print-ink-muted: #43403a;
+    --print-ink-faint: #5e5a53;
+    --print-rule: #8f8a82;
+    --print-fill: #f1efe9;
+
+    /* Native controls follow the paper, not the live colour mode. */
+    color-scheme: light;
+
+    /* Hand the existing ladder over to that ramp. Every component already
+       styled against --text / --surface / --border re-derives for paper
+       without a single component-level rule, and because this block outranks
+       the dark baseline *and* the light-mode block, the result is identical
+       in both colour modes. */
+    --bg: var(--print-paper);
+    --bg-elevated: var(--print-paper);
+    --surface: var(--print-paper);
+    --surface-hover: var(--print-paper);
+
+    --border: var(--print-rule);
+    /* A strong rule wants the weight of the muted ink tier. */
+    --border-strong: var(--print-ink-muted);
+
+    --text: var(--print-ink);
+    --text-muted: var(--print-ink-muted);
+    --text-faint: var(--print-ink-faint);
+
+    /* The accent collapses to ink. It is a screen affordance — focus rings,
+       selected segments, un-underlined links — and on paper it only risks
+       printing as a pale hue that fails contrast (gold on white is 2.0:1).
+       Every link that uses it is already underlined, so nothing loses its
+       affordance. Same reasoning for the three semantic colours: the
+       components print a word ("Proficient", "Attuned 4 / 3") alongside the
+       tint, so meaning never rests on hue alone. */
+    --accent: var(--print-ink);
+    --accent-hover: var(--print-ink);
+    --accent-contrast: var(--print-paper);
+
+    --danger: var(--print-ink);
+    --danger-text: var(--print-ink);
+    --warning: var(--print-ink);
+    --success: var(--print-ink);
+
+    /* Ability hues feed the 3px rule over each score tile *and* the
+       --hp-color / --ac-color / --temp-hp-color aliases declared on :root,
+       so one override covers the tile rules and the coloured stat values. */
+    --ability-str: var(--print-ink);
+    --ability-dex: var(--print-ink);
+    --ability-con: var(--print-ink);
+    --ability-int: var(--print-ink);
+    --ability-wis: var(--print-ink);
+    --ability-cha: var(--print-ink);
+
+    /* Shadows are background-adjacent; they print as a grey smudge. */
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+  }
+
+  /* ======================================================================
+     2. Page frame
+     ====================================================================== */
+
+  /* The screen gutter is already the @page margin, so the app's own padding
+     only eats into the printable area. */
+  .app-main {
+    padding: 0;
+    max-width: none;
+  }
+
+  /* In paged media `100vh` is one page tall; left in place it can shove a
+     blank second page behind short content. */
+  .app-shell {
+    min-height: 0;
+  }
+
+  body {
+    line-height: 1.45;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* ======================================================================
+     3. Masthead — the character's name and level read first
+     ====================================================================== */
+
+  .page-head {
+    padding-bottom: var(--space-2);
+    border-bottom: 2px solid var(--text);
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  .page-title {
+    font-size: var(--text-3xl);
+  }
+
+  /* Level / class / background line gets body size so "Level 3 …" is read
+     as part of the title, not as a caption. */
+  .page-subtitle {
+    font-size: var(--text-base);
+  }
+
+  /* ======================================================================
+     4. Interactive chrome
+     ====================================================================== */
+
+  /* Whole header: brand, primary nav, and the density / accent / colour-mode
+     pickers all live inside it. Also the page-level action row (Level up,
+     Edit, Export JSON), every button and button-styled link app-wide, the
+     +/- halves of every number stepper, the roster's row actions / avatar /
+     filter, the transient notice banners (persistent character notes live in
+     .sheet-warnings and print), the delete dialog, and the loading
+     placeholder. */
+  .app-header,
+  .page-actions,
+  .btn,
+  .step-btn,
+  .roster-actions,
+  .roster-avatar,
+  .roster-filter,
+  .banner,
+  .modal-backdrop,
+  .roster-loading {
+    display: none;
+  }
+
+  /* Sheet-only editing surfaces.
+       .sheet-hp-quick   — the −5 / −1 / Full heal / +1 / +5 row
+       .sheet-hp-fields  — current, temporary, flat bonus, max override. The
+                           HP itself survives twice over: the current/max
+                           figure above, and the Combat card's hit point tile.
+       .sheet-hp-reset   — "use the calculated maximum" action
+       .sheet-inv-add    — the whole add-item picker (search, category,
+                           result list): not character data
+       .sheet-hp-bar     — the gauge duplicates the figure and the tile, and
+                           its fill is the last accent-coloured block left
+       .sheet-inv > .sheet-hint — screen copy that points at the Add item
+                           button hidden just above */
+  .sheet-hp-quick,
+  .sheet-hp-fields,
+  .sheet-hp-reset,
+  .sheet-inv-add,
+  .sheet-hp-bar,
+  .sheet-inv > .sheet-hint {
+    display: none;
+  }
+
+  /* ======================================================================
+     5. Things that print, but were drawn for a screen
+     ====================================================================== */
+
+  /* The skills list draws its separators as a background showing through a
+     1px grid gap. Browsers skip backgrounds in print by default, so the rows
+     would run together into one grey block — draw the rules instead, and
+     they print whether or not "Background graphics" is ticked. */
+  .sheet-skills {
+    gap: 0;
+    background-color: transparent;
+  }
+
+  .sheet-skill {
+    background-color: transparent;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sheet-skill:last-child {
+    border-bottom: none;
+  }
+
+  /* Same trick, same fix, for the three coin cells. */
+  .sheet-coins-display {
+    gap: 0;
+    background-color: transparent;
+  }
+
+  .sheet-coins-cell {
+    background-color: transparent;
+    border-right: 1px solid var(--border);
+  }
+
+  .sheet-coins-cell:last-child {
+    border-right: none;
+  }
+
+  /* The one fill worth its toner: a section title sitting on a tint above a
+     hairline reads as a heading rather than as one more line of body text.
+     --print-fill is a ~6% warm tint, so it separates without darkening the
+     page. `print-color-adjust` opts this single element in when the browser
+     is suppressing backgrounds; if a browser ignores it, the head simply
+     falls back to white + hairline and still reads correctly. */
+  .card-head {
+    background-color: var(--print-fill);
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Saving throws: proficient saves keep the solid ink rule, unproficient
+     ones drop to the quiet hairline, so the two never depend on the (now
+     monochrome) success hue to tell them apart. The word "Proficient" is
+     already printed by the tag. */
+  .sheet-save--plain {
+    border-left-color: var(--border);
+  }
+
+  /* .tag--solid paints its level chip with the accent and sets the accent's
+     contrast colour as the text. With backgrounds suppressed that is
+     white-on-white, so the chip prints outlined instead. */
+  .tag--solid {
+    background-color: transparent;
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  /* Controls that do carry data are stripped back to plain text: no box, no
+     fill, no chrome. The coin values in .sheet-coins-fields are the reason
+     this rule exists — that block is the *other* rendering of the coin purse
+     (it swaps with .sheet-coins-display while the editor is open), so hiding
+     it would drop coins from a sheet printed mid-edit. */
+  .input {
+    min-height: 0;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: var(--text);
+    text-align: left;
+  }
+
+  /* Carried quantity: the stepper is gone, so the count needs a mark of its
+     own — a bare "2" beside a meta line that already ends in "2 lb" reads
+     as weight. */
+  .sheet-inv-qty {
+    width: auto;
+  }
+
+  .sheet-inv-qty .number-input {
+    width: auto;
+  }
+
+  .sheet-inv-qty .input {
+    flex: none;
+    width: 3rem;
+  }
+
+  .sheet-inv-qty::before {
+    content: '×';
+    margin-right: 0.1rem;
+    color: var(--text-muted);
+  }
+
+  /* Equip / attune state is character data, so the checkboxes stay — but a
+     native checked box paints its tick with a background, which the default
+     print pass drops. Force this 16px control (and only this one) so the
+     state survives; the bold label next to it is the fallback either way. */
+  .sheet-inv-toggle input {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* ======================================================================
+     6. Pagination
+     ====================================================================== */
+
+  /* The sheet keeps two columns on paper. At @page 14mm the printable width
+     is ~710px (Letter) / ~688px (A4), which would otherwise trip
+     sheet.css's `max-width: 900px` rule and collapse to one very wide
+     column at ~90 characters a line. This file is imported last, so this
+     wins the tie and the measure stays ~45 characters per column — which is
+     also why .sheet-stats and .sheet-abilities are forced to stay whole
+     below: grid fragmentation is only ever asked to split between rows. */
+  .sheet-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  /* Headings and the strips that act as headings never end a page. */
+  h1,
+  h2,
+  h3,
+  .card-head,
+  .divider,
+  .sheet-coins-head,
+  .sheet-warnings-head,
+  .create-list-title {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+
+  /* Atomic units: one row, one score, one spell, one item — never split. */
+  .sheet-stat,
+  .sheet-ability,
+  .sheet-save,
+  .sheet-skill,
+  .sheet-slot,
+  .sheet-breakdown-row,
+  .sheet-feature,
+  .sheet-spell-pick,
+  .sheet-inv-row,
+  .sheet-coins-cell,
+  .sheet-equip-package,
+  .sheet-subclass,
+  .sheet-inv-cap,
+  .roster-row {
+    break-inside: avoid;
+  }
+
+  /* Blocks that only make sense whole. Each is far shorter than a page, so
+     `avoid` costs no whitespace — unlike putting it on the tall lists
+     (.sheet-skills, .sheet-features, .sheet-inv-list), which would only
+     push a whole card to the next page and leave a hole behind it. */
+  .sheet-stats,
+  .sheet-abilities,
+  .sheet-coins-display,
+  .sheet-hp-track {
+    break-inside: avoid;
+  }
+
+  /* An inventory group's heading stays with the rows it introduces — this is
+     the one place `break-before: avoid` is the right tool, because the list
+     is what must not start a page on its own.
+     Deliberately absent: any `break-before: page` on the major sections.
+     The sheet is already two columns, and a forced break inside a column
+     produces a half-empty page; every section instead keeps the default
+     `break-before: auto`, so a card that does not fit is free to start the
+     next page cleanly rather than being squeezed into the last two lines of
+     this one. */
+  .sheet-inv-list {
+    break-before: avoid;
+  }
+}
