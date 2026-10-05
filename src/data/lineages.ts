@@ -10,10 +10,49 @@ import type { AbilityKey, SpeciesLineageId } from '../types/character';
  *  - grants another spell at level 3 and one more at level 5
  *  - lets the player choose their spellcasting ability (Int, Wis or Cha)
  *
- * Lineage spells are cast without spending a spell slot and do not count toward
- * the number of spells a class learns. They live in the same spell list as
- * class spells, tagged so the sheet can say where each one came from.
+ * Lineage spells are always prepared. Each can be cast once without a spell
+ * slot, and that ability is regained on a Long Rest. They can also be cast
+ * using spell slots of the appropriate level. They do not count toward the
+ * number of spells a class learns. They live in the same spell list as class
+ * spells, tagged so the sheet can say where each one came from.
  */
+
+/**
+ * Spells a species grants to every member, independent of any lineage choice.
+ *
+ * Unlike lineage grants, these are not a player choice — they apply to the
+ * whole species. Tiefling is the only 2024 species with such a grant:
+ * Thaumaturgy is granted by the Otherworldly Presence trait, which every
+ * tiefling has regardless of Fiendish Legacy.
+ *
+ * Keyed by SpeciesDef.id (e.g., 'tiefling').
+ */
+export const SPECIES_SPELL_GRANTS: Record<string, LineageGrant[]> = {
+  tiefling: [{ atLevel: 0, spellId: 'thaumaturgy' }],
+};
+
+/**
+ * Every species-wide spell a character has at a given level, oldest level first.
+ *
+ * Modelled on `lineageSpellsUpTo`: same return shape, same "skip unresolvable
+ * ids rather than emit a dangling id" behaviour, same early returns.
+ * Species-wide grants are a pure function of (speciesId, characterLevel) and
+ * require no persistence — unlike lineageSpellIds, which is stored because
+ * level-up writes it.
+ */
+export function speciesSpellGrantsUpTo(
+  speciesId: string | undefined,
+  characterLevel: number,
+  resolve: (spellId: string) => { name: string; level: number } | null,
+): { spellId: string; name: string; level: number; grantedAt: number }[] {
+  if (!speciesId) return [];
+  const grants = SPECIES_SPELL_GRANTS[speciesId];
+  if (!grants) return [];
+  return grants
+    .filter((g) => g.atLevel <= characterLevel)
+    .map((g) => ({ spellId: g.spellId, grantedAt: g.atLevel, ...resolve(g.spellId) }))
+    .filter((g): g is { spellId: string; name: string; level: number; grantedAt: number } => g.name != null);
+}
 
 export interface LineageGrant {
   /** Character level at which this spell is added. Cantrips are level 0. */

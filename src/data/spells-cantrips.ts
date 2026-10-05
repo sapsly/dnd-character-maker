@@ -303,7 +303,7 @@ export const SPELL_CANTRIPS: SpellDef[] = [
     description:
       'Choose a creature within range that has 0 hit points and isn\'t dead. The creature becomes stable.',
   },
-  {
+{
     id: 'thaumaturgy',
     name: 'Thaumaturgy',
     level: 0,
@@ -314,6 +314,7 @@ export const SPELL_CANTRIPS: SpellDef[] = [
     duration: 'Up to 1 minute',
     concentration: false,
     classes: ['cleric'],
+    speciesGrants: ['tiefling'],
     description:
       'You create a minor wonder: alter your eyes, boom your voice, manipulate flames, open/shut a door, create a sound, or cause tremors.',
   },

@@ -209,8 +209,9 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
               <Divider label="Lineage" />
               <p className="create-note">
                 {species?.name ?? state.speciesId} picks one of these instead of a fixed spell
-                list. The spells a lineage grants appear in the Spells step tagged "Race", and are
-                cast without spending a spell slot.
+                list. The spells a lineage grants appear in the Spells step tagged "Race". Each is
+                always prepared and can be cast once without a spell slot (regained on a Long Rest),
+                or using a spell slot.
               </p>
               <div
                 className="create-choices create-choices--lineage"
@@ -832,6 +833,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                       <SpellPicker
                         classId={classDef.id}
                         lineageId={state.lineageId}
+                        speciesId={state.speciesId}
+                        characterLevel={1}
                         minLevel={0}
                         maxLevel={0}
                         count={cantripCount}
@@ -841,6 +844,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                         hint={`Select ${cantripCount} cantrip${cantripCount === 1 ? '' : 's'} from the ${classDef.name} spell list.${
                           selectedLineage
                             ? ` Spells tagged "Race" come from your ${selectedLineage.name} lineage.`
+                            : state.speciesId === 'tiefling'
+                            ? ` Spells tagged "Race" come from your species (Tiefling grants Thaumaturgy).`
                             : ''
                         }`}
                       />
@@ -849,6 +854,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                       <SpellPicker
                         classId={classDef.id}
                         lineageId={state.lineageId}
+                        speciesId={state.speciesId}
+                        characterLevel={1}
                         minLevel={1}
                         maxLevel={maxSpellLevel}
                         count={spellCount}
@@ -860,6 +867,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                         hint={`Select ${spellCount} 1st-level spell${spellCount === 1 ? '' : 's'} to ${spellKind}.${
                           selectedLineage
                             ? ` Spells tagged "Race" come from your ${selectedLineage.name} lineage.`
+                            : state.speciesId === 'tiefling'
+                            ? ` Spells tagged "Race" come from your species (Tiefling grants Thaumaturgy).`
                             : ''
                         }`}
                       />

@@ -504,11 +504,26 @@ export interface SpellDef {
    * Species lineages that grant this spell, as `SpeciesLineageId` values.
    *
    * A 2024 lineage grant is NOT a class feature: the spell is added to the
-   * character's list at a fixed level and is cast without spending a slot. It
-   * is kept out of `classes` deliberately so the class spell pools stay honest,
-   * then surfaced alongside class spells with a source tag in the UI.
+   * character's list at a fixed level. It is always prepared and can be cast
+   * once without a spell slot (regained on a Long Rest), or using a spell slot
+   * of the appropriate level. It is kept out of `classes` deliberately so the
+   * class spell pools stay honest, then surfaced alongside class spells with a
+   * source tag in the UI.
    */
   speciesLineages?: SpeciesLineageId[];
+
+  /**
+   * Species (by `SpeciesDef.id`) that grant this spell to EVERY member,
+   * regardless of lineage choice.
+   *
+   * This is distinct from `speciesLineages`: a lineage grant is tied to a
+   * player's choice of lineage (e.g., High Elf), while a species grant applies
+   * to the whole species (e.g., Thaumaturgy for every Tiefling via the
+   * Otherworldly Presence trait). The spell is always prepared and can be cast
+   * once without a spell slot (regained on a Long Rest), or using a spell slot
+   * of the appropriate level.
+   */
+  speciesGrants?: string[];
   description: string;
 }
 
@@ -740,6 +755,17 @@ export interface Character {
    * field existed keep loading.
    */
   lineageSpellIds?: Record<number, SpellKey[]>;
+
+  /**
+   * The ability the player chose for casting lineage spells (Int, Wis or Cha).
+   *
+   * 2024 lets Elf, Gnome and Tiefling pick their spellcasting ability
+   * independently of their class casting ability. The lineage definition lists
+   * the legal options (always Int/Wis/Cha). `null` or absent means the player
+   * never made the choice — this keeps characters saved before this field
+   * existed loading without a forced default.
+   */
+  lineageSpellcastingAbility?: AbilityKey | null;
 
   abilityScoreMethod: AbilityScoreMethod;
   /**

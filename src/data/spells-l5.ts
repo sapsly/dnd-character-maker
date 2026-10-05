@@ -55,19 +55,6 @@ export const SPELLS_L5: SpellDef[] = [
     description: 'A blast of cold air erupts from your hands; each creature in the cone makes a Constitution save, taking 8d8 cold on failure or half on success.',
   },
   {
-    id: 'conjure-volley',
-    name: 'Conjure Volley',
-    level: 5,
-    school: 'Conjuration',
-    castingTime: '1 action',
-    range: 'Self (80-foot cone)',
-    components: { verbal: true, somatic: true, material: false, ritual: false },
-    duration: 'Instantaneous',
-    concentration: false,
-    classes: ['ranger'],
-    description: 'Eight spectral arrows streak into a 60-foot cone. Each creature there makes a Dexterity save, taking 8d8 damage on a failure.',
-  },
-  {
     id: 'contact-other-plane',
     name: 'Contact Other Plane',
     level: 5,
@@ -142,7 +129,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: false, ritual: false },
     duration: 'Instantaneous',
     concentration: false,
-    classes: ['paladin', 'sorcerer', 'wizard'],
+    classes: ['sorcerer', 'wizard'],
     description: 'A column of flame erupts in a 10-foot radius. An affected creature takes 4d6 fire and 4d6 radiant damage.',
   },
   {
@@ -168,7 +155,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: true, materialText: 'diamond dust worth 100 gp', ritual: false },
     duration: 'Instantaneous',
     concentration: false,
-    classes: ['bard', 'cleric', 'druid', 'ranger'],
+    classes: ['bard', 'cleric', 'druid', 'ranger', 'paladin'],
     description: 'You end one effect on a creature: reduce exhaustion by 1, end charm/petrification/curse, restore an ability score reduced by a spell, or restore one level lost to energy drain.',
   },
   {
@@ -181,7 +168,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: false, ritual: false },
     duration: 'Concentration, up to 1 minute',
     concentration: true,
-    classes: ['bard', 'sorcerer', 'warlock', 'wizard', 'ranger', 'paladin'],
+    classes: ['bard', 'sorcerer', 'warlock', 'wizard'],
     description: 'A creature you can see makes a Wisdom save; on failure it is paralyzed. At the end of each turn, it repeats the save. Undead are immune.',
   },
   {
@@ -207,7 +194,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: false, ritual: false },
     duration: 'Instantaneous',
     concentration: false,
-    classes: ['bard', 'cleric', 'druid', 'ranger', 'paladin'],
+    classes: ['bard', 'cleric', 'druid'],
     description: 'Up to six creatures in a 30-foot radius regain 3d8 plus your spellcasting ability modifier hit points.',
   },
   {
@@ -285,7 +272,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: false, ritual: false },
     duration: '8 hours',
     concentration: false,
-    classes: ['bard', 'sorcerer', 'wizard', 'ranger'],
+    classes: ['bard', 'sorcerer', 'wizard'],
     description: 'You change the appearance of any number of creatures in range; you can make them look 1 foot taller or shorter and change their features, but body type remains.',
   },
   {
@@ -298,7 +285,7 @@ export const SPELLS_L5: SpellDef[] = [
     components: { verbal: true, somatic: true, material: false, ritual: false },
     duration: '10 minutes',
     concentration: true,
-    classes: ['ranger', 'sorcerer', 'wizard'],
+    classes: ['sorcerer', 'wizard'],
     description: 'Move or manipulate an unattended object or a willing creature you can see, moving it up to 30 feet each of your turns.',
   },
   {

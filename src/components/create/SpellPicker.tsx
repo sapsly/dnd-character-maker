@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { SpellDef, SpeciesLineageId } from '../../types/character'
 import { SPELLS, spellsForClass } from '../../data/spells'
+import { speciesSpellGrantsUpTo } from '../../data/lineages'
 import { Card } from '../ui/Card'
 import { Field } from '../ui/Field'
 import { Select } from '../ui/Select'
@@ -24,10 +25,19 @@ export interface SpellPickerProps {
    * the player can see where each spell came from.
    */
   lineageId?: SpeciesLineageId
+  /**
+   * Species ID (matching `SpeciesDef.id`) whose species-wide grants join the
+   * pool. Matches against `SpellDef.speciesGrants` — distinct from
+   * `lineageId` because a species grant applies to every member of the species
+   * (e.g., Tiefling Thaumaturgy), not just a lineage choice.
+   */
+  speciesId?: string
   /** Minimum spell level to show (0 = cantrips, 1 = 1st level, etc.) */
   minLevel?: number
   /** Maximum spell level to show */
   maxLevel?: number
+  /** Character level for species-wide grants (default 1, used during creation) */
+  characterLevel?: number
   /** Spell ids to hide — used to keep a filled pool from offering the same spell twice */
   excludeIds?: string[]
   /** Number of spells the player must pick */
@@ -95,8 +105,10 @@ export function SpellPicker({
   classId,
   classIds,
   lineageId,
+  speciesId,
   minLevel = 0,
   maxLevel = 9,
+  characterLevel = 1,
   excludeIds,
   count,
   pickedIds,
@@ -131,11 +143,27 @@ export function SpellPicker({
         SPELLS.filter((s) => s.speciesLineages?.includes(lineageId) && !inPool.has(s.id)),
       )
     }
+    // Species-wide grants (e.g., Tiefling Thaumaturgy) also join the pool.
+    // Matched via `SpellDef.speciesGrants` keyed by SpeciesDef.id.
+    if (speciesId) {
+      const inPool = new Set(spells.map((s) => s.id))
+      const speciesGrantIds = speciesSpellGrantsUpTo(
+        speciesId,
+        characterLevel,
+        (spellId) => {
+          const spell = SPELLS.find((s) => s.id === spellId)
+          return spell ? { name: spell.name, level: spell.level } : null
+        },
+      ).map((g) => g.spellId)
+      spells = spells.concat(
+        SPELLS.filter((s) => speciesGrantIds.includes(s.id) && !inPool.has(s.id)),
+      )
+    }
     const excluded = excludeIds && excludeIds.length > 0 ? new Set(excludeIds) : null
     return spells.filter(
       (s) => s.level >= minLevel && s.level <= maxLevel && !(excluded && excluded.has(s.id))
     )
-  }, [classId, classIds, lineageId, excludeIds, minLevel, maxLevel])
+  }, [classId, classIds, lineageId, speciesId, characterLevel, excludeIds, minLevel, maxLevel])
 
   const filteredSpells = useMemo((): SpellDef[] => {
     let result = candidateSpells
@@ -236,27 +264,33 @@ export function SpellPicker({
             const isPicked = pickedIds.includes(spell.id)
             const disabled = isAtLimit && !isPicked
 
-            // Source label, only meaningful once a lineage is in play. A spell
-            // both granted by the lineage and on the class list (e.g.
+            // Source label, only meaningful once a lineage or species is in play. A spell
+            // both granted by the lineage/species and on the class list (e.g.
             // Prestidigitation for a High Elf wizard) is credited to the race,
             // with the tag title carrying the "and your class list too" nuance.
             let sourceLabel: string | null = null
             let sourceTone: 'accent' | 'muted' = 'muted'
             let sourceTitle: string | undefined
-            if (lineageId) {
-              const inLineage = spell.speciesLineages?.includes(lineageId) ?? false
-              const inClass = onClassList(spell, classId, classIds)
-              if (inLineage) {
-                sourceLabel = 'Race'
-                sourceTone = 'accent'
+            const inLineage = lineageId ? spell.speciesLineages?.includes(lineageId) ?? false : false
+            const inSpecies = speciesId ? spell.speciesGrants?.includes(speciesId) ?? false : false
+            const inClass = onClassList(spell, classId, classIds)
+            if (inLineage || inSpecies) {
+              const isSpeciesGrant = inSpecies && !inLineage // species-only grant (e.g., Tiefling Thaumaturgy)
+              sourceLabel = 'Race'
+              sourceTone = 'accent'
+              if (isSpeciesGrant) {
+                sourceTitle = inClass
+                  ? 'Granted by your species — also on your class spell list.'
+                  : 'Granted by your species, not on your class spell list.'
+              } else {
                 sourceTitle = inClass
                   ? 'Granted by your lineage — also on your class spell list.'
                   : 'Granted by your lineage, not on your class spell list.'
-              } else if (inClass) {
-                sourceLabel = 'Class'
-                sourceTone = 'muted'
-                sourceTitle = 'On your class spell list.'
               }
+            } else if (inClass) {
+              sourceLabel = 'Class'
+              sourceTone = 'muted'
+              sourceTitle = 'On your class spell list.'
             }
 
             return (

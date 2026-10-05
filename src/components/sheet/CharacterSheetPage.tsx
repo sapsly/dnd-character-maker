@@ -32,7 +32,7 @@ import {
 import { skillName } from '../../lib/rules/skillList'
 import { subclassSpellGrants } from '../../lib/rules/subclassPicks'
 import { getSpell } from '../../data/spells'
-import { LINEAGES_BY_ID } from '../../data/lineages'
+import { LINEAGES_BY_ID, speciesSpellGrantsUpTo } from '../../data/lineages'
 import { getTool } from '../../data/tools'
 import { ARMOR, GEAR, WEAPONS } from '../../data/equipment'
 import { normalizeCoinPurse } from '../../lib/coins'
@@ -540,27 +540,30 @@ function SpellcastingBlock({
 }
 
 /**
- * Spells a species lineage grants, listed alongside the class spells rather
- * than in a list of their own, because at the table you reach for both from the
- * same place.
+ * Spells a species grants — both species-wide (e.g., Tiefling Thaumaturgy) and
+ * lineage-specific (Elf/Gnome/Tiefling lineage choices) — listed alongside the
+ * class spells rather than in a list of their own, because at the table you
+ * reach for both from the same place.
  *
  * Source tagging matches the character-creation picker exactly: a lineage spell
- * is always `Race`, and the nuance (whether it is *also* on a class list, which
+ * is tagged "Race", and the nuance (whether it is *also* on a class list, which
  * happens for High Elf `prestidigitation` and both-lineage `darkness`) lives in
  * the tag's `title` since `Tag` takes no `aria-*` prop.
+ *
+ * Species-wide grants use the same visual treatment but the tooltip says
+ * "Granted by your species" instead of "Granted by your lineage".
  *
  * Cantrips keep their own section, per the same rule the class sections use.
  * No remove button: these are fixed grants, not picks, so there is nothing to
  * swap out and no replacement to free a slot for.
  */
 function LineageSpellsBlock({ derived }: { derived: DerivedCharacter }) {
+  const speciesId = derived.character.species.speciesId
   const lineageId = derived.character.species.lineageId
-  if (!lineageId) return null
-  const lineage = LINEAGES_BY_ID[lineageId]
-  if (!lineage) return null
 
+  // Collect lineage grants from the stored lineageSpellIds (written on level-up)
   const granted = derived.character.lineageSpellIds ?? {}
-  const rows = Object.entries(granted)
+  const lineageRows = Object.entries(granted)
     .map(([level, ids]) => ({
       level: Number(level),
       ids: Array.isArray(ids) ? ids : [],
@@ -568,17 +571,48 @@ function LineageSpellsBlock({ derived }: { derived: DerivedCharacter }) {
     .filter((row) => row.ids.length > 0)
     .sort((a, b) => a.level - b.level)
 
-  if (rows.length === 0) return null
+  // Collect species-wide grants (pure function of speciesId + level, no persistence)
+  const speciesGrants = speciesSpellGrantsUpTo(
+    speciesId,
+    derived.level,
+    (spellId) => {
+      const spell = getSpell(spellId)
+      return spell ? { name: spell.name, level: spell.level } : null
+    },
+  )
+
+  if (lineageRows.length === 0 && speciesGrants.length === 0) return null
 
   const classIds = new Set(derived.character.classes.map((entry) => entry.classId))
-  const cantripRow = rows.find((row) => row.level === 0)
-  const spellRows = rows.filter((row) => row.level > 0)
 
-  const renderRow = (spellId: string) => {
+  // Merge species-wide grants into the same level buckets as lineage grants
+  const mergedByLevel = new Map<number, { spellId: string; source: 'lineage' | 'species'; grantedAt: number }[]>()
+  for (const row of lineageRows) {
+    for (const spellId of row.ids) {
+      const bucket = mergedByLevel.get(row.level) ?? []
+      bucket.push({ spellId, source: 'lineage', grantedAt: row.level })
+      mergedByLevel.set(row.level, bucket)
+    }
+  }
+  for (const grant of speciesGrants) {
+    const bucket = mergedByLevel.get(grant.level) ?? []
+    bucket.push({ spellId: grant.spellId, source: 'species', grantedAt: grant.grantedAt })
+    mergedByLevel.set(grant.level, bucket)
+  }
+
+  const sortedLevels = Array.from(mergedByLevel.keys()).sort((a, b) => a - b)
+  const hasCantrips = mergedByLevel.has(0)
+
+  const renderRow = (spellId: string, source: 'lineage' | 'species') => {
     const spell = getSpell(spellId)
     const label = spell?.name ?? spellId
     const alsoOnClass = spell ? spell.classes.some((id) => classIds.has(id)) : false
-    const title = alsoOnClass
+    const isSpecies = source === 'species'
+    const title = isSpecies
+      ? alsoOnClass
+        ? 'Granted by your species — also on your class spell list.'
+        : 'Granted by your species — not on your class spell list.'
+      : alsoOnClass
       ? 'Granted by your lineage — also on your class spell list.'
       : 'Granted by your lineage — not on your class spell list.'
     return (
@@ -598,43 +632,53 @@ function LineageSpellsBlock({ derived }: { derived: DerivedCharacter }) {
     )
   }
 
+  const lineage = lineageId ? LINEAGES_BY_ID[lineageId] : null
+
   return (
     <Card
-      title="Lineage spells"
+      title="Species spells"
       className="sheet-card"
-      actions={<Tag tone="accent">{lineage.name}</Tag>}
+      actions={lineage ? <Tag tone="accent">{lineage.name}</Tag> : null}
     >
       <p className="sheet-hint">
-        Granted by your species lineage. These are cast without expending a spell slot, so they
-        never count against your prepared spells and cannot be swapped out.
+        Granted by your species. Each spell is always prepared and can be cast once without a
+        spell slot (regained on a Long Rest). You can also cast it using a spell slot of the
+        appropriate level. These spells never count against your prepared spells and cannot be
+        swapped out.
       </p>
 
-      {lineage.summary ? <p className="sheet-species-desc">{lineage.summary}</p> : null}
-      {lineage.bonusTrait ? (
+      {lineage?.summary ? <p className="sheet-species-desc">{lineage.summary}</p> : null}
+      {lineage?.bonusTrait ? (
         <>
           <Divider label="Bonus trait" />
           <p className="sheet-feature-name">{lineage.bonusTrait}</p>
         </>
       ) : null}
 
-      {cantripRow ? (
+      {hasCantrips ? (
         <>
           <Divider label="Cantrips" />
-          <ul className="sheet-features">{cantripRow.ids.map(renderRow)}</ul>
+          <ul className="sheet-features">
+            {mergedByLevel.get(0)!.map((g) => renderRow(g.spellId, g.source))}
+          </ul>
         </>
       ) : null}
 
-      {spellRows.map((row) => (
-        <div key={row.level} className="sheet-subclass-spells">
-          <p
-            className="create-list-title"
-            style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-1)' }}
-          >
-            Level {row.level} Spells ({row.ids.length})
-          </p>
-          <ul className="sheet-features">{row.ids.map(renderRow)}</ul>
-        </div>
-      ))}
+      {sortedLevels
+        .filter((level) => level > 0)
+        .map((level) => (
+          <div key={level} className="sheet-subclass-spells">
+            <p
+              className="create-list-title"
+              style={{ marginTop: 'var(--space-2)', marginBottom: 'var(--space-1)' }}
+            >
+              Level {level} Spells ({mergedByLevel.get(level)!.length})
+            </p>
+            <ul className="sheet-features">
+              {mergedByLevel.get(level)!.map((g) => renderRow(g.spellId, g.source))}
+            </ul>
+          </div>
+        ))}
     </Card>
   )
 }

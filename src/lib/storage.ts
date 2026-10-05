@@ -1,5 +1,6 @@
-import { APP_ID, SCHEMA_VERSION } from '../types/character';
+import { APP_ID, ABILITY_KEYS, SCHEMA_VERSION } from '../types/character';
 import type {
+  AbilityKey,
   Character,
   CharacterFile,
   CharacterFileInput,
@@ -90,6 +91,15 @@ function normalizeLineageSpellIds(value: unknown): Record<number, SpellKey[]> {
 }
 
 /**
+ * True when `value` is one of the six ability keys. Used to validate the
+ * lineage spellcasting ability on read, so a stale or hand-edited save cannot
+ * put an illegal ability on the sheet.
+ */
+function isAbilityKey(value: unknown): value is AbilityKey {
+  return typeof value === 'string' && ABILITY_KEYS.includes(value as AbilityKey);
+}
+
+/**
  * Normalizes a character loaded from storage, ensuring all optional fields
  * introduced after the initial schema have safe defaults. This is the single
  * migration path — call it once after parsing so the rest of the app never
@@ -115,6 +125,13 @@ function normalizeCharacter(c: Character): Character {
   // Lineage spells: absent for pre-lineage saves, so default to `{}` rather than
   // leaving `undefined` for the sheet and the level-up hook to each guard.
   const lineageSpellIds = normalizeLineageSpellIds(c.lineageSpellIds);
+  // Lineage casting ability: `null` means "never chose", which is also what a
+  // character saved before this field existed normalizes to. A stale or
+  // hand-edited value is dropped rather than trusted, the same way a bad accent
+  // id is dropped, so the sheet never renders an ability the game rules forbid.
+  const lineageSpellcastingAbility = isAbilityKey(c.lineageSpellcastingAbility)
+    ? c.lineageSpellcastingAbility
+    : null;
   return {
     ...c,
     coins,
@@ -123,6 +140,7 @@ function normalizeCharacter(c: Character): Character {
     background,
     classes,
     lineageSpellIds,
+    lineageSpellcastingAbility,
   };
 }
 
