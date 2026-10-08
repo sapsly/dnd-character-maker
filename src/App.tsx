@@ -5,9 +5,11 @@ import CharacterSheetPage from './components/sheet/CharacterSheetPage'
 import LevelUpPage from './components/levelup/LevelUpPage'
 import CreateCharacterPage from './components/create/CreateCharacterPage'
 import EditCharacterPage from './components/create/EditCharacterPage'
+import CompendiumPage from './components/compendium/CompendiumPage'
 import { DensityToggle } from './components/ui/DensityToggle'
 import { AccentPicker } from './components/ui/AccentPicker'
 import { ThemeModePicker } from './components/ui/ThemeModePicker'
+import { SkinPicker } from './components/ui/SkinPicker'
 
 function NotFoundPage() {
   return (
@@ -55,10 +57,22 @@ function AppShell() {
               >
                 Roster
               </NavLink>
+              <NavLink
+                to="/compendium"
+                className={({ isActive }) => (isActive ? 'nav-link is-active' : 'nav-link')}
+              >
+                Compendium
+              </NavLink>
             </nav>
-            <DensityToggle label="Layout density" />
-            <AccentPicker label="Accent colour" />
-            <ThemeModePicker label="Colour mode" />
+            <div className="app-header-settings">
+              <DensityToggle label="Layout density" />
+              {/* Skin sets the world, accent picks the hue within it, mode sets
+                  the light — so skin sits next to accent, and the two controls
+                  the user learns together (accent/mode) never move apart. */}
+              <SkinPicker label="Visual style" />
+              <AccentPicker label="Accent colour" />
+              <ThemeModePicker label="Colour mode" />
+            </div>
           </div>
         </div>
       </header>
@@ -66,6 +80,7 @@ function AppShell() {
       <main className="app-main">
         <Routes>
           <Route path="/" element={<RosterPage />} />
+          <Route path="/compendium" element={<CompendiumPage />} />
           <Route path="/create" element={<CreateCharacterPage />} />
           <Route path="/character/:id/edit" element={<EditCharacterPage />} />
           <Route path="/character/:id" element={<CharacterSheetPage />} />

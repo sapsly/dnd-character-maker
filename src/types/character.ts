@@ -191,6 +191,8 @@ export interface FeatDef {
   /** True when the feat is legal as a species feat or Origin Feat. */
   usableAsOriginFeat?: boolean;
   source?: 'general' | 'origin' | 'species' | 'item';
+  /** Wiki feat category (the /feat:all sections); used for compendium grouping. */
+  category?: 'origin' | 'general' | 'fighting-style' | 'epic-boon' | 'dragonmark' | 'planar-pact' | 'dark-gift';
 }
 
 /**
@@ -219,20 +221,20 @@ export interface BackgroundDef {
   id: string;
   name: string;
   /**
-   * Which book this background's text came from.
-   *
-   * 'srd' entries are verified line-by-line against the SRD 5.2 document in
-   * srd/character-origins.md. 'phb' entries are transcribed from the 2024
-   * Player's Handbook, which is a broader source than the SRD, and are shown
-   * with a badge in the UI so the distinction is never hidden from the player.
+   * Where this background's text came from, matching the tab grouping on
+   * dnd2024.wikidot.com ("Backgrounds - D&D 5e (2024)"):
+   *  - 'srd' = the 4 SRD 5.2 free-rules backgrounds (acolyte, criminal, sage, soldier)
+   *  - 'phb' = the 12 other Common-tab backgrounds from the 2024 Player's Handbook
+   *  - 'eberron' / 'faerun' / 'ravenloft' / 'arcana-unleashed' / 'exotic' = the
+   *    site's other tabs (shown with the same badge mechanism in the UI).
    */
-  source: 'srd' | 'phb';
+  source: 'srd' | 'phb' | 'eberron' | 'faerun' | 'ravenloft' | 'arcana-unleashed' | 'exotic';
   /**
-   * Slug of the granted Origin feat. Resolves against `FEATS` only for the four
-   * Origin feats the SRD catalog carries (alert, magic-initiate, savage-attacker,
-   * skilled); the other PHB Origin feats use canonical slugs that are not in
-   * the catalog yet, so `originFeatName`/`originFeatDescription` below are the
-   * authoritative display source and must not be derived from this lookup.
+   * Slug of the granted Origin feat when the background names one; resolvable in
+   * FEATS. A background offering an open choice of feats ("a Dark Gift feat of
+   * your choice", "a Planar Pact feat of your choice") has '' here, with the
+   * whole choice line as originFeatName + originFeatDescription.
+   * originFeatName/originFeatDescription are always the authoritative display.
    */
   originFeatId: FeatKey;
   /** Display name, including the class variant for Magic Initiate. */
@@ -253,9 +255,10 @@ export interface BackgroundDef {
   /**
    * Machine-readable category for toolChoices, so the creation wizard knows
    * which catalog to offer. Only used when toolChoiceCount > 0.
-   * 'artisansTools' = one of the 17 artisan tools; 'gamingSet' = one of the 4 gaming sets.
+   * 'artisansTools' = one of the 17 artisan tools; 'gamingSet' = one of the 4 gaming sets;
+   * 'musicalInstrument' = one of the musical instruments.
    */
-  toolChoiceCategory?: 'artisansTools' | 'gamingSet';
+  toolChoiceCategory?: 'artisansTools' | 'gamingSet' | 'musicalInstrument';
   description: string;
 }
 
@@ -463,17 +466,20 @@ export interface ItemDef {
 /**
  * Species that grant spells pick a lineage instead of a single fixed list.
  *
- * In 2024 Elf, Gnome and Tiefling each offer three lineages. The choice sets a
- * signature cantrip, adds spells at levels 3 and 5, and lets the player pick
- * their spellcasting ability (Int, Wis or Cha). The union is closed on
- * purpose so a typo is a compile error rather than a spell that silently never
- * appears in the picker.
+ * In 2024 Elf, Gnome and Tiefling each offer a set of lineages (Elf: five,
+ * including the Lorwyn and Shadowmoor variants; Gnome and Tiefling: three).
+ * The choice sets a signature cantrip, (for Elf/Tiefling) adds spells at
+ * levels 3 and 5, and lets the player pick their spellcasting ability (Int,
+ * Wis or Cha). The union is closed on purpose so a typo is a compile error
+ * rather than a spell that silently never appears in the picker.
  */
 export type SpeciesLineageId =
   // Elf
   | 'elf-drow'
   | 'elf-high-elf'
   | 'elf-wood-elf'
+  | 'elf-lorwyn-elf'
+  | 'elf-shadowmoor-elf'
   // Gnome
   | 'gnome-forest-gnome'
   | 'gnome-rock-gnome'
@@ -747,9 +753,10 @@ export interface Character {
    * Spells granted by the character's species lineage (2024 PHB), by level.
    *
    * Deliberately its own field rather than folded into any `ClassEntry`'s
-   * `spellIdsPrepared`: a lineage spell is cast without expending a spell slot
-   * in 2024, so mixing the two would wrongly consume one of the character's
-   * prepared picks, and re-leveling must never duplicate a grant.
+   * `spellIdsPrepared`: a lineage spell is always prepared and can be cast once
+   * without a spell slot (regained on a Long Rest), or using a spell slot of
+   * the appropriate level. Mixing the two would wrongly consume one of the
+   * character's prepared picks, and re-leveling must never duplicate a grant.
    *
    * Optional and defaulted to `{}` on read so characters saved before this
    * field existed keep loading.

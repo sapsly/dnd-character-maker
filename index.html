@@ -37,6 +37,27 @@
         document.documentElement.setAttribute('data-theme', resolved)
       })()
     </script>
+    <!--
+      Skin pre-paint. Same pattern as colour mode: runs in <head> so `data-skin`
+      is on <html> before the first paint. Mirrors lib/skin.ts (same storage key,
+      same five values) with no bundle dependency. The default is `classic`,
+      matching DEFAULT_SKIN in skin.ts.
+    -->
+    <script>
+      (function () {
+        var KEY = 'dnd-character-manager.skin.v1'
+        var skin = 'classic'
+        try {
+          var stored = window.localStorage.getItem(KEY)
+          if (stored === 'classic' || stored === 'playful' || stored === 'brutalist' || stored === 'cozy' || stored === 'parchment') {
+            skin = stored
+          }
+        } catch (error) {
+          // Private mode, sandboxed iframe or a full quota: keep the default.
+        }
+        document.documentElement.setAttribute('data-skin', skin)
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

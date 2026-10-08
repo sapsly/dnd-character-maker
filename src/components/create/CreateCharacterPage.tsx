@@ -5,7 +5,7 @@ import { BACKGROUNDS } from '../../data/backgrounds'
 import { CLASSES } from '../../data/classes'
 import { skillName } from '../../lib/rules/skillList'
 import { getSpell } from '../../data/spells'
-import { ARTISAN_TOOLS, GAMING_SETS } from '../../data/tools'
+import { ARTISAN_TOOLS, GAMING_SETS, MUSICAL_INSTRUMENTS } from '../../data/tools'
 import { startingEquipmentFor } from '../../data/startingEquipment'
 import { lineagesForSpecies } from '../../data/lineages'
 import { Button } from '../ui/Button'
@@ -528,7 +528,9 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                           htmlFor="background-tool"
                           hint={background.toolChoiceCategory === 'artisansTools'
                             ? 'Choose one of the 17 Artisan\'s Tools (each is a separate proficiency).'
-                            : 'Choose one of the 4 Gaming Sets.'}
+                            : background.toolChoiceCategory === 'musicalInstrument'
+                              ? 'Choose one of the available Musical Instruments.'
+                              : 'Choose one of the 4 Gaming Sets.'}
                         >
                           <Select
                             id="background-tool"
@@ -540,7 +542,9 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                             {(() => {
                               const tools = background.toolChoiceCategory === 'artisansTools'
                                 ? ARTISAN_TOOLS
-                                : GAMING_SETS;
+                                : background.toolChoiceCategory === 'musicalInstrument'
+                                  ? MUSICAL_INSTRUMENTS
+                                  : GAMING_SETS;
                               return tools.map((tool) => (
                                 <option key={tool.id} value={tool.name}>
                                   {tool.name}

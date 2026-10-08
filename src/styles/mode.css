@@ -45,6 +45,11 @@
   --bg-elevated: #fbf8f0;
   --surface: #fffdf7;
   --surface-hover: #ece5d6;
+  /* Sunken ground: wells, progress tracks, readouts that sit *below* the
+     surface instead of above it. On light ladder this is a deeper, more
+     saturated parchment shade (consistent with how dark mode makes
+     --surface-sunken darker than --surface). */
+  --surface-sunken: #e8e0d0;
 
   /* Hairlines are held at >=3:1 against the lightest surface they can sit
      on, so inputs, secondary buttons and card edges stay identifiable —
@@ -52,12 +57,25 @@
      the other way. */
   --border: #857e6d;
   --border-strong: #645d4f;
+  /* One step softer than --border for hairline separators inside a surface.
+     ~3.2:1 against --surface (#fffdf7), sufficient for decorative dividers. */
+  --border-subtle: #a8a190;
 
   /* Text tiers, each >=4.5:1 on --bg, --bg-elevated, --surface and
      --surface-hover. */
   --text: #221e17;
+  /* Brightest tier: headline figures (HP current, coin amounts). Darker than
+     --text for maximum legibility on parchment. #1a1712 is 16.8:1 on
+     --surface, 15.9:1 on --bg. */
+  --text-strong: #1a1712;
   --text-muted: #565041;
   --text-faint: #6a6353;
+
+  /* Edges — the 1px dark seam along the top of a raised surface. On light
+     grounds these are subtle DARK seams (rgba of the ink colour), NOT white.
+     Alphas match dark mode (0.055 / 0.1) for perceptual parity. */
+  --edge: rgba(34, 30, 23, 0.055);
+  --edge-strong: rgba(34, 30, 23, 0.1);
 
   /* Accent trio default. This only applies in the window before
      `initAccent()` writes `data-accent`, and as the fallback for a missing

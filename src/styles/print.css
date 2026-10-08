@@ -144,7 +144,7 @@
 
   .page-head {
     padding-bottom: var(--space-2);
-    border-bottom: 2px solid var(--text);
+    border-bottom: var(--bw-2) solid var(--text);
     break-inside: avoid;
     break-after: avoid;
   }
@@ -219,7 +219,7 @@
 
   .sheet-skill {
     background-color: transparent;
-    border-bottom: 1px solid var(--border);
+    border-bottom: var(--bw) solid var(--border);
   }
 
   .sheet-skill:last-child {
@@ -234,7 +234,7 @@
 
   .sheet-coins-cell {
     background-color: transparent;
-    border-right: 1px solid var(--border);
+    border-right: var(--bw) solid var(--border);
   }
 
   .sheet-coins-cell:last-child {

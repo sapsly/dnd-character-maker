@@ -1,0 +1,706 @@
+/* ==========================================================================
+   Compendium — read-only rules reference
+   ==========================================================================
+
+   Two parts on the page: a sticky contents rail, then a full-width card list.
+   The entry itself is not in the layout — clicking a card opens it in a
+   floating dialog (`.compendium-modal`, a themed wrapper around the shared
+   `Modal`), so the list gets the whole column to itself.
+
+   Layout ladder:
+     60rem and up — rail beside the list
+     under 60rem  — the rail becomes a horizontal strip of chips
+
+   The dialog: medium box, accent rail down its left edge (the rule the inline
+   detail pane used to carry), scrollable body, and a backdrop that dims and
+   blurs the page behind it.
+   ========================================================================== */
+
+/* --- Page frame ---------------------------------------------------------- */
+
+.compendium-body {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+/* The only thing in this page's action slot is a count. Set as metadata —
+   mono, caps, tracked — rather than as a tag that looks like a control nobody
+   pressed. */
+.compendium-page .page-actions .tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  padding: 0.3rem var(--space-3);
+  border-radius: var(--radius-pill);
+  background-color: var(--bg-elevated);
+}
+
+.compendium-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+/* --- Contents rail ------------------------------------------------------- */
+
+.compendium-nav {
+  position: sticky;
+  top: 5rem;
+  max-height: calc(100vh - 6.5rem);
+  overflow-y: auto;
+  padding: var(--space-2);
+  background-color: var(--surface);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.compendium-nav-label {
+  margin: 0;
+  padding: var(--space-1) var(--space-3) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.compendium-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compendium-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background-color: transparent;
+  border: var(--bw) solid transparent;
+  border-left: var(--bw-thick) solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.compendium-nav-item:hover {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+
+/* The open section stays legible even when a sub-group carries the selection. */
+.compendium-nav-item.is-active {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Defined after `:hover` so the selected row keeps its accent under the
+   pointer. */
+.compendium-nav-item.is-selected,
+.compendium-nav-item.is-selected:hover {
+  background-color: var(--bg-elevated);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.compendium-nav-item.is-active .compendium-nav-count {
+  color: var(--accent);
+}
+
+.compendium-nav-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compendium-nav-count {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+
+.compendium-nav-sub {
+  list-style: none;
+  margin: 2px 0 var(--space-1) var(--space-3);
+  padding-left: var(--space-3);
+  border-left: var(--bw) solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compendium-nav-item--sub {
+  padding-left: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+/* --- Toolbar ------------------------------------------------------------- */
+
+/* The toolbar is a bar, not a floating field: the void to the right of a
+   lone 26rem input was the widest empty area on the page. Framing it gives
+   the column a third structural step — head, toolbar, list — and lets the
+   search take the width the column actually has. */
+.compendium-toolbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--surface);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--edge);
+}
+
+/* With the detail pane gone the toolbar spans the whole column, so the search
+   is capped only by the filters beside it — a field that grows with the bar
+   instead of stopping in mid-air. */
+.compendium-toolbar-search {
+  flex: 1 1 18rem;
+  min-width: 12rem;
+  max-width: 40rem;
+}
+
+.compendium-toolbar-facet {
+  flex: 0 1 10rem;
+  min-width: 8.5rem;
+}
+
+/* --- List card ----------------------------------------------------------- */
+
+.compendium-list-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.compendium-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-3);
+  display: grid;
+  /* auto-fill (not auto-fit) keeps the empty tracks when a filter leaves few
+     rows, so a short result set never stretches its cards across the column.
+     `min(…, 100%)` stops the floor from overflowing on narrow screens. */
+  grid-template-columns: repeat(auto-fill, minmax(min(14rem, 100%), 1fr));
+  /* Every row matches the tallest card in it, so the grid reads as one
+     repeated unit rather than a ragged stack. */
+  grid-auto-rows: 1fr;
+  gap: var(--space-3);
+}
+
+.compendium-card {
+  display: flex;
+  flex-direction: column;
+  /* Author value wins over the UA's button alignment, which would otherwise
+     let the nowrap name and meta line size themselves past the card. */
+  align-items: stretch;
+  gap: var(--space-1);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-3);
+  text-align: left;
+  background-color: var(--bg-elevated);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    background-color 140ms ease;
+}
+
+.compendium-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+/* Selected: accent border plus an accent rule down the left edge. */
+.compendium-card.is-selected {
+  background-color: var(--surface);
+  border-color: var(--accent);
+  box-shadow: inset 3px 0 0 var(--accent), var(--shadow-sm);
+}
+
+.compendium-card-name {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compendium-card.is-selected .compendium-card-name {
+  color: var(--accent);
+}
+
+.compendium-card-meta {
+  width: 100%;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compendium-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  /* Keeps the badge row on the card floor whatever the name length is. */
+  margin-top: auto;
+}
+
+.compendium-card-tag {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.compendium-tag-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Result footer ------------------------------------------------------- */
+
+.compendium-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--bw) solid var(--border);
+  background-color: var(--bg-elevated);
+}
+
+.compendium-more-text {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+/* The empty state sits inside the flush list card, so it needs its own ground
+   and inset — otherwise it shares the card's surface and disappears. */
+.compendium-list-card .compendium-empty {
+  margin: var(--space-4);
+  background-color: var(--bg-elevated);
+}
+
+/* --- Entry dialog -------------------------------------------------------- */
+
+/* The shared dialog, re-proportioned for reading: roomier than `.modal--md`'s
+   40rem, capped at 85vh so a rim of blurred page always frames it, and wearing
+   the accent rule the inline detail pane used to carry — same feature, now
+   floating. */
+.compendium-modal {
+  max-width: min(42rem, calc(100vw - 2rem));
+  max-height: 85vh;
+  border-left: var(--bw-thick) solid var(--accent);
+  border-radius: var(--radius-xl);
+  animation: compendium-modal-in 200ms cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+
+/* Dim plus blur. The dim is `.modal-backdrop`'s `--scrim`, so this only adds
+   the softening; browsers without `backdrop-filter` drop both declarations and
+   keep the plain scrim — the page still darkens, it just does not blur. */
+.compendium-backdrop {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: compendium-backdrop-in 160ms ease-out;
+}
+
+/* Entrance only — closing is an unmount, and the reduced-motion guard in
+   global.css already collapses every animation duration. */
+@keyframes compendium-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+
+@keyframes compendium-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Inside the dialog the detail card stops being a pane: no frame of its own
+   (the dialog supplies the box, the accent rail and the scrolling) and no
+   sticky or inner scroll, both of which would fight `.modal-body`. */
+.compendium-modal .compendium-detail-card {
+  position: static;
+  max-height: none;
+  overflow: visible;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Content lines up with the dialog head instead of taking a second inset. */
+.compendium-modal .compendium-detail-card > .card-body {
+  padding: 0;
+}
+
+/* The dialog head already carries the entry name and the dialog's accessible
+   name points at it — a second title underneath would only repeat it. Kicker
+   and badges below stay. */
+.compendium-modal .compendium-detail-title {
+  display: none;
+}
+
+/* --- Detail head --------------------------------------------------------- */
+
+.compendium-detail-head {
+  margin-bottom: var(--space-3);
+}
+
+.compendium-detail-kicker {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.compendium-detail-title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.compendium-detail-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.compendium-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+/* Long prose has to shrink inside the dialog rather than feed its content
+   minimum — the same rule `.create-detail > div` uses. */
+.compendium-detail-body > * {
+  min-width: 0;
+}
+
+/* --- Stat rows ----------------------------------------------------------- */
+
+.compendium-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.compendium-stat {
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-elevated);
+}
+
+.compendium-stat dt {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+}
+
+.compendium-stat dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.compendium-stat-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* Saving throws and ability picks wear their own hue. */
+.compendium-ability-tag--str {
+  color: var(--ability-str);
+  border-color: var(--ability-str);
+}
+
+.compendium-ability-tag--dex {
+  color: var(--ability-dex);
+  border-color: var(--ability-dex);
+}
+
+.compendium-ability-tag--con {
+  color: var(--ability-con);
+  border-color: var(--ability-con);
+}
+
+.compendium-ability-tag--int {
+  color: var(--ability-int);
+  border-color: var(--ability-int);
+}
+
+.compendium-ability-tag--wis {
+  color: var(--ability-wis);
+  border-color: var(--ability-wis);
+}
+
+.compendium-ability-tag--cha {
+  color: var(--ability-cha);
+  border-color: var(--ability-cha);
+}
+
+/* --- Prose and feature blocks -------------------------------------------- */
+
+.compendium-prose {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.compendium-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.6;
+  color: var(--text-faint);
+  overflow-wrap: anywhere;
+}
+
+.compendium-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.compendium-subhead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* A Tag inside the display-font heading picks up Georgia; send it back to the
+   body face so it reads as a chip, not as running text. */
+.compendium-subhead-tag {
+  font-family: var(--font-body);
+}
+
+.compendium-block-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.compendium-feature-level {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.compendium-feature-level + .compendium-feature-level {
+  margin-top: var(--space-3);
+}
+
+.compendium-level-label {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.compendium-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.compendium-feature + .compendium-feature {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--border);
+}
+
+.compendium-feature-name {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.compendium-feature-desc {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.compendium-feature-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.compendium-subclass {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background-color: var(--bg-elevated);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.compendium-subclass-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.compendium-feature-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Narrow screens ------------------------------------------------------ */
+
+/* The rail becomes a single scrolling row: section chips followed by their
+   indented sub-group chips, separated by hairlines. */
+@media (max-width: 60rem) {
+  .compendium-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .compendium-nav {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .compendium-nav-label {
+    display: none;
+  }
+
+  .compendium-nav-list {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+  }
+
+  .compendium-nav-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    flex: none;
+  }
+
+  .compendium-nav-row + .compendium-nav-row {
+    margin-left: var(--space-2);
+    padding-left: var(--space-2);
+    border-left: var(--bw) solid var(--border);
+  }
+
+  .compendium-nav-sub {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    border-left: 0;
+  }
+
+  .compendium-nav-item {
+    width: auto;
+    white-space: nowrap;
+    border-left-width: 1px;
+  }
+
+  /* Left rule becomes an underline, matching `.nav-link.is-active`. */
+  .compendium-nav-item.is-selected,
+  .compendium-nav-item.is-selected:hover {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+
+  .compendium-nav-item--sub {
+    padding-left: var(--space-2);
+  }
+}
+
+@media (max-width: 480px) {
+  .compendium-toolbar-search {
+    flex: 1 1 100%;
+    min-width: 0;
+    /* Full width is the point of the stacked field below 480px. */
+    max-width: none;
+  }
+
+  .compendium-toolbar-facet {
+    flex: 1 1 calc(50% - var(--space-1));
+    min-width: 0;
+  }
+
+  .compendium-list {
+    padding: var(--space-2);
+    gap: var(--space-2);
+  }
+}

@@ -1,0 +1,1797 @@
+/* ==========================================================================
+   Skin tokens — visual style families
+   ==========================================================================
+
+   This file is imported in main.tsx AFTER every on-screen layer
+   (mode.css, theme.css, density.css and the component sheets) so
+   `[data-skin]` attribute selectors win those ties, but BEFORE print.css:
+   skins and print are both (0,2,0) token blocks where only source order
+   decides, and print's paper palette must win on paper — otherwise a dark
+   skin prints light ink on white.
+
+   Layering contract:
+      - :root / base = 'classic' (no rules needed — the existing app IS classic)
+      - Each skin gets a `[data-skin='…']` block with its token overrides
+      - Light-mode variants use `[data-skin='…'][data-theme='light']` and
+        `[data-theme='light'] [data-skin='…']` paired selectors (same pattern
+        as mode.css) so swatches in the picker preview correctly.
+      - A skin may NEVER declare: --accent trio (user-owned), --space-*,
+        --text-* or --content-max (density.css owns them at the same
+        specificity; later source order would silently defeat density),
+        --danger/--warning/--success/--ability-* (meaning-carrying),
+        --swatch-ink-* (painted under a user colour).
+      - Decorative skin-private tokens (--deco-*, --shadow-ink) are
+        illustration only — never used to express state.
+      - Washes stay `color-mix(in srgb, var(--accent) …)` so every skin
+        flatters whichever of the 8 accents the user picks.
+   ========================================================================== */
+
+/* Classic needs no block — it is the :root baseline. */
+
+/* [data-skin='playful'] { ... } */
+/* [data-skin='playful'][data-theme='light'],
+   [data-theme='light'] [data-skin='playful'] { ... } */
+
+/* ==========================================================================
+   Skin: brutalist — Neo-brutalist tavern board
+   ========================================================================== */
+
+/* --- 3.1 Dark palette + 3.3 Shape/weight + 3.3 private --shadow-ink --- */
+[data-skin='brutalist'][data-theme='dark'],
+[data-theme='dark'] [data-skin='brutalist'] {
+  --bg:             #121214;
+  --bg-elevated:    #1b1b1e;
+  --surface:        #2a2a2f;
+  --surface-hover:  #34343a;
+  --surface-sunken: #0b0b0c;
+  --border:         #9a938a;
+  --border-strong:  #f4efe4;
+  --border-subtle:  #3a3a41;
+  --text:           #f5f1e8;
+  --text-strong:    #ffffff;
+  --text-muted:     #b8b2a6;
+  --text-faint:     #9d978b;
+  --edge:           rgba(255,255,255,0.06);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 6%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 3%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 5%, transparent);
+  --scrim: rgba(0,0,0,0.78);
+
+  --shadow-sm: 3px 3px 0 #000000;
+  --shadow-md: 4px 4px 0 #000000;
+  --shadow-lg: 8px 8px 0 #000000;
+
+  --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0;
+  --radius-pill: 0;
+  --bw: 3px; --bw-2: 3px; --bw-thick: 4px;
+
+  --shadow-ink: #000000;
+}
+
+/* --- 3.2 Light palette + 3.3 Shape/weight + 3.3 private --shadow-ink --- */
+[data-skin='brutalist'][data-theme='light'],
+[data-theme='light'] [data-skin='brutalist'] {
+  --bg:             #f2efe6;
+  --bg-elevated:    #fbf9f2;
+  --surface:        #ffffff;
+  --surface-hover:  #e9e4d6;
+  --surface-sunken: #ddd7c6;
+  --border:         #17150f;
+  --border-strong:  #000000;
+  --border-subtle:  #c9c2b0;
+  --text:           #14120d;
+  --text-strong:    #000000;
+  --text-muted:     #4a463c;
+  --text-faint:     #5f5a4e;
+  --edge:           transparent;
+  --bg-wash-1: color-mix(in srgb, var(--accent) 6%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 3%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 5%, transparent);
+  --scrim: rgba(20,18,12,0.72);
+
+  --shadow-sm: 3px 3px 0 #17150f;
+  --shadow-md: 4px 4px 0 #17150f;
+  --shadow-lg: 8px 8px 0 #17150f;
+
+  --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0;
+  --radius-pill: 0;
+  --bw: 3px; --bw-2: 3px; --bw-thick: 4px;
+
+  --shadow-ink: #17150f;
+}
+
+/* --- 3.4 Typography: Fraunces headings + Archivo body --- */
+[data-skin='brutalist'] {
+  --display-variation: 'wght' 900, 'SOFT' 0, 'WONK' 0;
+  --leading-display: 0.95;
+  --track-display-tight: -0.05em;
+  --track-label: 0.1em;
+}
+
+[data-skin='brutalist'] .page-title,
+[data-skin='brutalist'] .section-title,
+[data-skin='brutalist'] .card-title,
+[data-skin='brutalist'] .modal-title,
+[data-skin='brutalist'] .empty-title,
+[data-skin='brutalist'] .roster-name,
+[data-skin='brutalist'] .stub-lead,
+[data-skin='brutalist'] h1,
+[data-skin='brutalist'] h2,
+[data-skin='brutalist'] h3,
+[data-skin='brutalist'] h4,
+[data-skin='brutalist'] h5,
+[data-skin='brutalist'] h6 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+}
+
+[data-skin='brutalist'] .page-title,
+[data-skin='brutalist'] .section-title,
+[data-skin='brutalist'] .card-title,
+[data-skin='brutalist'] .modal-title {
+  text-transform: uppercase;
+}
+
+[data-skin='brutalist'] body,
+[data-skin='brutalist'] .field-label,
+[data-skin='brutalist'] .sheet-stat dt,
+[data-skin='brutalist'] .ability-name,
+[data-skin='brutalist'] .divider-label,
+[data-skin='brutalist'] .create-list-title {
+  font-family: var(--font-body);
+  font-variation-settings: 'wght' 500;
+}
+
+[data-skin='brutalist'] .field-label,
+[data-skin='brutalist'] .sheet-stat dt,
+[data-skin='brutalist'] .ability-name,
+[data-skin='brutalist'] .divider-label,
+[data-skin='brutalist'] .create-list-title {
+  font-variation-settings: 'wght' 800;
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+}
+
+/* --- 3.5 Signature details --- */
+
+/* 3.5.1 Hard offset shadows on interactive/container elements */
+[data-skin='brutalist'] .card,
+[data-skin='brutalist'] .panel,
+[data-skin='brutalist'] .btn,
+[data-skin='brutalist'] .modal,
+[data-skin='brutalist'] .tag {
+  box-shadow: var(--bw) var(--bw) 0 var(--shadow-ink);
+  transition: box-shadow 0s, transform 0s;
+}
+
+[data-skin='brutalist'] .card:active,
+[data-skin='brutalist'] .panel:active,
+[data-skin='brutalist'] .btn:active,
+[data-skin='brutalist'] .modal:active,
+[data-skin='brutalist'] .tag:active {
+  box-shadow: none;
+  transform: translate(var(--bw), var(--bw));
+}
+
+/* 3.5.2 Registration crop ticks on .panel / .card (screen only) */
+@media screen {
+  [data-skin='brutalist'] .panel::before,
+  [data-skin='brutalist'] .panel::after,
+  [data-skin='brutalist'] .card::before,
+  [data-skin='brutalist'] .card::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-top: var(--bw) solid var(--border-strong);
+    border-left: var(--bw) solid var(--border-strong);
+    pointer-events: none;
+  }
+
+  [data-skin='brutalist'] .panel::before,
+  [data-skin='brutalist'] .card::before {
+    top: calc(var(--bw) * -1);
+    left: calc(var(--bw) * -1);
+  }
+
+  [data-skin='brutalist'] .panel::after,
+  [data-skin='brutalist'] .card::after {
+    top: calc(var(--bw) * -1);
+    right: calc(var(--bw) * -1);
+    border-left: none;
+    border-right: var(--bw) solid var(--border-strong);
+  }
+}
+
+/* 3.5.3 Pasted-bar .card-head and .divider-label in solid block */
+[data-skin='brutalist'] .card-head {
+  background-color: var(--bg-elevated);
+  border-bottom: var(--bw-thick) solid var(--border);
+  padding: calc(var(--space-3) - var(--bw)) var(--space-4);
+  margin: calc(var(--bw) * -1) calc(var(--bw) * -1) 0;
+}
+
+[data-skin='brutalist'] .divider-label {
+  background-color: var(--bg-elevated);
+  border: var(--bw) solid var(--border);
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+/* 3.5.4 Hard-edged header rule: three flat stops */
+@media screen {
+  [data-skin='brutalist'] .app-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg,
+        var(--accent) 0%,
+        var(--accent) 16%,
+        var(--border-strong) 16%,
+        var(--border-strong) 40%,
+        transparent 40%,
+        transparent 100%);
+    pointer-events: none;
+  }
+}
+
+/* 3.5.5 Inversion hovers + brand-mark flattening */
+[data-skin='brutalist'] .roster-row:hover,
+[data-skin='brutalist'] .btn--secondary:hover {
+  background-color: var(--text);
+  color: var(--bg);
+  transition: background-color 0s, color 0s;
+}
+
+[data-skin='brutalist'] .roster-row:hover::before,
+[data-skin='brutalist'] .btn--secondary:hover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--bw-thick);
+  background-color: var(--accent);
+}
+
+@media screen {
+  [data-skin='brutalist'] .brand-mark {
+    background: var(--accent);
+    border: var(--bw) solid var(--text);
+    border-radius: 0;
+  }
+}
+
+/* --- 3.6 Focus ring: 3px offset double ring --- */
+[data-skin='brutalist'] *:focus-visible {
+  outline: var(--bw-thick) solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+/* --- Step 4: Squaring hardcoded rounders --- */
+[data-skin='brutalist'] .theme-swatch,
+[data-skin='brutalist'] .roster-avatar,
+[data-skin='brutalist'] .sheet-hp-bar {
+  border-radius: 0;
+}
+
+/* --- Step 5: Risk mitigations (§3.7) --- */
+/* Re-point internal rules to --border-subtle */
+[data-skin='brutalist'] .sheet-skills,
+[data-skin='brutalist'] .sheet-coins-display,
+[data-skin='brutalist'] .roster-row,
+[data-skin='brutalist'] .sheet-breakdown-row {
+  border-color: var(--border-subtle);
+}
+
+/* --- S3 fix: BRUTALIST .empty-state treatment (thick frame, hard offset shadow, crop ticks) --- */
+[data-skin='brutalist'] .empty-state {
+  /* Anchors the crop-tick pseudos to the card — without it they resolve
+     against a higher ancestor and push the page into a 3px h-scroll. */
+  position: relative;
+  border: var(--bw) solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--bw) var(--bw) 0 var(--shadow-ink);
+  transition: box-shadow 0s, transform 0s;
+}
+
+[data-skin='brutalist'] .empty-state:active {
+  box-shadow: none;
+  transform: translate(var(--bw), var(--bw));
+}
+
+@media screen {
+  [data-skin='brutalist'] .empty-state::before,
+  [data-skin='brutalist'] .empty-state::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-top: var(--bw) solid var(--border-strong);
+    border-left: var(--bw) solid var(--border-strong);
+    pointer-events: none;
+  }
+
+  [data-skin='brutalist'] .empty-state::before {
+    top: calc(var(--bw) * -1);
+    left: calc(var(--bw) * -1);
+  }
+
+  [data-skin='brutalist'] .empty-state::after {
+    top: calc(var(--bw) * -1);
+    right: calc(var(--bw) * -1);
+    border-left: none;
+    border-right: var(--bw) solid var(--border-strong);
+  }
+}
+
+/* Compact density adjustments for brutalist */
+[data-density='compact'][data-skin='brutalist'],
+[data-skin='brutalist'][data-density='compact'] {
+  --bw: 2px;
+  --bw-thick: 3px;
+}
+
+/* --- Step 6: Print adjustments (§7.2) --- */
+@media print {
+  [data-skin='brutalist'] {
+    --bw: 1px;
+    --bw-2: 2px;
+    --bw-thick: 2px;
+  }
+}
+
+/* ==========================================================================
+   Skin: cozy — Cozy indie-game UI
+   ========================================================================== */
+
+/* --- 4.1 Light palette (the natural face) --- */
+[data-skin='cozy'][data-theme='light'],
+[data-theme='light'] [data-skin='cozy'] {
+  --bg:             #fdf6ee;
+  --bg-elevated:    #fffbf5;
+  --surface:        #ffffff;
+  --surface-hover:  #f7ece0;
+  --surface-sunken: #f0e4d5;
+  --border:         #8c7f70;
+  --border-strong:  #6b6154;
+  --border-subtle:  #e5dacb;
+  --text:           #2f2a26;
+  --text-strong:    #191512;
+  --text-muted:     #625a51;
+  --text-faint:     #736a60;
+  --edge:           rgba(255,255,255,0.85);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 8%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 4%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 6%, transparent);
+  --scrim: rgba(48,34,22,0.55);
+
+  --shadow-sm: 0 1px 2px rgba(84,58,32,0.10);
+  --shadow-md: 0 2px 4px rgba(84,58,32,0.08), 0 10px 22px -10px rgba(84,58,32,0.22);
+  --shadow-lg: 0 4px 8px rgba(84,58,32,0.10), 0 26px 48px -20px rgba(84,58,32,0.28);
+
+  --radius-sm: 0.625rem; --radius-md: 1rem; --radius-lg: 1.375rem;
+  --radius-xl: 1.75rem;  --radius-pill: 9999px;
+  --bw: 1px; --bw-2: 2px; --bw-thick: 3px;
+
+  --deco-1: #bfe6d4;  /* mint */
+  --deco-2: #ffd9c2;  /* peach */
+  --deco-3: #ffe9ad;  /* butter */
+  --deco-4: #cfe6fb;  /* sky */
+}
+
+/* --- 4.2 Dark palette (hearthlight) --- */
+[data-skin='cozy'][data-theme='dark'],
+[data-theme='dark'] [data-skin='cozy'] {
+  --bg:             #1d1712;
+  --bg-elevated:    #272019;
+  --surface:        #2f261d;
+  --surface-hover:  #3a2f24;
+  --surface-sunken: #171209;
+  --border:         #5c4e3f;
+  --border-strong:  #8a7660;
+  --border-subtle:  #413629;
+  --text:           #f6ece0;
+  --text-strong:    #fffaf2;
+  --text-muted:     #cdbcaa;
+  --text-faint:     #b0a08c;
+  --edge:           rgba(255,255,255,0.08);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 10%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 5%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 8%, transparent);
+  --scrim: rgba(10,7,4,0.75);
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.40), 0 12px 26px -12px rgba(0,0,0,0.60);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,0.42), 0 28px 54px -22px rgba(0,0,0,0.68);
+
+  --radius-sm: 0.625rem; --radius-md: 1rem; --radius-lg: 1.375rem;
+  --radius-xl: 1.75rem;  --radius-pill: 9999px;
+  --bw: 1px; --bw-2: 2px; --bw-thick: 3px;
+
+  --deco-1: #bfe6d4;  /* mint */
+  --deco-2: #ffd9c2;  /* peach */
+  --deco-3: #ffe9ad;  /* butter */
+  --deco-4: #cfe6fb;  /* sky */
+}
+
+/* --- 4.4 Typography: Fraunces display + Archivo body, sentence case --- */
+[data-skin='cozy'] {
+  --display-variation: 'wght' 600, 'SOFT' 100, 'WONK' 1;
+  --leading-display: 1.12;
+  --track-display-tight: -0.015em;
+  --leading-body: 1.7;
+}
+
+[data-skin='cozy'] .page-title,
+[data-skin='cozy'] .section-title,
+[data-skin='cozy'] .card-title,
+[data-skin='cozy'] .modal-title,
+[data-skin='cozy'] .empty-title,
+[data-skin='cozy'] .roster-name,
+[data-skin='cozy'] .stub-lead,
+[data-skin='cozy'] h1,
+[data-skin='cozy'] h2,
+[data-skin='cozy'] h3,
+[data-skin='cozy'] h4,
+[data-skin='cozy'] h5,
+[data-skin='cozy'] h6 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+  text-transform: none;
+}
+
+[data-skin='cozy'] body,
+[data-skin='cozy'] .field-label,
+[data-skin='cozy'] .sheet-stat dt,
+[data-skin='cozy'] .ability-name,
+[data-skin='cozy'] .divider-label,
+[data-skin='cozy'] .create-list-title {
+  font-family: var(--font-body);
+  font-variation-settings: 'wght' 450;
+  line-height: var(--leading-body);
+  text-transform: none;
+}
+
+/* --- 4.5 Signature details --- */
+
+/* 4.5.1 Pillow cards: big radius + white --edge inner top highlight + warm shadow;
+     .card-head bottom rule becomes DASHED --border-subtle (sewn stitch) */
+@media screen {
+  [data-skin='cozy'] .card,
+  [data-skin='cozy'] .panel {
+    box-shadow: var(--shadow-md);
+  }
+
+  [data-skin='cozy'] .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 var(--edge);
+    pointer-events: none;
+  }
+
+  [data-skin='cozy'] .card-head {
+    border-bottom: var(--bw) dashed var(--border-subtle);
+  }
+}
+
+/* 4.5.2 Candy dots — private --deco-* tokens by nth-child */
+@media screen {
+  [data-skin='cozy'] .create-step-index:nth-child(4n+1),
+  [data-skin='cozy'] .sheet-ability:nth-child(4n+1),
+  [data-skin='cozy'] .sheet-stat:nth-child(4n+1) {
+    --_candy: var(--deco-1);
+  }
+  [data-skin='cozy'] .create-step-index:nth-child(4n+2),
+  [data-skin='cozy'] .sheet-ability:nth-child(4n+2),
+  [data-skin='cozy'] .sheet-stat:nth-child(4n+2) {
+    --_candy: var(--deco-2);
+  }
+  [data-skin='cozy'] .create-step-index:nth-child(4n+3),
+  [data-skin='cozy'] .sheet-ability:nth-child(4n+3),
+  [data-skin='cozy'] .sheet-stat:nth-child(4n+3) {
+    --_candy: var(--deco-3);
+  }
+  [data-skin='cozy'] .create-step-index:nth-child(4n+4),
+  [data-skin='cozy'] .sheet-ability:nth-child(4n+4),
+  [data-skin='cozy'] .sheet-stat:nth-child(4n+4) {
+    --_candy: var(--deco-4);
+  }
+
+  [data-skin='cozy'] .create-step-index::before,
+  [data-skin='cozy'] .sheet-ability::before,
+  [data-skin='cozy'] .sheet-stat::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--_candy);
+    margin-right: var(--space-2);
+    flex-shrink: 0;
+  }
+}
+
+/* 4.5.3 Playful empty states */
+@media screen {
+  [data-skin='cozy'] .empty-state {
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--border);
+  }
+
+  [data-skin='cozy'] .empty-icon {
+    font-size: 4rem;
+    color: var(--deco-3);
+  }
+
+  [data-skin='cozy'] .empty-title {
+    font-variation-settings: 'wght' 600, 'SOFT' 100, 'WONK' 1;
+    font-size: 1.15em;
+  }
+}
+
+/* 4.5.4 Raised selection chips */
+[data-skin='cozy'] .nav-link.is-active,
+[data-skin='cozy'] .create-step.is-current {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+/* 4.5.5 Sliding rail — .roster-row hover/focus draws 4px accent rail as inset shadow */
+[data-skin='cozy'] .roster-row:hover,
+[data-skin='cozy'] .roster-row:focus-within {
+  box-shadow: inset 4px 0 0 var(--accent);
+  transition: box-shadow 180ms cubic-bezier(.34,1.56,.64,1);
+}
+
+/* --- §6 Shared-signature matrix (cozy column) --- */
+
+/* .app-header::before keeps its fade, shortened, rounded cap */
+@media screen {
+  [data-skin='cozy'] .app-header::before {
+    border-radius: var(--radius-md);
+    background-size: 100% var(--bw-thick);
+  }
+}
+
+/* .page-head::after thicker rounded pill with soft shadow */
+@media screen {
+  [data-skin='cozy'] .page-head::after {
+    border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* .brand-mark keeps gradient, --radius-md */
+@media screen {
+  [data-skin='cozy'] .brand-mark {
+    border-radius: var(--radius-md);
+  }
+}
+
+/* .divider-line dashed stitch */
+@media screen {
+  [data-skin='cozy'] .divider-line {
+    border-top: var(--bw) dashed var(--border-subtle);
+  }
+}
+
+/* --- 4.6 Micro-interaction character --- */
+[data-skin='cozy'] .card,
+[data-skin='cozy'] .panel,
+[data-skin='cozy'] .btn,
+[data-skin='cozy'] .tag,
+[data-skin='cozy'] .roster-row {
+  transition: transform 180ms cubic-bezier(.34,1.56,.64,1),
+              box-shadow 180ms cubic-bezier(.34,1.56,.64,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='cozy'] .card,
+  [data-skin='cozy'] .panel,
+  [data-skin='cozy'] .btn,
+  [data-skin='cozy'] .tag,
+  [data-skin='cozy'] .roster-row {
+    transition: background-color 120ms, color 120ms, box-shadow 120ms;
+    transform: none !important;
+  }
+
+  [data-skin='cozy'] .card:hover,
+  [data-skin='cozy'] .panel:hover,
+  [data-skin='cozy'] .btn:hover,
+  [data-skin='cozy'] .tag:hover {
+    transform: none;
+  }
+
+  [data-skin='cozy'] .btn:active,
+  [data-skin='cozy'] .tag:active {
+    transform: none;
+  }
+}
+
+[data-skin='cozy'] .card:hover,
+[data-skin='cozy'] .panel:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-skin='cozy'] .btn:hover,
+[data-skin='cozy'] .tag:hover {
+  transform: translateY(-2px);
+}
+
+[data-skin='cozy'] .btn:active,
+[data-skin='cozy'] .tag:active {
+  transform: scale(0.985);
+}
+
+/* --- §7.1 Density: cozy keeps --bw 1px in compact (no downgrade needed) --- */
+/* No compact block needed — cozy stays at 1px */
+
+/* ==========================================================================
+   Skin: playful — Playful dark fantasy
+   ========================================================================== */
+
+/* --- 2.1 Dark palette (the default face) + 2.3 Shape/weight --- */
+[data-skin='playful'][data-theme='dark'],
+[data-theme='dark'] [data-skin='playful'] {
+  --bg:             #141019;
+  --bg-elevated:    #1d1726;
+  --surface:        #261e2f;
+  --surface-hover:  #312841;
+  --surface-sunken: #100c15;
+  --border:         #4b3f63;
+  --border-strong:  #72629a;
+  --border-subtle:  #352c47;
+  --text:           #f1ecf7;
+  --text-strong:    #ffffff;
+  --text-muted:     #b0a5c3;
+  --text-faint:     #9c91b5;
+  --edge:           rgba(255,255,255,0.07);
+  --edge-strong:    rgba(255,255,255,0.14);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 11%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 5%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 8%, transparent);
+  --scrim: rgba(10,7,14,0.80);
+
+  --shadow-sm: 0 2px 3px rgba(0,0,0,0.42);
+  --shadow-md: 0 3px 6px rgba(0,0,0,0.38),
+               0 14px 28px -14px color-mix(in srgb, var(--accent) 45%, transparent);
+  --shadow-lg: 0 6px 12px rgba(0,0,0,0.40),
+               0 30px 60px -24px color-mix(in srgb, var(--accent) 40%, transparent);
+
+  --radius-sm: 0.5rem; --radius-md: 0.875rem; --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem; --radius-pill: 9999px;
+  --bw: 2px; --bw-2: 3px; --bw-thick: 4px;
+}
+
+/* --- 2.2 Light palette (daytime toybox) + 2.3 Shape/weight --- */
+[data-skin='playful'][data-theme='light'],
+[data-theme='light'] [data-skin='playful'] {
+  --bg:             #f8f3fc;
+  --bg-elevated:    #fffdff;
+  --surface:        #ffffff;
+  --surface-hover:  #f1eaf9;
+  --surface-sunken: #eae1f4;
+  --border:         #7a6d92;
+  --border-strong:  #57496f;
+  --border-subtle:  #e2d9ef;
+  --text:           #241c30;
+  --text-strong:    #150f21;
+  --text-muted:     #5c5170;
+  --text-faint:     #6f6486;
+  --edge:           rgba(36,28,48,0.08);
+  --edge-strong:    rgba(36,28,48,0.14);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 9%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 4%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 7%, transparent);
+  --scrim: rgba(20,14,28,0.66);
+
+  --shadow-sm: 0 1px 2px rgba(50,34,70,0.12);
+  --shadow-md: 0 2px 4px rgba(50,34,70,0.10), 0 12px 24px -12px rgba(50,34,70,0.28);
+  --shadow-lg: 0 4px 8px rgba(50,34,70,0.12), 0 26px 50px -22px rgba(50,34,70,0.34);
+
+  --radius-sm: 0.5rem; --radius-md: 0.875rem; --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem; --radius-pill: 9999px;
+  --bw: 2px; --bw-2: 3px; --bw-thick: 4px;
+}
+
+/* --- 2.4 Typography: Fraunces headings + Archivo body, chunky sticker labels --- */
+[data-skin='playful'] {
+  --display-variation: 'wght' 800, 'SOFT' 60, 'WONK' 1;
+  --leading-display: 1.02;
+  --track-display-tight: -0.035em;
+  --track-label: 0.12em;
+}
+
+[data-skin='playful'] .page-title,
+[data-skin='playful'] .section-title,
+[data-skin='playful'] .card-title,
+[data-skin='playful'] .modal-title,
+[data-skin='playful'] .empty-title,
+[data-skin='playful'] .roster-name,
+[data-skin='playful'] .stub-lead,
+[data-skin='playful'] h1,
+[data-skin='playful'] h2,
+[data-skin='playful'] h3,
+[data-skin='playful'] h4,
+[data-skin='playful'] h5,
+[data-skin='playful'] h6 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+}
+
+[data-skin='playful'] body,
+[data-skin='playful'] .field-label,
+[data-skin='playful'] .sheet-stat dt,
+[data-skin='playful'] .ability-name,
+[data-skin='playful'] .divider-label,
+[data-skin='playful'] .create-list-title {
+  font-family: var(--font-body);
+  font-variation-settings: 'wght' 450;
+}
+
+[data-skin='playful'] .field-label,
+[data-skin='playful'] .sheet-stat dt,
+[data-skin='playful'] .ability-name,
+[data-skin='playful'] .divider-label,
+[data-skin='playful'] .create-list-title {
+  font-variation-settings: 'wght' 700;
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+}
+
+/* --- 2.5 Signature details --- */
+
+/* 2.5.1 Sticker badges — 2px --accent-contrast outline, ±3° rotation, white gloss ::after */
+@media screen {
+  [data-skin='playful'] .tag--solid,
+  [data-skin='playful'] .roster-level,
+  [data-skin='playful'] .create-step-index {
+    position: relative;
+    border: 2px solid var(--accent-contrast);
+    border-radius: var(--radius-pill);
+  }
+
+  [data-skin='playful'] .tag--solid:nth-child(2n),
+  [data-skin='playful'] .roster-level:nth-child(2n),
+  [data-skin='playful'] .create-step-index:nth-child(2n) {
+    transform: rotate(3deg);
+  }
+
+  [data-skin='playful'] .tag--solid:nth-child(2n+1),
+  [data-skin='playful'] .roster-level:nth-child(2n+1),
+  [data-skin='playful'] .create-step-index:nth-child(2n+1) {
+    transform: rotate(-3deg);
+  }
+
+  [data-skin='playful'] .tag--solid::after,
+  [data-skin='playful'] .roster-level::after,
+  [data-skin='playful'] .create-step-index::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.3) 0%, transparent 60%);
+    pointer-events: none;
+  }
+}
+
+/* 2.5.2 Peel corner — .card::after clips 14px triangle at top-right */
+@media screen {
+  [data-skin='playful'] .card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  [data-skin='playful'] .card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 0 14px 14px;
+    border-color: transparent transparent var(--surface-hover) transparent;
+    box-shadow: -1px 1px 0 var(--border);
+    pointer-events: none;
+  }
+}
+ 
+/* S7 fix: PLAYFUL border width — 2px (--bw) solid --border on .card/.empty-state */
+[data-skin='playful'] .card,
+[data-skin='playful'] .empty-state {
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-md);
+}
+ 
+/* 2.5.3 Dot-grid card texture — .card-body / .panel / .empty-state, disabled in compact density */
+@media screen {
+  [data-skin='playful'] .card-body,
+  [data-skin='playful'] .panel,
+  [data-skin='playful'] .empty-state {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--accent) 14%, transparent) 1px,
+      transparent 1px
+    );
+    background-size: 10px 10px;
+  }
+
+  [data-density='compact'][data-skin='playful'] .card-body,
+  [data-density='compact'][data-skin='playful'] .panel,
+  [data-density='compact'][data-skin='playful'] .empty-state,
+  [data-skin='playful'][data-density='compact'] .card-body,
+  [data-skin='playful'][data-density='compact'] .panel,
+  [data-skin='playful'][data-density='compact'] .empty-state {
+    background-image: none;
+  }
+}
+
+/* 2.5.4 Hand-ruled divider — double stroke + centred accent pill dot */
+@media screen {
+  [data-skin='playful'] .divider-line {
+    position: relative;
+    border: none;
+    height: 4px;
+    background:
+      linear-gradient(90deg,
+        transparent 50%,
+        color-mix(in srgb, var(--accent) 45%, transparent) 50%,
+        color-mix(in srgb, var(--accent) 45%, transparent) 52%,
+        transparent 52%),
+      linear-gradient(90deg,
+        transparent 50%,
+        color-mix(in srgb, var(--accent) 25%, transparent) 50%,
+        color-mix(in srgb, var(--accent) 25%, transparent) 51%,
+        transparent 51%);
+    background-repeat: repeat-x;
+    background-size: 20px 2px, 20px 1px;
+    background-position: 0 1px, 0 3px;
+  }
+
+  [data-skin='playful'] .divider-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    border-radius: var(--radius-pill);
+    box-shadow: 0 0 0 2px var(--bg);
+  }
+}
+
+/* 2.5.5 Header spark — .app-header::before keeps fade + 6px accent diamond at 16%;
+     .page-head::after becomes rounded pill with offset sticker dot */
+@media screen {
+  [data-skin='playful'] .app-header::before {
+    background:
+      linear-gradient(90deg,
+        var(--accent) 0%,
+        var(--accent) 16%,
+        transparent 16%),
+      linear-gradient(90deg,
+        transparent 16%,
+        var(--accent) 16%,
+        var(--accent) 22%,
+        transparent 22%);
+    background-size: 100% 100%, 6px 6px;
+    background-position: 0 0, 16% 50%;
+    background-repeat: no-repeat;
+  }
+
+  [data-skin='playful'] .page-head {
+    position: relative;
+  }
+
+  [data-skin='playful'] .page-head::after {
+    border-radius: var(--radius-pill);
+    position: absolute;
+    /* base .page-head::after (app.css) pins left:0 — that over-constraint is
+       what actually renders, so state it explicitly instead of dead right:0.
+       width pinned so the sticker-dot anchor stays stable past the ≤small
+       breakpoint rule that shrinks the base pill to 3rem. */
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4.5rem;
+  }
+
+  /* Sticker dot lives on ::before (free for playful): browsers never
+     instantiate pseudos on pseudos, so ::after::after never rendered.
+     Offset matches the original right:-10px intent — dot box is 8px+2×2px
+     border = 12px, so its left edge sits 2px before the pill's right end. */
+  [data-skin='playful'] .page-head::before {
+    content: '';
+    position: absolute;
+    left: calc(4.5rem - 2px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border: 2px solid var(--accent-contrast);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+}
+
+/* 2.5.6 Brand-mark — keep gradient, add gloss */
+@media screen {
+  [data-skin='playful'] .brand-mark {
+    position: relative;
+  }
+
+  [data-skin='playful'] .brand-mark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%);
+    pointer-events: none;
+  }
+}
+
+/* 2.5.7 Roster-row rail — 4px accent, rounded end (via box-shadow) */
+[data-skin='playful'] .roster-row:hover,
+[data-skin='playful'] .roster-row:focus-within {
+  box-shadow: inset 4px 0 0 var(--accent);
+  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+  transition: box-shadow 160ms cubic-bezier(.34,1.56,.64,1);
+}
+
+/* --- §6 Shared-signature matrix (playful column) ---
+   Already covered above: .app-header::before, .page-head::after, .roster-row rail,
+   .brand-mark, .divider-line, .card (peel + dot texture) --- */
+
+/* --- 2.6 Micro-interaction character: bouncy ---
+     Hover: lift 2px + rotate 0.4°; Press: scale(0.97);
+     Reduced-motion: color/opacity only, drop transform/rotation --- */
+[data-skin='playful'] .card,
+[data-skin='playful'] .panel,
+[data-skin='playful'] .btn,
+[data-skin='playful'] .tag,
+[data-skin='playful'] .roster-row {
+  transition: transform 180ms cubic-bezier(.34,1.56,.64,1),
+              box-shadow 180ms cubic-bezier(.34,1.56,.64,1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='playful'] .card,
+  [data-skin='playful'] .panel,
+  [data-skin='playful'] .btn,
+  [data-skin='playful'] .tag,
+  [data-skin='playful'] .roster-row {
+    transition: background-color 120ms, color 120ms, box-shadow 120ms;
+    transform: none !important;
+  }
+
+  [data-skin='playful'] .card:hover,
+  [data-skin='playful'] .panel:hover,
+  [data-skin='playful'] .btn:hover,
+  [data-skin='playful'] .tag:hover,
+  [data-skin='playful'] .roster-row:hover {
+    transform: none;
+  }
+
+  [data-skin='playful'] .btn:active,
+  [data-skin='playful'] .tag:active {
+    transform: none;
+  }
+
+  /* Disable sticker rotation in reduced motion */
+  [data-skin='playful'] .tag--solid,
+  [data-skin='playful'] .roster-level,
+  [data-skin='playful'] .create-step-index {
+    transform: none !important;
+  }
+}
+
+[data-skin='playful'] .card:hover,
+[data-skin='playful'] .panel:hover {
+  transform: translateY(-2px) rotate(0.4deg);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-skin='playful'] .btn:hover,
+[data-skin='playful'] .tag:hover {
+  transform: translateY(-2px) rotate(0.4deg);
+}
+
+[data-skin='playful'] .btn:active,
+[data-skin='playful'] .tag:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- §7.1 Density: playful texture OFF, sticker rotation OFF in compact --- */
+[data-density='compact'][data-skin='playful'],
+[data-skin='playful'][data-density='compact'] {
+  /* Dot-grid texture already disabled via @media screen block above */
+  /* Sticker rotation disabled */
+}
+[data-density='compact'][data-skin='playful'] .tag--solid,
+[data-density='compact'][data-skin='playful'] .roster-level,
+[data-density='compact'][data-skin='playful'] .create-step-index,
+[data-skin='playful'][data-density='compact'] .tag--solid,
+[data-skin='playful'][data-density='compact'] .roster-level,
+[data-skin='playful'][data-density='compact'] .create-step-index {
+  transform: none;
+}
+
+/* --- §7.2 Print: gate all decorative pseudo-elements and transforms --- */
+@media print {
+  [data-skin='playful'] {
+    /* Print.css already handles accent→ink, shadow nulling, color-scheme */
+    /* No additional bw adjustments needed for playful (2px is fine) */
+  }
+}
+
+/* ==========================================================================
+   Skin: parchment — Parchment / tavern noticeboard
+   ========================================================================== */
+
+/* --- 5.1 Light palette (the hero: aged page) + 5.3 Shape/weight --- */
+[data-skin='parchment'][data-theme='light'],
+[data-theme='light'] [data-skin='parchment'] {
+  --bg:             #efe5d0;
+  --bg-elevated:    #f7efe0;
+  --surface:        #fbf5e8;
+  --surface-hover:  #f2e9d6;
+  --surface-sunken: #e6dac2;
+  --border:         #6f6350;
+  --border-strong:  #4c4335;
+  --border-subtle:  #cdbfa4;
+  --text:           #241c12;
+  --text-strong:    #120d07;
+  --text-muted:     #574a39;
+  --text-faint:     #6b5d4a;
+  --edge:           rgba(255,255,255,0.65);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 9%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 4.5%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 7%, transparent);
+  --scrim: rgba(38,28,16,0.60);
+
+  --shadow-sm: 0 1px 1px rgba(90,70,40,0.14);
+  --shadow-md: 0 2px 3px rgba(90,70,40,0.12), 0 8px 18px -10px rgba(90,70,40,0.24);
+  --shadow-lg: 0 3px 6px rgba(90,70,40,0.14), 0 22px 44px -18px rgba(90,70,40,0.30);
+
+  --radius-sm: 2px; --radius-md: 3px; --radius-lg: 4px; --radius-xl: 6px;
+  --radius-pill: 9999px;
+  --bw: 1px; --bw-2: 2px; --bw-thick: 4px;
+}
+
+/* --- 5.2 Dark palette (tavern interior at night) + 5.3 Shape/weight --- */
+[data-skin='parchment'][data-theme='dark'],
+[data-theme='dark'] [data-skin='parchment'] {
+  --bg:             #171310;
+  --bg-elevated:    #201a15;
+  --surface:        #272019;
+  --surface-hover:  #322a21;
+  --surface-sunken: #120f0c;
+  --border:         #58493a;
+  --border-strong:  #8a7458;
+  --border-subtle:  #3a3128;
+  --text:           #f0e4d2;
+  --text-strong:    #fff6e8;
+  --text-muted:     #bdac94;
+  --text-faint:     #a3907a;
+  --edge:           rgba(255,229,190,0.07);
+  --bg-wash-1: color-mix(in srgb, var(--accent) 9%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 4%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 6.5%, transparent);
+  --scrim: rgba(8,6,4,0.78);
+
+  --shadow-sm: 0 1px 1px rgba(0,0,0,0.50);
+  --shadow-md: 0 2px 3px rgba(0,0,0,0.45), 0 10px 22px -10px rgba(0,0,0,0.60);
+  --shadow-lg: 0 3px 6px rgba(0,0,0,0.45), 0 24px 46px -20px rgba(0,0,0,0.70);
+
+  --radius-sm: 2px; --radius-md: 3px; --radius-lg: 4px; --radius-xl: 6px;
+  --radius-pill: 9999px;
+  --bw: 1px; --bw-2: 2px; --bw-thick: 4px;
+}
+
+/* --- 5.4 Typography: Fraunces display + Archivo body, engraved labels --- */
+[data-skin='parchment'] {
+  --display-variation: 'wght' 600, 'SOFT' 35, 'WONK' 1;
+  --leading-display: 1.02;
+  --track-display-tight: -0.02em;
+  --leading-body: 1.7;
+  --track-label: 0.16em;
+}
+
+[data-skin='parchment'] .page-title {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  font-optical-sizing: 72;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+}
+
+[data-skin='parchment'] .section-title,
+[data-skin='parchment'] .card-title,
+[data-skin='parchment'] .modal-title,
+[data-skin='parchment'] .empty-title,
+[data-skin='parchment'] .roster-name,
+[data-skin='parchment'] .stub-lead,
+[data-skin='parchment'] h1,
+[data-skin='parchment'] h2,
+[data-skin='parchment'] h3,
+[data-skin='parchment'] h4,
+[data-skin='parchment'] h5,
+[data-skin='parchment'] h6 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+}
+
+[data-skin='parchment'] .page-subtitle,
+[data-skin='parchment'] .empty-desc {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-variation);
+  font-style: italic;
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-display-tight);
+}
+
+[data-skin='parchment'] body {
+  font-family: var(--font-body);
+  font-variation-settings: 'wght' 400, 'wdth' 97;
+  line-height: var(--leading-body);
+}
+
+[data-skin='parchment'] .field-label,
+[data-skin='parchment'] .sheet-stat dt,
+[data-skin='parchment'] .ability-name,
+[data-skin='parchment'] .divider-label,
+[data-skin='parchment'] .create-list-title {
+  font-family: var(--font-display);
+  font-variation-settings: 'wght' 600, 'SOFT' 35, 'WONK' 1;
+  font-optical-sizing: 72;
+  text-transform: uppercase;
+  letter-spacing: var(--track-label);
+  line-height: var(--leading-body);
+}
+
+/* --- 5.5 Signature details --- */
+
+/* 5.5.1 Wax seal — .tag--solid and .page-head::after as ~22px disc in --accent */
+@media screen {
+  [data-skin='parchment'] .tag--solid {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 47% 53% 50% 50%;
+    box-shadow:
+      inset 0 -2px 3px rgba(0,0,0,0.3),
+      inset 0 1px 1px rgba(255,255,255,0.2),
+      0 0 0 1px rgba(0,0,0,0.15);
+  }
+
+  [data-skin='parchment'] .page-head {
+    position: relative;
+  }
+
+  [data-skin='parchment'] .page-head::after {
+    position: absolute;
+    /* base rule pins left:0 — ornaments render at the head's left edge
+       (visual QA approved), so state it instead of dead right:0. */
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    /* highlight baked into the background: ::after::after never renders
+       (no pseudos on pseudos) — 10px radial centered over the accent. */
+    background:
+      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%) 50% 50% / 10px 10px no-repeat,
+      var(--accent);
+    border-radius: 47% 53% 50% 50%;
+    box-shadow:
+      inset 0 -2px 3px rgba(0,0,0,0.3),
+      inset 0 1px 1px rgba(255,255,255,0.2),
+      0 0 0 1px rgba(0,0,0,0.15);
+  }
+
+  [data-skin='parchment'] .tag--solid::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+}
+
+/* S7 fix: PARCHMENT border width — 1px (--bw) solid --border on .card/.empty-state */
+[data-skin='parchment'] .card,
+[data-skin='parchment'] .empty-state {
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* 5.5.2 Perforated card head — .card-head::after with ticket perforation mask */
+@media screen {
+  [data-skin='parchment'] .card-head {
+    position: relative;
+    overflow: visible;
+  }
+
+  [data-skin='parchment'] .card-head::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: var(--border);
+    mask-image: radial-gradient(circle 3px at 8px 100%, transparent 96%, #000 100%);
+    mask-size: 16px 8px;
+    mask-repeat: repeat-x;
+    mask-position: 0 bottom;
+    pointer-events: none;
+  }
+}
+
+/* 5.5.3 Ink rules — .page-head double rule, .divider--labelled ruled box */
+@media screen {
+  [data-skin='parchment'] .page-head {
+    border-bottom: 2px solid var(--border-strong);
+    position: relative;
+  }
+
+  [data-skin='parchment'] .page-head::before {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+
+  [data-skin='parchment'] .divider--labelled {
+    position: relative;
+    text-align: center;
+  }
+
+  [data-skin='parchment'] .divider--labelled::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  [data-skin='parchment'] .divider--labelled .divider-label {
+    position: relative;
+    z-index: 1;
+    background: var(--bg);
+    padding: 0 var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    display: inline-block;
+  }
+}
+
+/* 5.5.4 Paper grain — body::before fixed overlay, SVG feTurbulence, off in compact & print
+   v2 "duplexed stock": laid-line fibres (anisotropic turbulence) under a fine
+   speckle pass, desaturated so it reads as fibre not colour noise. Alpha raised
+   (10% light / 8.5% dark — was 4%/3%) so grain is visible in BOTH modes; still
+   far below any level that could threaten the §0 text-contrast contract. */
+@media screen {
+  [data-skin='parchment'] body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.25'/%3E%3C/filter%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.7' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)' opacity='0.5'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.8'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 320px 320px;
+    mix-blend-mode: multiply;
+  }
+
+  [data-skin='parchment'][data-theme='dark'] body::before {
+    opacity: 0.085;
+    mix-blend-mode: overlay;
+  }
+
+  [data-density='compact'][data-skin='parchment'] body::before,
+  [data-skin='parchment'][data-density='compact'] body::before {
+    display: none;
+  }
+}
+
+/* 5.5.5 Stamped labels + notice rail — .field-label/.sheet-stat dt/.divider-label get hairline ::before;
+     roster-row gets accent pin/tack ::before at left */
+@media screen {
+  [data-skin='parchment'] .field-label::before,
+  [data-skin='parchment'] .sheet-stat dt::before,
+  [data-skin='parchment'] .divider-label::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 1px;
+    background: var(--border);
+    margin-right: var(--space-2);
+    vertical-align: middle;
+  }
+
+  [data-skin='parchment'] .roster-row {
+    position: relative;
+  }
+
+  [data-skin='parchment'] .roster-row::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border: 2px solid var(--text);
+    border-radius: 50%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+}
+
+/* --- §6 Shared-signature matrix (parchment column) --- */
+
+/* .app-header::before replaced by double ink rule */
+@media screen {
+  [data-skin='parchment'] .app-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, var(--border-strong) 0%, var(--border-strong) 100%) 0 0 / 100% 2px no-repeat,
+      linear-gradient(90deg, var(--border) 0%, var(--border) 100%) 0 4px / 100% 1px no-repeat;
+    pointer-events: none;
+  }
+}
+
+/* .page-head::after centred fleuron ornament (already handled as wax seal above) */
+/* .roster-row rail — accent pin/tack ::before (handled in 5.5.5) */
+/* .brand-mark — keep gradient, seal-shaped radius */
+@media screen {
+  [data-skin='parchment'] .brand-mark {
+    border-radius: 47% 53% 50% 50%;
+  }
+}
+
+/* .divider-line ruled box with fleuron */
+@media screen {
+  [data-skin='parchment'] .divider-line {
+    position: relative;
+    border: none;
+    height: 4px;
+    text-align: center;
+  }
+
+  [data-skin='parchment'] .divider-line::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border-strong);
+  }
+
+  [data-skin='parchment'] .divider-line::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: var(--accent);
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    background-color: var(--accent);
+  }
+}
+
+/* .card — perforated head + grain (handled in 5.5.2 and 5.5.4) */
+
+/* --- 5.6 Micro-interaction character: weighty and damped ---
+     Hover: lift 1px + spread shadow; Press: settle 1px;
+     Wax seal scales 1.04 on hover; links draw underline via background-size;
+     Reduced-motion: colour-only, instant underline, no lift --- */
+[data-skin='parchment'] .card,
+[data-skin='parchment'] .panel,
+[data-skin='parchment'] .btn,
+[data-skin='parchment'] .tag,
+[data-skin='parchment'] .roster-row {
+  transition: transform 150ms ease-out,
+              box-shadow 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='parchment'] .card,
+  [data-skin='parchment'] .panel,
+  [data-skin='parchment'] .btn,
+  [data-skin='parchment'] .tag,
+  [data-skin='parchment'] .roster-row {
+    transition: background-color 120ms, color 120ms, box-shadow 120ms;
+    transform: none !important;
+  }
+
+  [data-skin='parchment'] .card:hover,
+  [data-skin='parchment'] .panel:hover,
+  [data-skin='parchment'] .btn:hover,
+  [data-skin='parchment'] .tag:hover,
+  [data-skin='parchment'] .roster-row:hover {
+    transform: none;
+  }
+
+  [data-skin='parchment'] .btn:active,
+  [data-skin='parchment'] .tag:active {
+    transform: none;
+  }
+
+  [data-skin='parchment'] .tag--solid:hover,
+  [data-skin='parchment'] .page-head::after:hover {
+    transform: none !important;
+  }
+}
+
+[data-skin='parchment'] .card:hover,
+[data-skin='parchment'] .panel:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-skin='parchment'] .btn:hover,
+[data-skin='parchment'] .tag:hover {
+  transform: translateY(-1px);
+}
+
+[data-skin='parchment'] .btn:active,
+[data-skin='parchment'] .tag:active {
+  transform: translateY(1px);
+}
+
+@media screen {
+  [data-skin='parchment'] .tag--solid:hover,
+  [data-skin='parchment'] .page-head::after:hover {
+    transform: scale(1.04);
+  }
+}
+
+/* Link underline draw via background-size (global link style enhancement) */
+[data-skin='parchment'] a:not(.btn):not(.nav-link) {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 180ms ease-out;
+}
+
+[data-skin='parchment'] a:not(.btn):not(.nav-link):hover {
+  background-size: 100% 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-skin='parchment'] a:not(.btn):not(.nav-link) {
+    transition: none;
+  }
+
+  [data-skin='parchment'] a:not(.btn):not(.nav-link):hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* --- 5.5.7 Paper realness pass — deckled edges, card-stock duplex, page browning ---
+     Screen-only (§7.2); decorative texture gated off in compact (§7.1);
+     private --deco-* props only, decoration never carries state (§7.5).
+     Edges: clip-path polygon deckle with FIXED ±5px amplitude, so small and
+     large surfaces both read as hand-torn instead of proportionally stretched.
+     clip-path clips outer box-shadows, so depth is carried by inset rims.
+     Focus-visible drops the clip so the ring renders complete. */
+@media screen {
+  [data-skin='parchment'] {
+    --deco-deckle: polygon(
+      0px 3px, 3% 0px, 7% 4px, 11% 1px, 15% 5px, 20% 1px, 25% 4px, 30% 0px,
+      35% 5px, 40% 2px, 45% 5px, 50% 1px, 55% 4px, 60% 0px, 65% 5px, 70% 2px,
+      75% 4px, 80% 0px, 85% 5px, 90% 1px, 94% 4px, 97% 0px, 100% 3px,
+      calc(100% - 3px) 18%, 100% 32%, calc(100% - 4px) 46%, 100% 60%,
+      calc(100% - 3px) 74%, 100% 88%, calc(100% - 4px) 96%,
+      97% 100%, 93% calc(100% - 4px), 88% 100%, 83% calc(100% - 5px),
+      78% 100%, 72% calc(100% - 3px), 67% 100%, 62% calc(100% - 5px),
+      56% 100%, 51% calc(100% - 3px), 46% 100%, 40% calc(100% - 4px),
+      35% 100%, 29% calc(100% - 2px), 24% 100%, 18% calc(100% - 5px),
+      13% 100%, 8% calc(100% - 3px), 3% 100%, 0px calc(100% - 3px),
+      3px 90%, 0px 78%, 4px 66%, 0px 54%, 5px 42%, 0px 30%, 4px 18%, 0px 9%
+    );
+    /* Card-stock fibre: desaturated speckle, alpha baked into the SVG so it
+       can sit as a background layer and blend into whatever surface colour
+       the cascade provides (light, dark, tone variants). */
+    --deco-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
+  }
+
+  /* Deckled paper stock: borders get nibbled away with the fill at the edge,
+     which is what sells "torn off the sheet". Interior stays clean. */
+  [data-skin='parchment'] .card,
+  [data-skin='parchment'] .panel,
+  [data-skin='parchment'] .empty-state,
+  [data-skin='parchment'] .roster-row {
+    clip-path: var(--deco-deckle);
+    background-image: var(--deco-fibre);
+    background-repeat: repeat;
+    background-size: 220px 220px;
+    background-blend-mode: overlay;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--border) 55%, transparent),
+      inset 0 1px 0 color-mix(in srgb, var(--edge) 80%, transparent),
+      inset 0 -2px 6px color-mix(in srgb, var(--border) 22%, transparent);
+  }
+
+  /* Hover (state = accent token, §7.5): the old external lift-shadow is
+     clipped by the deckle, so deepen the rim instead — weighty, not floaty. */
+  [data-skin='parchment'] .card:hover,
+  [data-skin='parchment'] .panel:hover,
+  [data-skin='parchment'] .roster-row:hover {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, var(--border)),
+      inset 0 1px 0 color-mix(in srgb, var(--edge) 90%, transparent),
+      inset 0 -3px 8px color-mix(in srgb, var(--border) 30%, transparent);
+  }
+
+  /* Focus: un-deckle so the focus ring is never nibbled. */
+  [data-skin='parchment'] .card:focus-visible,
+  [data-skin='parchment'] .panel:focus-visible,
+  [data-skin='parchment'] .empty-state:focus-visible,
+  [data-skin='parchment'] .roster-row:focus-visible {
+    clip-path: none;
+  }
+
+  /* Torn double rule under the page head — replaces the clean 2px border-bottom
+     with a wobbled strong line + hairline drawn on ::before (already positioned
+     there by 5.5.3, re-purposed here). */
+  [data-skin='parchment'] .page-head {
+    border-bottom: none;
+  }
+
+  [data-skin='parchment'] .page-head::before {
+    bottom: -5px;
+    height: 6px;
+    background:
+      linear-gradient(var(--border-strong), var(--border-strong)) 0 0 / 100% 2px no-repeat,
+      linear-gradient(var(--border), var(--border)) 0 5px / 100% 1px no-repeat;
+    clip-path: polygon(
+      0 2px, 4% 0px, 9% 2px, 14% 0px, 20% 2px, 26% 0px, 33% 2px, 40% 1px,
+      47% 2px, 54% 0px, 61% 2px, 68% 1px, 75% 2px, 82% 0px, 89% 2px, 95% 1px, 100% 2px,
+      100% calc(100% - 1px), 95% 100%, 89% calc(100% - 1px), 82% 100%,
+      75% calc(100% - 1px), 68% 100%, 61% calc(100% - 2px), 54% 100%,
+      47% calc(100% - 1px), 40% 100%, 33% calc(100% - 2px), 26% 100%,
+      20% calc(100% - 1px), 14% 100%, 9% calc(100% - 2px), 4% 100%, 0 calc(100% - 1px)
+    );
+  }
+
+  /* Page browning: corner vignette + two faint spill stains, under the fibre
+     overlay (z 9998) so grain reads on top of the tonal variation. Multiply
+     in light (darkens the ground only — contrast rises), soft-light in dark
+     kept gentle; falloff starts beyond ~58% so text areas are untouched. */
+  [data-skin='parchment'] body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9998;
+    background:
+      radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 42%),
+      radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 38%),
+      radial-gradient(150% 130% at 50% 44%, transparent 58%, rgba(96, 70, 38, 0.28) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  [data-skin='parchment'][data-theme='dark'] body::after {
+    background:
+      radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 42%),
+      radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 38%),
+      radial-gradient(150% 130% at 50% 44%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
+    mix-blend-mode: soft-light;
+  }
+
+  /* §7.1 — decorative paper effects OFF in compact; clean radius + border
+     return (5.5 S7 block), perforations and seals kept. */
+  [data-density='compact'][data-skin='parchment'] .card,
+  [data-skin='parchment'][data-density='compact'] .card,
+  [data-density='compact'][data-skin='parchment'] .panel,
+  [data-skin='parchment'][data-density='compact'] .panel,
+  [data-density='compact'][data-skin='parchment'] .empty-state,
+  [data-skin='parchment'][data-density='compact'] .empty-state,
+  [data-density='compact'][data-skin='parchment'] .roster-row,
+  [data-skin='parchment'][data-density='compact'] .roster-row {
+    clip-path: none;
+    background-image: none;
+  }
+
+  [data-density='compact'][data-skin='parchment'] body::after,
+  [data-skin='parchment'][data-density='compact'] body::after {
+    display: none;
+  }
+
+  [data-density='compact'][data-skin='parchment'] .page-head,
+  [data-skin='parchment'][data-density='compact'] .page-head {
+    border-bottom: 2px solid var(--border-strong);
+  }
+
+  [data-density='compact'][data-skin='parchment'] .page-head::before,
+  [data-skin='parchment'][data-density='compact'] .page-head::before {
+    clip-path: none;
+    bottom: -3px;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+/* --- §7.1 Density: parchment grain OFF in compact (handled above), perforations kept --- */
+/* No additional compact block needed */
+
+/* --- §7.2 Print: gate all decorative pseudo-elements and transforms --- */
+@media print {
+  [data-skin='parchment'] {
+    /* Print.css already handles accent→ink, shadow nulling, color-scheme */
+    /* No additional bw adjustments needed for parchment (1px is fine) */
+  }
+
+  /* Ensure grain and browning are off */
+  [data-skin='parchment'] body::before,
+  [data-skin='parchment'] body::after {
+    display: none;
+  }
+}
+
+/* End of parchment skin */
+
+/* ==========================================================================
+   SkinPicker thumbnail previews (§8)
+   ==========================================================================
+   Each chip carries data-skin locally; the scoped rules paint the thumb
+   with that skin's real tokens. Classic (no block) falls back to :root. */
+
+.skin-thumb {
+  --_thumb-w: 20px;
+  --_thumb-h: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--_thumb-w);
+  height: var(--_thumb-h);
+  margin-right: var(--space-2);
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: var(--bw) solid var(--border);
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.skin-thumb::before {
+  content: '';
+  display: block;
+  width: calc(var(--_thumb-w) - var(--bw) * 2 - 4px);
+  height: calc(var(--_thumb-h) - var(--bw) * 2 - 4px);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+/* Classic fallback — no data-skin block exists, so use :root tokens.
+   Keep it minimal: bg plate + surface inset. */
+.theme-segment:not([data-skin]) .skin-thumb,
+[data-skin='classic'] .skin-thumb {
+  border-radius: var(--radius-md);
+  border: var(--bw) solid var(--border);
+  background: var(--bg);
+}
+
+.theme-segment:not([data-skin]) .skin-thumb::before,
+[data-skin='classic'] .skin-thumb::before {
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}
+
+/* Per-skin thumb tweaks — each skin's own block refines the mini preview
+   to show its distinctive character (radius, border weight, accent hint). */
+
+/* Brutalist: square, thick borders, no radius, accent rail hint */
+[data-skin='brutalist'] .skin-thumb {
+  border-radius: 0;
+  border-width: var(--bw-thick);
+}
+
+[data-skin='brutalist'] .skin-thumb::before {
+  border-radius: 0;
+  background:
+    linear-gradient(90deg,
+      var(--accent) 0%,
+      var(--accent) 16%,
+      var(--border-strong) 16%,
+      var(--border-strong) 40%,
+      transparent 40%) 0 0 / 100% var(--bw-thick) no-repeat,
+    var(--surface);
+}
+
+/* Cozy: pillowed, warm, dashed stitch hint */
+[data-skin='cozy'] .skin-thumb {
+  border-radius: var(--radius-lg);
+}
+
+[data-skin='cozy'] .skin-thumb::before {
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(90deg,
+      var(--border-subtle) 0%,
+      var(--border-subtle) 50%,
+      transparent 50%,
+      transparent 100%) 0 50% / 6px 1px repeat-x,
+    var(--surface);
+}
+
+/* Playful: pill, sticker rotation hint, dot texture hint */
+[data-skin='playful'] .skin-thumb {
+  border-radius: var(--radius-pill);
+}
+
+[data-skin='playful'] .skin-thumb::before {
+  border-radius: var(--radius-pill);
+  background:
+    radial-gradient(
+      color-mix(in srgb, var(--accent) 14%, transparent) 1px,
+      transparent 1px
+    ) 0 0 / 5px 5px repeat,
+    var(--surface);
+}
+
+/* Parchment: subtle radius, perforation hint, grain hint */
+[data-skin='parchment'] .skin-thumb {
+  border-radius: var(--radius-md);
+  border-width: var(--bw);
+}
+
+[data-skin='parchment'] .skin-thumb::before {
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(circle 1.5px at 4px 100%, transparent 95%, var(--border) 100%) 0 100% / 8px 4px repeat-x,
+    var(--surface);
+}
+
+/* Ensure thumb stays visible when segment is active (accent fill) */
+.theme-segment.is-active .skin-thumb {
+  border-color: var(--accent-contrast);
+}
+
+.theme-segment.is-active .skin-thumb::before {
+  box-shadow: inset 0 0 0 1px var(--border-subtle);
+}

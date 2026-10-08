@@ -1,4 +1,41 @@
 /* ==========================================================================
+   Self-hosted Variable Fonts — Fraunces (display) + Archivo (body/UI)
+   ==========================================================================
+
+   Fraunces: old-style soft serif with custom axes SOFT (0–100) and WONK (0–1)
+   plus wght (100–900) and opsz (9–144). One family reads sharp (brutalist) or
+   round (cozy) without swapping files — the SOFT axis rounds terminals, WONK
+   adds subtle irregularity. Archivo: sturdy grotesque with width axis (wdth
+   62–125) alongside wght (100–900). Both SIL OFL 1.1, self-hosted for offline
+   use and axis fidelity (Google Fonts CDN drops custom axes).
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/fraunces-variable-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+  src: url('/fonts/archivo-variable.woff2') format('woff2');
+}
+
+/* ==========================================================================
    Design Tokens — Dark Fantasy Theme
    ==========================================================================
 
@@ -18,19 +55,52 @@
 
 :root,
 [data-theme='dark'] {
-  /* Color Tokens */
-  --bg: #0f0e10;
-  --bg-elevated: #1a181d;
-  --surface: #1f1d23;
-  --surface-hover: #28252d;
-  --border: #3a3642;
-  --border-strong: #5a5366;
-  --text: #e8e4eb;
-  --text-muted: #a8a1b0;
-  --text-faint: #6a6472;
+  /* Color Tokens — one deeper, cooler ladder so raised surfaces read as
+     raised instead of merely lighter. The grounds lean a hair toward violet
+     ink so the whole app reads as one deliberate palette rather than as
+     neutral greys with a gold garnish.
+
+     Contrast (WCAG 2.1, worst case against --surface #1b1a23):
+       --text       15.4:1   --text-muted  6.5:1   --text-faint 4.8:1
+     --text-faint is used for 11–12px labels, so it is held at >=4.5:1 on
+     every ground it can land on (--bg, --bg-elevated, --surface). */
+  --bg: #0a0a0f;
+  --bg-elevated: #14131b;
+  --surface: #1b1a23;
+  --surface-hover: #25232f;
+  /* Sunken ground: wells, progress tracks, readouts that sit *below* the
+     surface instead of above it. Used by the hit-point bar in sheet.css. */
+  --surface-sunken: #111019;
+  --border: #34313f;
+  --border-strong: #565065;
+  /* Hairline one step softer than --border — separators inside a surface. */
+  --border-subtle: #2a2835;
+
+  /* Border Widths — tokens so a future skin system can thicken/thin globally. */
+  --bw: 1px;
+  --bw-2: 2px;
+  --bw-thick: 3px;
+  --text: #ece9f1;
+  /* Brightest tier: headline figures (HP current, coin amounts). */
+  --text-strong: #f7f5fb;
+  --text-muted: #a49dae;
+  --text-faint: #8b8496;
   --accent: #c9a84c;
   --accent-hover: #d4b85e;
-  --accent-contrast: #1a181d;
+  --accent-contrast: #14131b;
+
+  /* Edges — the 1px light seam along the top of a raised surface. Gives
+     cards and bars a physical edge instead of a flat outline. */
+  --edge: rgba(255, 255, 255, 0.055);
+  --edge-strong: rgba(255, 255, 255, 0.1);
+
+  /* Atmosphere — tinted washes painted on the page body. colour-mix keeps
+     them in step with whichever accent the picker chose. Two strengths of the
+     same hue, not two different hues: a second colour would fight the accent
+     rather than support it. */
+  --bg-wash-1: color-mix(in srgb, var(--accent) 7%, transparent);
+  --bg-wash-2: color-mix(in srgb, var(--accent) 3.5%, transparent);
+  --bg-wash-3: color-mix(in srgb, var(--accent) 5%, transparent);
   --danger: #c45a5a;
   /* Lighter red for danger text — --danger itself fails contrast on surfaces. */
   --danger-text: #e08c8c;
@@ -79,12 +149,23 @@
   --radius-xl: 1rem;
   --radius-pill: 9999px;
 
-  /* Typography Stacks */
-  --font-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-display: Georgia, 'Times New Roman', serif;
+  /* Typography Stacks
+
+     Display face: Fraunces — an old-style soft serif with variable axes
+     (SOFT 0–100, WONK 0–1, wght 100–900, opsz 9–144) so one family reads
+     sharp (brutalist) or round (cozy) without swapping files. Falls back to
+     the Palatino/Iowan stack so nothing breaks if the font fails to load.
+     Body/UI face: Archivo — a sturdy grotesque with a width axis (wdth
+     62–125) and weight axis (wght 100–900). Both SIL OFL 1.1, self-hosted. */
+  --font-body: 'Archivo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua',
+    'URW Palladio L', P052, Georgia, 'Times New Roman', serif;
   --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
 
-  /* Type Scale */
+  /* Type Scale — a deliberate 1.2 ratio with a display tier on top.
+     --text-4xl is derived from --text-3xl so density.css's ×0.94 / ×1.06
+     multipliers carry it along without a duplicate declaration. */
   --text-xs: 0.75rem;    /* 12px */
   --text-sm: 0.875rem;   /* 14px */
   --text-base: 1rem;     /* 16px */
@@ -92,17 +173,52 @@
   --text-xl: 1.25rem;    /* 20px */
   --text-2xl: 1.5rem;    /* 24px */
   --text-3xl: 2rem;      /* 32px */
+  --text-4xl: calc(var(--text-3xl) * 1.375); /* 44px — page titles only */
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  /* Tracking — one shared rhythm so letter-spacing never drifts between
+     components that are doing the same job. Display sizes tighten harder than
+     body sizes: large serif headings need more negative track to look set
+     rather than spacked out. */
+  --track-tight: -0.02em;
+--track-tighter: -0.032em;
+--track-display-tight: -0.04em;
+--track-snug: -0.008em;
+  --track-normal: 0;
+  --track-wide: 0.02em;
+  --track-caps: 0.08em;
+  --track-label: 0.14em;
 
-  /* Focus Ring */
-  --focus-ring: 0 0 0 2px var(--accent);
+  /* Vertical rhythm for the display face — headings and running text want
+     different leading, and sharing one number is what makes a page read as
+     "bold body copy" instead of as a heading. */
+  --leading-display: 1.06;
+  --leading-title: 1.2;
+  --leading-body: 1.62;
+  --leading-snug: 1.45;
 
-  /* Layout */
-  --content-max: 72rem;
+  /* Measure — the longest line that stays comfortable to read. Prose and
+     subtitles sit at 62ch; the page frame is uncapped (100%) so content
+     always fills the screen — only prose-level blocks use --measure. */
+  --measure: 62ch;
+  --measure-narrow: 46ch;
+
+  /* Shadows — layered so a raised card has a contact edge as well as a
+     cast, which is what makes elevation read as physical rather than as a
+     grey blur. Values are doubled (tight + ambient) instead of one wide
+     drop. */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.34), 0 1px 1px rgba(0, 0, 0, 0.22);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 6px 14px -6px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 18px 44px -12px rgba(0, 0, 0, 0.6);
+
+  /* Focus Ring — accent core plus a dark outer halo, so the ring stays
+     visible on top of an accent-filled button (where an accent-only ring
+     would disappear into the fill) and on parchment in light mode. */
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  --focus-ring-inset: inset 0 0 0 2px var(--accent);
+
+  /* Layout — page frame fills the viewport at every width; gutters come
+     from the containers' own horizontal padding, not a centered cap. */
+  --content-max: 100%;
   --row-radius: var(--radius-md);
 }
 
@@ -133,23 +249,69 @@
 
 html {
   font-size: 16px;
+  /* Keeps the sticky header's anchor scroll from jumping under it. */
+  scroll-padding-top: 5.5rem;
 }
 
 body {
   margin: 0;
   background-color: var(--bg);
+  /* Atmosphere: two soft accent washes pinned to the top corners so the page
+     has a light source instead of being one flat field of near-black. They
+     ride on the body background, so they never intercept clicks and they
+     scroll away with the document. */
+  background-image:
+    radial-gradient(
+      68rem 34rem at 12% -8%,
+      var(--bg-wash-1),
+      transparent 62%
+    ),
+    radial-gradient(
+      52rem 30rem at 96% 4%,
+      var(--bg-wash-3),
+      transparent 60%
+    );
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* So the fixed washes never sit above portal-rendered dialogs. */
+  isolation: isolate;
+}
+
+/* Headings inherit the display face and a tightened track by default, so any
+   <h*> that is not explicitly styled still reads as a heading rather than as
+   bold body copy. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-title);
+  letter-spacing: var(--track-snug);
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+  line-height: var(--leading-body);
 }
 
 /* ==========================================================================
    Base Interaction — one visible focus treatment everywhere
    ========================================================================== */
 
+/* An accent-only outline vanishes when the control is itself accent-filled
+   (primary buttons, selected segments), so the ring is an accent core with a
+   contrasting halo drawn from --bg. Outline for everything, box-shadow for
+   the cases an outline cannot express. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -158,6 +320,15 @@ body {
 button {
   font: inherit;
   color: inherit;
+}
+
+/* Kill the default tap-highlight on touch, which otherwise paints a grey
+   rectangle over the accent wash on every tap. */
+button,
+a,
+label,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
 }
 
 input,
@@ -170,6 +341,34 @@ textarea {
 ::selection {
   background-color: var(--accent);
   color: var(--accent-contrast);
+}
+
+/* Scrollbars follow the palette instead of the OS default (which stays light
+   in dark mode). Only the WebKit/Chromium and Firefox tracks are touched;
+   everything else keeps its native bar. */
+* {
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-strong);
+  border: var(--bw-thick) solid transparent;
+  background-clip: content-box;
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-faint);
 }
 
 /* Visually hidden but still read aloud. */

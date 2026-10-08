@@ -105,7 +105,7 @@ function isAbilityKey(value: unknown): value is AbilityKey {
  * migration path — call it once after parsing so the rest of the app never
  * sees `undefined` for these fields.
  */
-function normalizeCharacter(c: Character): Character {
+export function normalizeCharacter(c: Character): Character {
   const coins: CoinPurse = c.coins ?? DEFAULT_COINS;
   const inventory = normalizeInventory(c.inventory);
   // Per-character accent override. Absent means "follow the app-wide accent",

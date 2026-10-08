@@ -1,0 +1,106 @@
+{
+  "artificer": [
+    "alchemist",
+    "armorer",
+    "artillerist",
+    "battle-smith",
+    "cartographer",
+    "reanimator"
+  ],
+  "barbarian": [
+    "path-of-the-berserker",
+    "path-of-the-wild-heart",
+    "path-of-the-world-tree",
+    "path-of-the-zealot"
+  ],
+  "bard": [
+    "college-of-dance",
+    "college-of-glamour",
+    "college-of-lore",
+    "college-of-spirits",
+    "college-of-the-moon",
+    "college-of-valor"
+  ],
+  "cleric": [
+    "arcana-domain",
+    "grave-domain",
+    "knowledge-domain",
+    "life-domain",
+    "light-domain",
+    "trickery-domain",
+    "war-domain"
+  ],
+  "druid": [
+    "circle-of-the-land",
+    "circle-of-the-moon",
+    "circle-of-the-sea",
+    "circle-of-the-stars"
+  ],
+  "fighter": [
+    "arcane-archer",
+    "banneret",
+    "battle-master",
+    "champion",
+    "eldritch-knight",
+    "psi-warrior",
+    "sorrow-knight"
+  ],
+  "monk": [
+    "warrior-of-mercy",
+    "warrior-of-shadow",
+    "warrior-of-the-elements",
+    "warrior-of-the-mystic-arts",
+    "warrior-of-the-open-hand"
+  ],
+  "paladin": [
+    "oath-of-devotion",
+    "oath-of-glory",
+    "oath-of-the-ancients",
+    "oath-of-the-noble-genies",
+    "oath-of-vengeance"
+  ],
+  "ranger": [
+    "beast-master",
+    "fey-wanderer",
+    "gloom-stalker",
+    "hollow-warden",
+    "hunter",
+    "winter-walker"
+  ],
+  "rogue": [
+    "arcane-trickster",
+    "assassin",
+    "phantom",
+    "scion-of-the-three",
+    "soulknife",
+    "thief"
+  ],
+  "sorcerer": [
+    "aberrant-sorcery",
+    "clockwork-sorcery",
+    "draconic-sorcery",
+    "shadow-sorcery",
+    "spellfire-sorcery",
+    "wild-magic-sorcery",
+    "metamagic"
+  ],
+  "warlock": [
+    "archfey-patron",
+    "celestial-patron",
+    "fiend-patron",
+    "great-old-one-patron",
+    "undead-patron",
+    "vestige-patron"
+  ],
+  "wizard": [
+    "abjurer",
+    "bladesinger",
+    "conjurer",
+    "diviner",
+    "enchanter",
+    "evoker",
+    "illusionist",
+    "necromancer",
+    "transmuter"
+  ]
+}

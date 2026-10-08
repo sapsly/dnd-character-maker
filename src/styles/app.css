@@ -14,9 +14,29 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background-color: var(--bg-elevated);
-  border-top: 3px solid var(--accent);
-  border-bottom: 1px solid var(--border);
+  /* 92% rather than fully opaque: with the blur below the page slides under
+     the bar as a soft smear instead of a hard edge, and even where
+     backdrop-filter is unsupported the bar is opaque enough to read against. */
+  background-color: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  border-bottom: var(--bw) solid var(--border);
+  box-shadow: 0 1px 0 var(--edge);
+}
+
+/* The signature: a gold rule across the top of every screen that starts solid
+   and fades out to the right, instead of a flat 3px bar. */
+.app-header::before {
+  content: '';
+  display: block;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent) 16%,
+    color-mix(in srgb, var(--accent) 33%, transparent) 52%,
+    transparent 100%
+  );
 }
 
 .app-header-inner {
@@ -27,6 +47,14 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+/* The wrapper exists only to group the controls in the markup; letting it
+   dissolve here makes brand, nav and settings real children of one row, so
+   they can be ordered independently at every breakpoint. */
+.app-header-tools {
+  display: contents;
 }
 
 .brand {
@@ -36,68 +64,117 @@
   text-decoration: none;
   color: var(--text);
   min-width: 0;
+  flex: 0 1 auto;
 }
 
-/* Nav + density toggle, grouped so space-between keeps both on the right. */
-.app-header-tools {
+/* Nav sits between brand and the appearance controls — where you are, then
+   how this looks. */
+.app-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: 0 0 auto;
+}
+
+.app-header-settings {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex: 0 0 auto;
+  /* At the widths where the 1127px control cluster wraps onto its own header
+     row (~1210-1536px) this keeps it flush with the right edge instead of
+     leaving a blank band, matching the single-row layout above 1600px. It is
+     inert in the <=1200px scroll strip, where the box is already 100% wide. */
+  margin-left: auto;
+  padding-left: var(--space-4);
+  border-left: var(--bw) solid var(--border);
   min-width: 0;
+  /* Containing block for the pickers' .visually-hidden radio labels. Without
+     it those absolutely positioned spans resolve against the document and
+     escape this strip's scroll clip, which widens the page and makes every
+     route scroll sideways on a phone. */
+  position: relative;
 }
 
 .brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: var(--accent-contrast);
-  background-color: var(--accent);
+  background: linear-gradient(
+    160deg,
+    var(--accent-hover),
+    var(--accent) 55%,
+    color-mix(in srgb, var(--accent) 78%, #000)
+  );
   border-radius: var(--radius-sm);
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.45rem;
   flex: none;
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .brand-name {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  letter-spacing: 0.01em;
+  font-weight: 600;
+  letter-spacing: var(--track-tight);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 140ms ease;
 }
 
 .brand:hover .brand-name {
   color: var(--accent-hover);
 }
 
-.app-nav {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
+.brand:focus-visible {
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
 
+/* --- Nav links ------------------------------------------------------------ */
+
 .nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
   font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--track-wide);
   color: var(--text-muted);
   text-decoration: none;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  border: 1px solid transparent;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  border: var(--bw) solid transparent;
   white-space: nowrap;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease;
 }
 
 .nav-link:hover {
   color: var(--text);
   background-color: var(--surface-hover);
+  border-color: var(--border);
 }
 
-.nav-link.is-active {
-  color: var(--text);
-  background-color: var(--surface);
-  border-color: var(--border);
-  box-shadow: inset 0 -2px 0 var(--accent);
+/* Active is marked three ways — accent text, an accent-tinted ground and a
+   hairline — so it never rests on colour alone. */
+.nav-link.is-active,
+.nav-link.is-active:hover {
+  color: var(--accent);
+  background-color: color-mix(in srgb, var(--accent) 13%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.nav-link:focus-visible {
+  outline-offset: 3px;
 }
 
 /* --- Main / pages --------------------------------------------------------- */
@@ -106,14 +183,15 @@
   flex: 1;
   width: 100%;
   max-width: var(--content-max);
-  margin: 0 auto;
-  padding: var(--space-5) var(--space-4) var(--space-7);
+  /* More air above the first heading than below the last card: the page title
+     is the entry point and it was sitting almost against the header rule. */
+  padding: var(--space-7) var(--space-4) var(--space-8);
 }
 
 .page {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .page-head {
@@ -121,34 +199,58 @@
   align-items: flex-end;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--bw) solid var(--border);
+  position: relative;
+}
+
+/* Accent segment welded into the rule under the heading — the same gold that
+   runs across the header, so the two read as one system. */
+.page-head::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 4.5rem;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
 }
 
 .page-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: var(--text-2xl);
-  line-height: 1.2;
+  font-size: var(--text-4xl);
+  line-height: var(--leading-display);
+  letter-spacing: var(--track-tighter);
   margin: 0;
-  letter-spacing: 0.01em;
+  text-wrap: balance;
 }
 
 .page-subtitle {
-  margin: var(--space-1) 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--text-lg);
+  line-height: var(--leading-snug);
+  max-width: var(--measure);
 }
 
 .page-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
+  /* Primary actions get air around them so they read as the next step
+     rather than as one more row of chrome. */
+  padding-bottom: 0.15rem;
 }
 
 .section-title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: 600;
+  letter-spacing: var(--track-snug);
   margin: 0;
 }
 
@@ -156,9 +258,10 @@
 
 .panel {
   background-color: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--bw) solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 var(--edge);
 }
 
 .panel-title {
@@ -175,7 +278,7 @@
 }
 
 .stub-panel {
-  border-left: 3px solid var(--accent);
+  border-left: var(--bw-thick) solid var(--accent);
 }
 
 .stub-lead {
@@ -200,15 +303,84 @@
 .link {
   color: var(--accent);
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
   font-size: var(--text-sm);
+  font-weight: 600;
+  transition: color 140ms ease;
 }
 
 .link:hover {
   color: var(--accent-hover);
 }
 
-/* --- Narrow screens ------------------------------------------------------- */
+/* ==========================================================================
+   Responsive ladder
+   ========================================================================== */
+
+/* Tablet and below (and any width where the four appearance controls no
+   longer fit beside the brand — they need ~1190px total): the header becomes
+   two rows — brand + nav on top, a scrollable controls strip underneath. */
+@media (max-width: 1200px) {
+  .app-header-inner {
+    row-gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .brand {
+    order: 1;
+  }
+
+  .app-nav {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .app-header-settings {
+    order: 3;
+    flex: 1 1 100%;
+    padding-left: 0;
+    padding-top: var(--bw);
+    border-left: 0;
+    border-top: var(--bw) solid var(--border);
+    gap: var(--space-3);
+    justify-content: flex-start;
+    /* One scrolling strip rather than stacked rows: the header keeps a fixed
+       height and the controls stay on a single line. */
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-padding-inline: var(--space-1);
+    /* The strip holds ~620px of controls in a ~350px lane, so it is always
+       scrollable here. The trailing fade is the only affordance that says so —
+       without it the colour-mode toggle simply looks missing. */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.75rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - 1.75rem),
+      transparent 100%
+    );
+    /* The clip that keeps this row from widening the document. */
+    position: relative;
+  }
+
+  .app-header-settings::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Each group sits flush instead of leaving a ragged right edge. */
+  .app-header-settings > * {
+    flex: 0 0 auto;
+  }
+}
 
 @media (max-width: 480px) {
   .app-header-inner {
@@ -217,14 +389,47 @@
   }
 
   .app-main {
-    padding: var(--space-4) var(--space-3) var(--space-6);
+    padding: var(--space-5) var(--space-3) var(--space-7);
+  }
+
+  .brand {
+    gap: var(--space-2);
   }
 
   .brand-name {
     font-size: var(--text-base);
   }
 
+  .nav-link {
+    font-size: var(--text-xs);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .page {
+    gap: var(--space-4);
+  }
+
+  .page-head {
+    padding-bottom: var(--space-3);
+  }
+
+  .page-head::after {
+    width: 3rem;
+  }
+
   .page-title {
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
+    line-height: 1.12;
+  }
+
+  .page-subtitle {
+    font-size: var(--text-sm);
+    margin-top: var(--space-1);
+  }
+
+  /* Actions go full-bleed under the heading so the primary button is a
+     comfortable 44px target without widening the row above. */
+  .page-actions {
+    width: 100%;
   }
 }

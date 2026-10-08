@@ -1,34 +1,40 @@
 import type { AbilityKey, SpeciesLineageId } from '../types/character';
 
 /**
- * 2024 species lineages that grant spells.
+ * 2024 species lineages that grant spells, rebuilt from dnd2024.wikidot.com.
  *
- * Elf, Gnome and Tiefling each pick one of three lineages instead of a single
- * fixed list. The choice is permanent and does three things:
+ * Elf, Gnome and Tiefling pick one lineage instead of a single fixed list. The
+ * choice is permanent and does three things:
  *
  *  - grants a signature cantrip immediately
- *  - grants another spell at level 3 and one more at level 5
+ *  - (Elf/Tiefling) grants another spell at level 3 and one more at level 5
  *  - lets the player choose their spellcasting ability (Int, Wis or Cha)
  *
  * Lineage spells are always prepared. Each can be cast once without a spell
  * slot, and that ability is regained on a Long Rest. They can also be cast
- * using spell slots of the appropriate level. They do not count toward the
- * number of spells a class learns. They live in the same spell list as class
- * spells, tagged so the sheet can say where each one came from.
+ * using spell slots of the appropriate level.
+ *
+ * Elf gained two lineages on the site: Lorwyn Elf and Shadowmoor Elf. Gnome's
+ * lineages are bullet options (both spells at level 0), not a table.
  */
 
 /**
  * Spells a species grants to every member, independent of any lineage choice.
  *
- * Unlike lineage grants, these are not a player choice — they apply to the
- * whole species. Tiefling is the only 2024 species with such a grant:
- * Thaumaturgy is granted by the Otherworldly Presence trait, which every
- * tiefling has regardless of Fiendish Legacy.
+ * Rebuilt from the site: Tiefling (Thaumaturgy), Aasimar (Light), plus species
+ * from the Lorwyn and neighbours pages whose cantrip/level spells are not a
+ * choice: Rimekin, Flamekin, Faerie, Khoravar. (Valen is not a species on the
+ * site and was removed.)
  *
- * Keyed by SpeciesDef.id (e.g., 'tiefling').
+ * Keyed by SpeciesDef.id.
  */
 export const SPECIES_SPELL_GRANTS: Record<string, LineageGrant[]> = {
-  tiefling: [{ atLevel: 0, spellId: 'thaumaturgy' }],
+  'aasimar': [{ atLevel: 0, spellId: 'light' }],
+  'tiefling': [{ atLevel: 0, spellId: 'thaumaturgy' }],
+  'khoravar': [{ atLevel: 0, spellId: 'friends' }],
+  'faerie': [{ atLevel: 0, spellId: 'druidcraft' }, { atLevel: 3, spellId: 'faerie-fire' }, { atLevel: 5, spellId: 'enlarge-reduce' }],
+  'flamekin': [{ atLevel: 0, spellId: 'produce-flame' }, { atLevel: 3, spellId: 'burning-hands' }, { atLevel: 5, spellId: 'flame-blade' }],
+  'rimekin': [{ atLevel: 0, spellId: 'ray-of-frost' }, { atLevel: 3, spellId: 'ice-knife' }, { atLevel: 5, spellId: 'flame-blade' }],
 };
 
 /**
@@ -79,111 +85,95 @@ export interface SpeciesLineageDef {
 }
 
 export const SPECIES_LINEAGES: SpeciesLineageDef[] = [
-  // ---------------------------------------------------------------- Elf
   {
     id: 'elf-drow',
     speciesId: 'elf',
     name: 'Drow',
-    summary: 'Darkvision 120 ft; Dancing Lights; Faerie Fire at 3, Darkness at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'dancing-lights' },
-      { atLevel: 3, spellId: 'faerie-fire' },
-      { atLevel: 5, spellId: 'darkness' },
-    ],
+    summary: 'The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.',
+    grants: [{ atLevel: 0, spellId: 'dancing-lights' }, { atLevel: 3, spellId: 'faerie-fire' }, { atLevel: 5, spellId: 'darkness' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.',
   },
   {
     id: 'elf-high-elf',
     speciesId: 'elf',
     name: 'High Elf',
-    summary: 'Prestidigitation, extra tool proficiency; Detect Magic at 3, Misty Step at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'prestidigitation' },
-      { atLevel: 3, spellId: 'detect-magic' },
-      { atLevel: 5, spellId: 'misty-step' },
-    ],
+    summary: 'You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.',
+    grants: [{ atLevel: 0, spellId: 'prestidigitation' }, { atLevel: 3, spellId: 'detect-magic' }, { atLevel: 5, spellId: 'misty-step' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'You know Prestidigitation and gain proficiency with two additional tools of your choice. You may swap Prestidigitation on a Long Rest.',
+    bonusTrait: 'You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.',
   },
   {
     id: 'elf-wood-elf',
     speciesId: 'elf',
     name: 'Wood Elf',
-    summary: 'Speed 35 ft; Druidcraft; Longstrider at 3, Pass without Trace at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'druidcraft' },
-      { atLevel: 3, spellId: 'longstrider' },
-      { atLevel: 5, spellId: 'pass-without-trace' },
-    ],
+    summary: 'Your Speed increases to 35 feet. You also know the Druidcraft cantrip.',
+    grants: [{ atLevel: 0, spellId: 'druidcraft' }, { atLevel: 3, spellId: 'longstrider' }, { atLevel: 5, spellId: 'pass-without-trace' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'Your speed increases to 35 feet.',
+    bonusTrait: 'Your Speed increases to 35 feet. You also know the Druidcraft cantrip.',
   },
-
-  // -------------------------------------------------------------- Gnome
+  {
+    id: 'elf-lorwyn-elf',
+    speciesId: 'elf',
+    name: 'Lorwyn Elf',
+    summary: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.',
+    grants: [{ atLevel: 0, spellId: 'thorn-whip' }, { atLevel: 3, spellId: 'command' }, { atLevel: 5, spellId: 'silence' }],
+    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.',
+  },
+  {
+    id: 'elf-shadowmoor-elf',
+    speciesId: 'elf',
+    name: 'Shadowmoor Elf',
+    summary: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.',
+    grants: [{ atLevel: 0, spellId: 'starry-wisp' }, { atLevel: 3, spellId: 'heroism' }, { atLevel: 5, spellId: 'gentle-repose' }],
+    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.',
+  },
+  {
+    id: 'tiefling-abyssal',
+    speciesId: 'tiefling',
+    name: 'Abyssal',
+    summary: 'You have Resistance to Poison damage. You also know the Poison Spray cantrip.',
+    grants: [{ atLevel: 0, spellId: 'poison-spray' }, { atLevel: 3, spellId: 'ray-of-sickness' }, { atLevel: 5, spellId: 'hold-person' }],
+    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'You have Resistance to Poison damage. You also know the Poison Spray cantrip.',
+  },
+  {
+    id: 'tiefling-chthonic',
+    speciesId: 'tiefling',
+    name: 'Chthonic',
+    summary: 'You have Resistance to Necrotic damage. You also know the Chill Touch cantrip.',
+    grants: [{ atLevel: 0, spellId: 'chill-touch' }, { atLevel: 3, spellId: 'false-life' }, { atLevel: 5, spellId: 'ray-of-enfeeblement' }],
+    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'You have Resistance to Necrotic damage. You also know the Chill Touch cantrip.',
+  },
+  {
+    id: 'tiefling-infernal',
+    speciesId: 'tiefling',
+    name: 'Infernal',
+    summary: 'You have Resistance to Fire damage. You also know the Fire Bolt cantrip.',
+    grants: [{ atLevel: 0, spellId: 'fire-bolt' }, { atLevel: 3, spellId: 'hellish-rebuke' }, { atLevel: 5, spellId: 'darkness' }],
+    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
+    bonusTrait: 'You have Resistance to Fire damage. You also know the Fire Bolt cantrip.',
+  },
   {
     id: 'gnome-forest-gnome',
     speciesId: 'gnome',
     name: 'Forest Gnome',
-    summary: 'Minor Illusion; Speak with Animals always prepared; cast it without slots.',
-    grants: [
-      { atLevel: 0, spellId: 'minor-illusion' },
-      { atLevel: 0, spellId: 'speak-with-animals' },
-    ],
+    summary: 'Forest Gnome. You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. You can also use any spell slots you have to cast the spell.',
+    grants: [{ atLevel: 0, spellId: 'minor-illusion' }, { atLevel: 0, spellId: 'speak-with-animals' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'Speak with Animals is always prepared and can be cast a number of times equal to your Proficiency Bonus per Long Rest without a spell slot.',
+    bonusTrait: 'Forest Gnome. You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. You can also use any spell slots you have to cast the spell.',
   },
   {
     id: 'gnome-rock-gnome',
     speciesId: 'gnome',
     name: 'Rock Gnome',
-    summary: 'Mending and Prestidigitation; build clockwork devices with Prestidigitation.',
-    grants: [
-      { atLevel: 0, spellId: 'mending' },
-      { atLevel: 0, spellId: 'prestidigitation' },
-    ],
+    summary: 'Rock Gnome. You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes casting Prestidigitation to create a Tiny clockwork device (AC 5,1 HP), such as a toy, fire starter, or music box. When you create the device, you determine its function by choosing one effect from Prestidigitation; the device produces that effect whenever you or another creature takes a Bonus Action to activate it with a touch. If the chosen effect has options within it, you choose one of those options for the device when you create it. For example, if you choose the spell\'s ignite-extinguish effect, you determine whether the device ignites or extinguishes fire; the device doesn\'t do both. You can have three such devices in existence at a time, and each falls apart 8 hours after its creation or when you dismantle it with a touch as a Utilize action.',
+    grants: [{ atLevel: 0, spellId: 'mending' }, { atLevel: 0, spellId: 'prestidigitation' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'You can use Prestidigitation to create a clockwork device that lasts 8 hours. You can maintain 3 devices at a time.',
-  },
-
-  // ----------------------------------------------------------- Tiefling
-  {
-    id: 'tiefling-abyssal',
-    speciesId: 'tiefling',
-    name: 'Abyssal Legacy',
-    summary: 'Poison resistance; Poison Spray; Ray of Sickness at 3, Hold Person at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'poison-spray' },
-      { atLevel: 3, spellId: 'ray-of-sickness' },
-      { atLevel: 5, spellId: 'hold-person' },
-    ],
-    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'You have Resistance to Poison damage.',
-  },
-  {
-    id: 'tiefling-chthonic',
-    speciesId: 'tiefling',
-    name: 'Chthonic Legacy',
-    summary: 'Necrotic resistance; Chill Touch; False Life at 3, Ray of Enfeeblement at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'chill-touch' },
-      { atLevel: 3, spellId: 'false-life' },
-      { atLevel: 5, spellId: 'ray-of-enfeeblement' },
-    ],
-    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'You have Resistance to Necrotic damage.',
-  },
-  {
-    id: 'tiefling-infernal',
-    speciesId: 'tiefling',
-    name: 'Infernal Legacy',
-    summary: 'Fire resistance; Fire Bolt; Hellish Rebuke at 3, Darkness at 5.',
-    grants: [
-      { atLevel: 0, spellId: 'fire-bolt' },
-      { atLevel: 3, spellId: 'hellish-rebuke' },
-      { atLevel: 5, spellId: 'darkness' },
-    ],
-    spellcastingAbilityOptions: ['int', 'wis', 'cha'],
-    bonusTrait: 'You have Resistance to Fire damage.',
+    bonusTrait: 'Rock Gnome. You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes casting Prestidigitation to create a Tiny clockwork device (AC 5,1 HP), such as a toy, fire starter, or music box. When you create the device, you determine its function by choosing one effect from Prestidigitation; the device produces that effect whenever you or another creature takes a Bonus Action to activate it with a touch. If the chosen effect has options within it, you choose one of those options for the device when you create it. For example, if you choose the spell\'s ignite-extinguish effect, you determine whether the device ignites or extinguishes fire; the device doesn\'t do both. You can have three such devices in existence at a time, and each falls apart 8 hours after its creation or when you dismantle it with a touch as a Utilize action.',
   },
 ];
 

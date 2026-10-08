@@ -1,48 +1,17 @@
 import type { BackgroundDef } from '../types/character';
 
 /**
- * The 16 backgrounds of the 2024 Player's Handbook (SRD 5.2).
+ * All 71 backgrounds from dnd2024.wikidot.com ("Backgrounds - D&D 5e (2024)").
  *
- * ## Provenance
+ * Rebuilt from the site index + per-background pages. The site groups them into
+ * tabs; each tab's backgrounds are tagged with its source:
+ *  - Common (16) = 2024 PHB backgrounds; the four SRD 5.2 free-rules entries
+ *    (acolyte, criminal, sage, soldier) are tagged 'srd' and the rest 'phb'.
+ *  - eberron (17), faerun (18), ravenloft (4),
+ *    arcana-unleashed (10), exotic (6).
  *
- * Only FOUR of these backgrounds appear in the SRD 5.2 free-rules document:
- * Acolyte, Criminal, Sage and Soldier. Those four are tagged `source: 'srd'`
- * and were verified line-by-line against `srd/character-origins.md`.
- *
- * The other twelve (Artisan, Charlatan, Entertainer, Farmer, Guard, Guide,
- * Hermit, Merchant, Noble, Sailor, Scribe, Wayfarer) come from the 2024
- * Player's Handbook, which is a broader source than the SRD. They are tagged
- * `source: 'phb'` and the UI renders a PHB badge so the player is never shown
- * PHB-only content without knowing it is PHB-only.
- *
- * Sources used for the PHB entries:
- *  - D&D Beyond, "The Backgrounds and Origin Feats in the 2024 Player's
- *    Handbook" (Riley Silverman, 2024-07-25) — official rules article;
- *    supplied every ability spread, origin feat, skill pair, tool proficiency,
- *    flavour description, and all ten Origin feat benefit texts below.
- *    https://www.dndbeyond.com/posts/1785-the-backgrounds-and-origin-feats-in-the-2024
- *  - D&D Beyond, "Updates in the Player's Handbook (2024)" — confirms the
- *    2024 PHB contains sixteen backgrounds and names the six brand new ones.
- *  - Roll20 Compendium / Arcane Eye / wastedwizardgames — used only to
- *    cross-check the tool proficiencies.
- *
- * ## No background features
- *
- * 2024 deleted background features; Origin feats replaced them. See the
- * `BackgroundDef` doc comment in types/character.ts for the citation. There is
- * no `featureName` field here on purpose.
- *
- * ## Two field conventions worth knowing
- *
- * 1. `skillsGranted` uses the CANONICAL skill keys from `lib/rules/skillList.ts`
- *    — camelCase, e.g. `sleightOfHand`, `animalHandling`. These are looked up
- *    via `skillName()` / `skillAbility()`, so a wrong key silently degrades to
- *    displaying the raw key and falling back to Strength.
- * 2. `toolsGranted` / `toolChoices` hold DISPLAY-READY strings (e.g.
- *    `"Calligrapher's Supplies"`), not slugs. There is no tool catalog in this
- *    codebase and the UI renders them with `.join(', ')`, so raw slugs such as
- *    `calligraphers-supplies` would be shown to the player verbatim. This
- *    matches how class data stores `toolProficiencies`.
+ * Field conventions (unchanged): skillsGranted uses camelCase skill keys from
+ * lib/rules/skillList.ts; toolsGranted/toolChoices hold display-ready strings.
  */
 export const BACKGROUNDS: BackgroundDef[] = [
   {
@@ -50,46 +19,46 @@ export const BACKGROUNDS: BackgroundDef[] = [
     name: 'Acolyte',
     source: 'srd',
     originFeatId: 'magic-initiate',
-    originFeatName: 'Magic Initiate (Cleric)',
+    originFeatName: 'Ability Scores: Intelligence, Wisdom, Charisma Feat: Magic Initiate (Cleric) Skill Proficiencies: Insight and Religion Tool Proficiency: Calligrapher\'s Supplies Equipment: Choose A or B: (A) Calligrapher\'s Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain two cantrips and one level 1 spell from the Cleric, Druid, or Wizard spell list, and can replace them with another spell of the same level from the same list when you gain a level. You choose Wisdom, Intelligence, or Charisma as your spellcasting modifier for these spells when you take this feat. You can cast these spells once per Long Rest without expending a spell slot, and can cast them again using spell slots. This feat can be taken more than once, but you must choose a different spell list each time.',
+      'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
     abilityBonusChoices: ['int', 'wis', 'cha'],
     skillsGranted: ['insight', 'religion'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Calligrapher's Supplies"],
+    toolsGranted: ['Calligrapher\'s Supplies'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'You were a devoted servant in a place of worship. You learned the rituals of your faith and how to channel divine power as part of your service.',
+    description: 'You devoted yourself to service in a temple, either nestled in a town or secluded in a sacred grove. There you performed rites in honor of a god or pantheon. You served under a priest and studied religion. Thanks to your priest\'s instruction and your own devotion, you also learned how to channel a modicum of divine power in service to your place of worship and the people who prayed there.',
   },
+
   {
     id: 'artisan',
     name: 'Artisan',
     source: 'phb',
     originFeatId: 'crafter',
-    originFeatName: 'Crafter',
+    originFeatName: 'Ability Scores: Strength, Dexterity, Intelligence Feat: Crafter Skill Proficiencies: Investigation and Persuasion Tool Proficiency: Choose one kind of Artisan\'s Tools Equipment: Choose A or B: (A) Artisan\'s Tools (same as above), 2 Pouches, Traveler\'s Clothes, 32 GP; or (B) 50 GP',
     originFeatDescription:
-      'Gain proficiency with three different sets of Artisan\u2019s Tools. Gain a 20 percent discount on nonmagical items. Can craft an item from a Fast Crafting table, which lasts until you finish another Long Rest.',
+      'Tool Proficiency. You gain proficiency with three different Artisan\'s Tools of your choice from the Fast Crafting table. Discount. Whenever you buy a nonmagical item, you receive a 20 percent discount on it. Fast Crafting. When you finish a Long Rest, you can craft one piece of gear from the Fast Crafting table, provided you have the Artisan\'s Tools associated with that item and have proficiency with those tools. The item lasts until you finish another Long Rest, at which point the item falls apart.',
     abilityBonusChoices: ['str', 'dex', 'int'],
     skillsGranted: ['investigation', 'persuasion'],
     skillChoices: [],
     skillChoiceCount: 0,
     toolsGranted: [],
-    toolChoices: ["Artisan's Tools (one kind of your choice)"],
+    toolChoices: ['Choose one kind of Artisan\'s Tools'],
     toolChoiceCount: 1,
     toolChoiceCategory: 'artisansTools',
-    description:
-      'You worked your way up from scrubbing floors to an apprenticeship creating your own crafts. You know how to schmooze a customer and have a keen eye for detail.',
+    description: 'You began mopping floors and scrubbing counters in an artisan\'s workshop for a few coppers per day as soon as you were strong enough to carry a bucket. When you were old enough to apprentice, you learned to create basic crafts of your own, as well as how to sweet-talk the occasional demanding customer. Your trade has also given you a keen eye for detail.',
   },
+
   {
     id: 'charlatan',
     name: 'Charlatan',
     source: 'phb',
     originFeatId: 'skilled',
-    originFeatName: 'Skilled',
+    originFeatName: 'Ability Scores: Dexterity, Constitution, Charisma Feat: Skilled Skill Proficiencies: Deception and Sleight of Hand Tool Proficiency: Forgery Kit Equipment: Choose A or B: (A) Forgery Kit, Costume, Fine Clothes, 15 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain proficiency in any combination of three skills or tools of your choice. You can take this feat more than once.',
+      'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
     abilityBonusChoices: ['dex', 'con', 'cha'],
     skillsGranted: ['deception', 'sleightOfHand'],
     skillChoices: [],
@@ -97,108 +66,109 @@ export const BACKGROUNDS: BackgroundDef[] = [
     toolsGranted: ['Forgery Kit'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'You have learned to seek out a mark in taverns and pubs, and find the people most in search of less than honest goods, such as forgeries or sham magic items.',
+    description: 'Once you were old enough to order an ale, you soon had a favorite stool in every tavern within ten miles of where you were born. As you traveled the circuit from public house to watering hole, you learned to prey on unfortunates who were in the market for a comforting lie or two-perhaps a sham potion or forged ancestry records.',
   },
+
   {
     id: 'criminal',
     name: 'Criminal',
     source: 'srd',
     originFeatId: 'alert',
-    originFeatName: 'Alert',
+    originFeatName: 'Ability Scores: Dexterity, Constitution, Intelligence Feat: Alert Skill Proficiencies: Sleight of Hand and Stealth Tool Proficiency: Thieves\' Tools Equipment: Choose A or B: (A) 2 Daggers, Thieves\' Tools, Crowbar, 2 Pouches, Traveler\'s Clothes, 16 GP; or (B) 50 GP',
     originFeatDescription:
-      'Add your Proficiency Bonus when you roll Initiative. Can also swap your Initiative with a willing ally in the same combat.',
+      'Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can\'t make this swap if you or the ally has the Incapacitated condition.',
     abilityBonusChoices: ['dex', 'con', 'int'],
     skillsGranted: ['sleightOfHand', 'stealth'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Thieves' Tools"],
+    toolsGranted: ['Thieves\' Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'Whether you were a member of a criminal crew or a solo thief who only looked out for yourself, you know the best ways to slice some purse strings or how to find alternative means to enter a locked shop.',
+    description: 'You eked out a living in dark alleyways, cutting purses or burgling shops. Perhaps you were part of a small gang of like-minded wrongdoers who looked out for each other. Or maybe you were a lone wolf, fending for yourself against the local thieves\' guild and more fearsome lawbreakers.',
   },
+
   {
     id: 'entertainer',
     name: 'Entertainer',
     source: 'phb',
     originFeatId: 'musician',
-    originFeatName: 'Musician',
+    originFeatName: 'Ability Scores: Strength, Dexterity, Charisma Feat: Musician Skill Proficiencies: Acrobatics and Performance Tool Proficiency: Choose one kind of Musical Instrument Equipment: Choose A or B: (A) Musical Instrument (same as above), 2 Costumes, Mirror, Perfume, Traveler\'s Clothes, 11 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain proficiency with three musical instruments of your choice. At the end of a Short or Long Rest, you may play the instrument and grant Heroic Inspiration to a number of allies equal to your Proficiency Bonus.',
+      'Instrument Training. You gain proficiency with three Musical Instruments of your choice. Encouraging Song. As you finish a Short or Long Rest, you can play a song on a Musical Instrument with which you have proficiency and give Heroic Inspiration to allies who hear the song. The number of allies you can affect in this way equals your Proficiency Bonus.',
     abilityBonusChoices: ['str', 'dex', 'cha'],
     skillsGranted: ['acrobatics', 'performance'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ['Musical Instrument'],
-    toolChoices: [],
-    toolChoiceCount: 0,
-    description:
-      'You\u2019ve spent your life on either a literal or proverbial stage, performing for willing audiences. You have learned how to channel your talent for creation into a crowd-pleasing art form.',
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Musical Instrument'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'musicalInstrument',
+    description: 'You spent much of your youth following roving fairs and carnivals, performing odd jobs for musicians and acrobats in exchange for lessons. You may have learned how to walk a tightrope, how to play a lute in a distinct style, or how to recite poetry with impeccable diction. To this day, you thrive on applause and long for the stage.',
   },
+
   {
     id: 'farmer',
     name: 'Farmer',
     source: 'phb',
     originFeatId: 'tough',
-    originFeatName: 'Tough',
+    originFeatName: 'Ability Scores: Strength, Constitution, Wisdom Feat: Tough Skill Proficiencies: Animal Handling and Nature Tool Proficiency: Carpenter\'s Tools Equipment: Choose A or B: (A) Sickle, Carpenter\'s Tools, Healer\'s Kit, Iron Pot, Shovel, Traveler\'s Clothes, 30 GP; or (B) 50 GP',
     originFeatDescription:
-      'When you first gain this Origin feat, your Hit Point maximum increases by twice your character level. Thereafter, your Hit Point maximum increases by 2 each time you level up.',
+      'Your Hit Point maximum increases by an amount equal to twice your character level when you gain this feat. Whenever you gain a character level thereafter, your Hit Point maximum increases by an additional 2 Hit Points.',
     abilityBonusChoices: ['str', 'con', 'wis'],
     skillsGranted: ['animalHandling', 'nature'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Carpenter's Tools"],
+    toolsGranted: ['Carpenter\'s Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'You\u2019ve tilled the soil or raised animals as livestock or to aid you in cultivating your fields. You\u2019ve gained a healthy respect for nature, in both its bounty and its wrath.',
+    description: 'You grew up close to the land. Years tending animals and cultivating the earth rewarded you with patience and good health. You have a keen appreciation for nature\'s bounty alongside a healthy respect for nature\'s wrath.',
   },
+
   {
     id: 'guard',
     name: 'Guard',
     source: 'phb',
     originFeatId: 'alert',
-    originFeatName: 'Alert',
+    originFeatName: 'Ability Scores: Strength, Intelligence, Wisdom Feat: Alert Skill Proficiencies: Athletics and Perception Tool Proficiency: Choose one kind of Gaming Set Equipment: Choose A or B: (A) Spear, Light Crossbow, 20 Bolts, Gaming Set (same as above), Hooded Lantern, Manacles, Quiver, Traveler\'s Clothes, 12 GP; or (B) 50 GP',
     originFeatDescription:
-      'Add your Proficiency Bonus when you roll Initiative. Can also swap your Initiative with a willing ally in the same combat.',
+      'Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can\'t make this swap if you or the ally has the Incapacitated condition.',
     abilityBonusChoices: ['str', 'int', 'wis'],
     skillsGranted: ['athletics', 'perception'],
     skillChoices: [],
     skillChoiceCount: 0,
     toolsGranted: [],
-    toolChoices: ['Gaming Set (one kind of your choice)'],
+    toolChoices: ['Choose one kind of Gaming Set'],
     toolChoiceCount: 1,
     toolChoiceCategory: 'gamingSet',
-    description:
-      'You\u2019ve put in your time standing watch over a city or location. You\u2019ve had your head on a swivel, keeping a watchful eye on raiding enemies on one side of a wall or criminal elements on the other.',
+    description: 'Your feet ache when you remember the countless hours you spent at your post in the tower. You were trained to keep one eye looking outside the wall, watching for marauders sweeping from the nearby forest, and your other eye looking inside the wall, searching for cutpurses and troublemakers.',
   },
+
   {
     id: 'guide',
     name: 'Guide',
     source: 'phb',
     originFeatId: 'magic-initiate',
-    originFeatName: 'Magic Initiate (Druid)',
+    originFeatName: 'Ability Scores: Dexterity, Constitution, Wisdom Feat: Magic Initiate (Druid) Skill Proficiencies: Stealth and Survival Tool Proficiency: Cartographer\'s Tools Equipment: Choose A or B: (A) Shortbow, 20 Arrows, Cartographer\'s Tools, Bedroll, Quiver, Tent, Traveler\'s Clothes, 3 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain two cantrips and one level 1 spell from the Cleric, Druid, or Wizard spell list, and can replace them with another spell of the same level from the same list when you gain a level. You choose Wisdom, Intelligence, or Charisma as your spellcasting modifier for these spells when you take this feat. You can cast these spells once per Long Rest without expending a spell slot, and can cast them again using spell slots. This feat can be taken more than once, but you must choose a different spell list each time.',
+      'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
     abilityBonusChoices: ['dex', 'con', 'wis'],
     skillsGranted: ['stealth', 'survival'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Cartographer's Tools"],
+    toolsGranted: ['Cartographer\'s Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'Your life was mostly spent outdoors, exploring the natural wonders around you. In your travels, you learned the basics of how to channel the magic of the wild world around you.',
+    description: 'You came of age outdoors, far from settled lands. Your home was anywhere you chose to spread your bedroll. There are wonders in the wilderness- strange monsters, pristine forests and streams, overgrown ruins of great halls once trod by giants- and you learned to fend for yourself as you explored them. From time to time, you guided friendly nature priests who instructed you in the fundamentals of channeling the magic of the wild.',
   },
+
   {
     id: 'hermit',
     name: 'Hermit',
     source: 'phb',
     originFeatId: 'healer',
-    originFeatName: 'Healer',
+    originFeatName: 'Ability Scores: Constitution, Wisdom, Charisma Feat: Healer Skill Proficiencies: Medicine and Religion Tool Proficiency: Herbalism Kit Equipment: Choose A or B: (A) Quarterstaff, Herbalism Kit, Bedroll, Book (philosophy), Lamp, Oil (3 flasks), Traveler\'s Clothes, 16 GP; or (B) 50 GP',
     originFeatDescription:
-      'When you Utilize a Healer\u2019s Kit as an action, a creature can expend one of its Hit Point Dice to heal. Your Proficiency Bonus is added to the roll. When you roll to determine Hit Points when healing with this feature or a spell, you can reroll the dice if it rolls a 1. You must use the new roll.',
+      'Battle Medic. If you have a Healer\'s Kit, you can expend one use of it and tend to a creature within 5 feet of yourself as a Utilize action. That creature can expend one of its Hit Point Dice, and you then roll that die. The creature regains a number of Hit Points equal to the roll plus your Proficiency Bonus. Healing Rerolls. Whenever you roll a die to determine the number of Hit Points you restore with a spell or with this feat\'s Battle Medic benefit, you can reroll the die if it rolls a 1, and you must use the new roll.',
     abilityBonusChoices: ['con', 'wis', 'cha'],
     skillsGranted: ['medicine', 'religion'],
     skillChoices: [],
@@ -206,136 +176,1137 @@ export const BACKGROUNDS: BackgroundDef[] = [
     toolsGranted: ['Herbalism Kit'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'Whether alone in a hut or as part of a monastery, you\u2019ve spent a considerable amount of time outside the trappings of society. You\u2019ve grown comfortable pondering the wonders and mysteries of creation.',
+    description: 'You spent your early years secluded in a hut or monastery located well beyond the outskirts of the nearest settlement. In those days, your only companions were the creatures of the forest and those who would occasionally visit to bring news of the outside world and supplies. The solitude allowed you to spend many hours pondering the mysteries of creation.',
   },
+
   {
     id: 'merchant',
     name: 'Merchant',
     source: 'phb',
     originFeatId: 'lucky',
-    originFeatName: 'Lucky',
+    originFeatName: 'Ability Scores: Constitution, Intelligence, Charisma Feat: Lucky Skill Proficiencies: Animal Handling and Persuasion Tool Proficiency: Navigator\'s Tools Equipment: Choose A or B: (A) Navigator\'s Tools, 2 Pouches, Traveler\'s Clothes, 22 GP; or (B) 50 GP',
     originFeatDescription:
-      'After finishing a Long Rest, you have a number of Luck Points equal to your Proficiency Bonus. You can expend one when you make a D20 Test to give yourself Advantage. You can also expend one to impose Disadvantage when a creature rolls a d20 to make an attack roll against you.',
+      'Luck Points. You have a number of Luck Points equal to your Proficiency Bonus and can spend the points on the benefits below. You regain your expended Luck Points when you finish a Long Rest. Advantage. When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll. Disadvantage. When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.',
     abilityBonusChoices: ['con', 'int', 'cha'],
     skillsGranted: ['animalHandling', 'persuasion'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Navigator's Tools"],
+    toolsGranted: ['Navigator\'s Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'As an apprentice to a trader or shopkeeper, you traveled either supplying artisans with the materials they needed or acquiring their goods to sell to your customers. You know how to make a deal and how to handle a long journey.',
+    description: 'You were apprenticed to a trader, caravan master, or shopkeeper, learning the fundamentals of commerce. You traveled broadly, and you earned a living by buying and selling the raw materials artisans need to practice their craft or finished works from such crafters. You might have transported goods from one place to another (by ship, wagon, or caravan) or bought them from traveling traders and sold them in your own shop.',
   },
+
   {
     id: 'noble',
     name: 'Noble',
     source: 'phb',
     originFeatId: 'skilled',
-    originFeatName: 'Skilled',
+    originFeatName: 'Ability Scores: Strength, Intelligence, Charisma Feat: Skilled Skill Proficiencies: History and Persuasion Tool Proficiency: Choose one kind of Gaming Set Equipment: Choose A or B: (A) Gaming Set (same as above), Fine Clothes, Perfume, 29 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain proficiency in any combination of three skills or tools of your choice. You can take this feat more than once.',
+      'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
     abilityBonusChoices: ['str', 'int', 'cha'],
     skillsGranted: ['history', 'persuasion'],
     skillChoices: [],
     skillChoiceCount: 0,
     toolsGranted: [],
-    toolChoices: ['Gaming Set (one kind of your choice)'],
+    toolChoices: ['Choose one kind of Gaming Set'],
     toolChoiceCount: 1,
     toolChoiceCategory: 'gamingSet',
-    description:
-      'You grew up in the opulence and structure of wealth and societal privilege. You may have bristled against the restrictions and expectations of your role, but you learned a lot about courtly intrigue and the skills of leadership.',
+    description: 'You were raised in a castle, surrounded by wealth, power, and privilege. Your family of minor aristocrats ensured that you received a first-class education, some of which you appreciated and some of which you resented. Your time in the castle, especially the many hours you spent observing your family at court, also taught you a great deal about leadership.',
   },
+
   {
     id: 'sage',
     name: 'Sage',
     source: 'srd',
     originFeatId: 'magic-initiate',
-    originFeatName: 'Magic Initiate (Wizard)',
+    originFeatName: 'Ability Scores: Constitution, Intelligence, Wisdom Feat: Magic Initiate (Wizard) Skill Proficiencies: Arcana and History Tool Proficiency: Calligrapher\'s Supplies Equipment: Choose A or B: (A) Quarterstaff, Calligrapher\'s Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain two cantrips and one level 1 spell from the Cleric, Druid, or Wizard spell list, and can replace them with another spell of the same level from the same list when you gain a level. You choose Wisdom, Intelligence, or Charisma as your spellcasting modifier for these spells when you take this feat. You can cast these spells once per Long Rest without expending a spell slot, and can cast them again using spell slots. This feat can be taken more than once, but you must choose a different spell list each time.',
+      'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
     abilityBonusChoices: ['con', 'int', 'wis'],
     skillsGranted: ['arcana', 'history'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Calligrapher's Supplies"],
+    toolsGranted: ['Calligrapher\'s Supplies'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'Your thirst for knowledge drew you to some of the greatest libraries and archives in the world. You\u2019ve got a knack for research and perhaps a rudimentary knowledge of magic gleaned from a book or two.',
+    description: 'You spent your formative years traveling between manors and monasteries, performing various odd jobs and services in exchange for access to their libraries. You whiled away many a long evening studying books and scrolls, learning the lore of the multiverse - even the rudiments of magic - and your mind yearns for more.',
   },
+
   {
     id: 'sailor',
     name: 'Sailor',
     source: 'phb',
     originFeatId: 'tavern-brawler',
-    originFeatName: 'Tavern Brawler',
+    originFeatName: 'Ability Scores: Strength, Dexterity, Wisdom Feat: Tavern Brawler Skill Proficiencies: Acrobatics and Perception Tool Proficiency: Navigator\'s Tools Equipment: Choose A or B: (A) Dagger, Navigator\'s Tools, Rope, Traveler\'s Clothes, 20 GP; or (B) 50 GP',
     originFeatDescription:
-      'When you hit with an Unarmed Strike and deal damage, you can deal 1d4 + your Strength modifier. If the damage dice for your Unarmed Strikes roll is a 1, you can reroll it and must use the new roll. You have proficiency with improvised weapons. Once per turn, when you hit a creature with an Unarmed Strike as part of the Attack action, in addition to dealing damage, you can push the target 5 feet away from you.',
+      'Enhanced Unarmed Strike. When you hit with your Unarmed Strike and deal damage, you can deal Bludgeoning damage equal to 1d4 plus your Strength modifier instead of the normal damage of an Unarmed Strike. Damage Rerolls. Whenever you roll a damage die for your Unarmed Strike, you can reroll the die if it rolls a 1, and you must use the new roll. Improvised Weaponry. You have proficiency with improvised weapons. Push. When you hit a creature with an Unarmed Strike as part of the Attack action on your turn, you can deal damage to the target and also push it 5 feet away from you. You can use this benefit only once per turn.',
     abilityBonusChoices: ['str', 'dex', 'wis'],
     skillsGranted: ['acrobatics', 'perception'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Navigator's Tools"],
+    toolsGranted: ['Navigator\'s Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'You called the open water your home, survived some of the sea\u2019s harshest storms. You\u2019ve swapped stories with the best of them, whether that\u2019s on the barstool of a random port or the denizens of the world beneath the waves.',
+    description: 'You lived as a seafarer, wind at your back and decks swaying beneath your feet. You\'ve perched on barstools in more ports of call than you can remember, faced mighty storms, and swapped stories with folk who live beneath the waves.',
   },
+
   {
     id: 'scribe',
     name: 'Scribe',
     source: 'phb',
     originFeatId: 'skilled',
-    originFeatName: 'Skilled',
+    originFeatName: 'Ability Scores: Dexterity, Intelligence, Wisdom Feat: Skilled Skill Proficiencies: Investigation and Perception Tool Proficiency: Calligrapher\'s Supplies Equipment: Choose A or B: (A) Calligrapher\'s Supplies, Fine Clothes, Lamp, Oil (3 flasks), Parchment (12 sheets), 23 GP; or (B) 50 GP',
     originFeatDescription:
-      'You gain proficiency in any combination of three skills or tools of your choice. You can take this feat more than once.',
+      'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
     abilityBonusChoices: ['dex', 'int', 'wis'],
     skillsGranted: ['investigation', 'perception'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Calligrapher's Supplies"],
+    toolsGranted: ['Calligrapher\'s Supplies'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'The written word has been your domain, either copying tomes, crafting government documents, or producing your own texts. Your eye for detail and ability to catch errors and mistakes is finely honed.',
+    description: 'You spent formative years in a scriptorium, a monastery dedicated to the preservation of knowledge, or a government agency, where you learned to write with a clear hand and produce finely written texts. Perhaps you scribed government documents or copied tomes of literature. You might have some skill as a writer of poetry, narrative, or scholarly research. Above all, you have a careful attention to detail, helping you avoid introducing mistakes to the documents you copy and create.',
   },
+
   {
     id: 'soldier',
     name: 'Soldier',
     source: 'srd',
     originFeatId: 'savage-attacker',
-    originFeatName: 'Savage Attacker',
+    originFeatName: 'Ability Scores: Strength, Dexterity, Constitution Feat: Savage Attacker Skill Proficiencies: Athletics and Intimidation Tool Proficiency: Choose one kind of Gaming Set Equipment: Choose A or B: (A) Spear, Shortbow, 20 Arrows, Gaming Set (same as above), Healer\'s Kit, Quiver, Traveler\'s Clothes, 14 GP; or (B) 50 GP',
     originFeatDescription:
-      'Once per turn, when you hit a target with a weapon attack, you can roll the weapon damage dice twice and use either roll against the target.',
+      'You\'ve trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon\'s damage dice twice and use either roll against the target.',
     abilityBonusChoices: ['str', 'dex', 'con'],
     skillsGranted: ['athletics', 'intimidation'],
     skillChoices: [],
     skillChoiceCount: 0,
     toolsGranted: [],
-    toolChoices: ['Gaming Set (one kind of your choice)'],
+    toolChoices: ['Choose one kind of Gaming Set'],
     toolChoiceCount: 1,
     toolChoiceCategory: 'gamingSet',
-    description:
-      'You can hardly remember a time when you didn\u2019t wield a weapon. You\u2019re well-versed in the ways of battle and war to protect the realm, and you have the muscle memory to prove it.',
+    description: 'You began training for war as soon as you reached adulthood and carry precious few memories of life before you took up arms. Battle is in your blood. Sometimes you catch yourself reflexively performing the basic fighting exercises you learned first. Eventually, you put that training to use on the battlefield, protecting the realm by waging war.',
   },
+
   {
     id: 'wayfarer',
     name: 'Wayfarer',
     source: 'phb',
     originFeatId: 'lucky',
-    originFeatName: 'Lucky',
+    originFeatName: 'Ability Scores: Dexterity, Wisdom, Charisma Feat: Lucky Skill Proficiencies: Insight and Stealth Tool Proficiency: Thieves\' Tools Equipment: Choose A or B: (A) 2 Daggers, Thieves\' Tools, Gaming Set (any), Bedroll, 2 Pouches, Traveler\'s Clothes, 16 GP; or (B) 50 GP',
     originFeatDescription:
-      'After finishing a Long Rest, you have a number of Luck Points equal to your Proficiency Bonus. You can expend one when you make a D20 Test to give yourself Advantage. You can also expend one to impose Disadvantage when a creature rolls a d20 to make an attack roll against you.',
+      'Luck Points. You have a number of Luck Points equal to your Proficiency Bonus and can spend the points on the benefits below. You regain your expended Luck Points when you finish a Long Rest. Advantage. When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll. Disadvantage. When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.',
     abilityBonusChoices: ['dex', 'wis', 'cha'],
     skillsGranted: ['insight', 'stealth'],
     skillChoices: [],
     skillChoiceCount: 0,
-    toolsGranted: ["Thieves' Tools"],
+    toolsGranted: ['Thieves\' Tools'],
     toolChoices: [],
     toolChoiceCount: 0,
-    description:
-      'An urchin or societal castoff, you learned to survive. Forging your own path on the streets and possibly turning to crime when needed, you\u2019ve managed to keep your pride and hope that destiny has more for you yet.',
+    description: 'You grew up on the streets surrounded by similarly ill-fated castoffs, a few of them friends and a few of them rivals. You slept where you could and did odd jobs for food. At times, when the hunger became unbearable, you resorted to theft. Still, you never lost your pride and never abandoned hope. Fate is not yet finished with you.',
+  },
+
+  {
+    id: 'aberrant-heir',
+    name: 'Aberrant Heir',
+    source: 'eberron',
+    originFeatId: 'aberrant-dragonmark',
+    originFeatName: 'Aberrant Dragonmark',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Aberrant Fortitude. When you fail a Constitution saving throw, you can take a Reaction to roll 1d4 and add the number rolled to the save, potentially turning the failure into a success. Once you\'ve used this benefit, you can\'t use it again until you finish a Long Rest. Aberrant Magic. You know one cantrip of your choice from the Sorcerer spell list. Also, choose a level 1 spell from that spell list. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Short or Long Rest. You can also cast this spell using any spell slots you have. Constitution is your spellcasting ability for this spell. Aberrant Surge. When you cast the level 1 spell from this feat, you can expend one of your Hit Point Dice and roll it. If you roll an even number, you gain a number of Temporary Hit Points equal to the number rolled. If you roll an odd number, one creature within 30 feet of you (not including you) takes Force damage equal to the number rolled. If no other creatures are in range, you take the damage.',
+    abilityBonusChoices: ['str', 'con', 'cha'],
+    skillsGranted: ['history', 'intimidation'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Your aberrant dragonmark has made life challenging since it manifested. You might have hidden it successfully for most of your life or managed to avoid notice. Alternatively, you might have encountered suspicion and fear, perhaps coupled with the outright antagonism of one or more dragonmarked houses. You might have formed an association with the House Tarkanan criminal organization (named for one of the most notorious leaders of the aberrant dragonmarked in the War of the Mark twenty-five centuries ago). Or you might struggle to find your own way in the world, relying on your wits and the power of your mark.',
+  },
+
+  {
+    id: 'archaeologist',
+    name: 'Archaeologist',
+    source: 'eberron',
+    originFeatId: 'skilled',
+    originFeatName: 'Skilled',
+    originFeatDescription:
+      'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
+    abilityBonusChoices: ['dex', 'int', 'wis'],
+    skillsGranted: ['history', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cartographer\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You\'ve made a lifelong study of the lost and fallen cultures of the past, visiting their ruins, deciphering their written records, and examining their surviving masterworks. Perhaps you studied at Morgrave University or a similar institution, supplementing your time in the library with fieldwork amid ancient ruins in remote locations. Some archaeologists plunder the treasures of the past in search of wealth or fame, but most consider it their calling to learn from the past. In any case, the archaeologists of Eberron combine the qualities of learned historians with the grit of treasure hunters.',
+  },
+
+  {
+    id: 'house-agent',
+    name: 'House Agent',
+    source: 'eberron',
+    originFeatId: 'lucky',
+    originFeatName: 'Lucky',
+    originFeatDescription:
+      'Luck Points. You have a number of Luck Points equal to your Proficiency Bonus and can spend the points on the benefits below. You regain your expended Luck Points when you finish a Long Rest. Advantage. When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll. Disadvantage. When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.',
+    abilityBonusChoices: ['str', 'int', 'cha'],
+    skillsGranted: ['investigation', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Artisan\'s Tools'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'artisansTools',
+    description: 'You are connected to one of the dragonmarked houses, but you haven\'t (yet) manifested a dragonmark. You might be a member of the family by birth or an employee of the house with no familial connection. You\'ve earned your living by doing the business of the house, serving as the hands, feet, and eyes of house leadership in the world. You might have many old friends, mentors, and rivals in the house you serve, plus allies or enemies in other houses.',
+  },
+
+  {
+    id: 'house-cannith-heir',
+    name: 'House Cannith Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-making',
+    originFeatName: 'Mark of Making',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Artisan\'s Intuition. When you make an Intelligence (Arcana) check or an ability check using Artisan\'s Tools, you can roll 1d4 and add the number rolled to the ability check. Spellsmith. You know the Mending cantrip. You also always have the Magic Weapon spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic class feature, the spells on the Mark of Making Spells table are added to that feature\'s spell list.',
+    abilityBonusChoices: ['str', 'dex', 'int'],
+    skillsGranted: ['investigation', 'sleightOfHand'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Artisan\'s Tools'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'artisansTools',
+    description: 'As a scion of House Cannith, you carry a proud legacy. Cannith creates wonders of the modern world, and you\'re expected to contribute to the ongoing success of the house through invention, scholarship, business, or diplomacy. The only thing that can stand in your way is the deep rift within your own house. The sooner the three barons sort out which of them is the true head of the house (and you, no doubt, have your preference), the sooner House Cannith can claim its rightful position of leadership among all the dragonmarked houses.',
+  },
+
+  {
+    id: 'house-deneith-heir',
+    name: 'House Deneith Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-sentinel',
+    originFeatName: 'Mark of Sentinel',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Sentinel\'s Intuition. When you make a Wisdom (Insight or Perception) check, you can roll 1d4 and add the number rolled to the ability check. Guardian\'s Shield. You always have the Shield spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Vigilant Guardian. When a creature you can see within 5 feet of you is hit by an attack roll, you can take a Reaction to swap places with that creature, and you are hit by the attack instead. You can use this feature a number of times equal to your Proficiency Bonus and regain all expended uses when you finish a Long Rest. Spells of the Mark. If you have the Spellcasting or Pact Magic class feature, the spells on the Mark of Sentinel Spells table are added to that feature\'s spell list. Mark of Sentinel Spells',
+    abilityBonusChoices: ['str', 'con', 'wis'],
+    skillsGranted: ['insight', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'As an heir of House Deneith, you\'ve been trained for combat-not to seek it out, but not to shy from it either. You\'ve learned the importance of duty, honor, and the laws used to govern society when duty and honor fail. As you established your name in the house, you might have worked as a bodyguard for some minor dignitary, as a mercenary, or as a marshal hunting fugitives. Now you\'re prepared to claim your rightful standing in the mightiest of the dragonmarked houses.',
+  },
+
+  {
+    id: 'house-ghallanda-heir',
+    name: 'House Ghallanda Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-hospitality',
+    originFeatName: 'Mark of Hospitality',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Ever Hospitable. When you make a Charisma (Persuasion) check or an ability check using Brewer\'s Supplies or Cook\'s Utensils, you can roll 1d4 and add the number rolled to the ability check. Innkeeper\'s Magic. You always have the Purify Food and Drink and Unseen Servant spells prepared. You can cast each spell once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast these spells using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). When you reach character level 3, you also always have the Calm Emotions spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Hospitality Spells table are added to that feature\'s spell list. Mark of Hospitality Spells',
+    abilityBonusChoices: ['dex', 'wis', 'cha'],
+    skillsGranted: ['insight', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cook\'s Utensils'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Thanks to your connections to House Ghallanda, you grew up accustomed to creature comforts, lively conversation, good drink, and delicious food. You might be a charming and witty scion of the house who loves nothing more than a pleasant evening beside a warm hearth. Or you could be a schemer who exploits bonds of trust and friendship to bend others to your will. You might pursue an adventuring career to master the cuisines of other cultures and ages, expand your network of useful contacts, or earn enough money to open your own inn.',
+  },
+
+  {
+    id: 'house-jorasco-heir',
+    name: 'House Jorasco Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-healing',
+    originFeatName: 'Mark of Healing',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Medical Intuition. When you make a Wisdom (Medicine) check or an ability check using a Herbalism Kit, you can roll 1d4 and add the number rolled to the ability check. Healing Touch. You always have the Cure Wounds spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). When you reach character level 3, you also always have the Lesser Restoration spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Healing Spells table are added to that feature\'s spell list. Mark of Healing Spells',
+    abilityBonusChoices: ['dex', 'con', 'wis'],
+    skillsGranted: ['medicine', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Herbalism Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'House Jorasco teaches that illness and injury stalk the living like ghosts, robbing people of health and longevity. You\'ve been taught ways to combat these scourges, both magically and medically. You\'re trained to use those skills in the service of others-and to ascertain that you are always appropriately compensated for this service, ensuring the health and longevity of House Jorasco. You might be a kindly healer with no stomach for combat or a dispassionate specialist who knows exactly how to incapacitate or kill an enemy with precise strikes.',
+  },
+
+  {
+    id: 'house-kundarak-heir',
+    name: 'House Kundarak Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-warding',
+    originFeatName: 'Mark of Warding',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Warder\'s Intuition. When you make an Intelligence (Investigation) check or an ability check using Thieves\' Tools, you can roll 1d4 and add the number rolled to the ability check. Wards and Seals. You always have the Alarm and Mage Armor spells prepared. You can cast each spell once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast these spells using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). When you reach character level 3, you also always have the Arcane Lock spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Warding Spells table are added to that feature\'s spell list. Mark of Warding Spells',
+    abilityBonusChoices: ['str', 'con', 'int'],
+    skillsGranted: ['arcana', 'investigation'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Thieves\' Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'As an heir of House Kundarak, you take great pride in your family and its work of safeguarding the valuables of Khorvaire. Your house has always been a leader among the clans of the Mror Holds. Though it has never held the crown, it has a reputation for professionalism, honor, and order. You might strive to uphold that reputation, you might place your own sense of honor over your family\'s, or you could rebel against the house\'s expectations and flout the demands of honor.',
+  },
+
+  {
+    id: 'house-lyrandar-heir',
+    name: 'House Lyrandar Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-storm',
+    originFeatName: 'Mark of Storm',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Windwright\'s Intuition. When you make a Dexterity (Acrobatics) check or an ability check using Navigator\'s Tools, you can roll 1d4 and add the number rolled to the ability check. Storm\'s Boon. You have Resistance to Lightning damage. Storm Magic. You know the Thunderclap cantrip. When you reach character level 3, you also always have the Gust of Wind spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Storm Spells table are added to that feature\'s spell list. Mark of Storm Spells',
+    abilityBonusChoices: ['str', 'dex', 'cha'],
+    skillsGranted: ['acrobatics', 'nature'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Navigator\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'As an heir of House Lyrandar, the wind is your ally, the sea and sky your dominion. Despite the devastation of the Last War, your house is on the ascendancy, buoyed by its mastery of the new airship technology. You might have spent your early career on the sea as a sailor or navigator; as a shipwright; or as a member of the Raincallers\' Guild, manipulating the weather and assisting with irrigation and similar public works. Or you might have been among the first in your house to take to the skies as part of an airship crew. Service to the house might call you to hunt pirates in the Lhazaar Sea, to explore ancient ruins in search of magical technology to bind elemental forces, or to salvage a wrecked airship in the Mournland.',
+  },
+
+  {
+    id: 'house-medani-heir',
+    name: 'House Medani Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-detection',
+    originFeatName: 'Mark of Detection',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Deductive Intuition. When you make an Intelligence (Investigation) or Wisdom (Insight) check, you can roll 1d4 and add the number rolled to the ability check. Magical Detection. You always have the Detect Magic and Detect Poison and Disease spells prepared. You can cast each spell once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast these spells using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). When you reach character level 3, you also always have the See Invisibility spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Detection Spells table are added to that feature\'s spell list. Mark of Detection Spells',
+    abilityBonusChoices: ['dex', 'int', 'wis'],
+    skillsGranted: ['insight', 'investigation'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'As a member of House Medani, your life revolves around subterfuge - not engaging in it, but preventing others from doing so. You see the world around you as an intricate web of schemes, plots, and counterplots. Assessing the range of possibilities, you use instinct to predict threats to your clients and defend against them well before those threats can turn into danger. Defending against an assassin\'s blade is a job any Deneith sellsword or Tharashk enforcer can do - making sure no one ever draws that blade is the Medani way.',
+  },
+
+  {
+    id: 'house-orien-heir',
+    name: 'House Orien Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-passage',
+    originFeatName: 'Mark of Passage',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Courier\'s Speed. Your Speed increases by 5 feet. Intuitive Motion. When you make a Strength (Athletics) or Dexterity (Acrobatics) check, you can roll 1d4 and add the number rolled to the ability check. Magical Passage. You always have the Misty Step spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Passage Spells table are added to that feature\'s spell list. Mark of Passage Spells',
+    abilityBonusChoices: ['dex', 'con', 'int'],
+    skillsGranted: ['acrobatics', 'athletics'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cartographer\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Before the Last War, Orien\'s influence covered Khorvaire, and its trade roads and lightning rails were the lifeblood of a vibrant kingdom. But the war cut those arteries, leaving Galifar dead and House Orien bloodied. While the house\'s couriers and shippers still keep goods moving on both sides of the continent, finding a way to reestablish routes across the Mournland remains the house\'s top priority. In the meantime, Orien adventurers can serve their house by investigating missing couriers, recovering goods stolen from caravans, and troubleshooting disruptions to the lightning rail.',
+  },
+
+  {
+    id: 'house-phiarlan-heir',
+    name: 'House Phiarlan Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-shadow',
+    originFeatName: 'Mark of Shadow',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Cunning Intuition. When you make a Dexterity (Stealth) or Charisma (Performance) check, you can roll 1d4 and add the number rolled to the ability check. Shape Shadows. You know the Minor Illusion cantrip. You also always have the Invisibility spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Shadow Spells table are added to that feature\'s spell list. Mark of Shadow Spells',
+    abilityBonusChoices: ['dex', 'wis', 'cha'],
+    skillsGranted: ['deception', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Though you have seen wealth, fame, and beauty as a child of House Phiarlan, you consider knowledge (and the power it brings) the greatest treasure of all. You might pursue that power as an artist or performer, always alert for secrets even as you regale the world with story, song, acrobatics, or art. Or you might foster ties to the secretive espionage arm of your house: the Serpentine Table.',
+  },
+
+  {
+    id: 'house-sivis-heir',
+    name: 'House Sivis Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-scribing',
+    originFeatName: 'Mark of Scribing',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Gifted Scribe. When you make an Intelligence (History) check or an ability check using Calligrapher\'s Supplies, you can roll 1d4 and add the number rolled to the ability check. Scribe\'s Insight. You know the Message cantrip. You also always have the Comprehend Languages spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). When you reach character level 3, you also always have the Magic Mouth spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic class feature, the spells on the Mark of Scribing Spells table are added to that feature\'s spell list. Mark of Scribing Spells',
+    abilityBonusChoices: ['int', 'wis', 'cha'],
+    skillsGranted: ['history', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Calligrapher\'s Supplies'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'For nearly thirty centuries, your family has worked to maintain order. Communication is the cord that binds civilization together, and your ancestors settled the disputes of sovereigns and helped the dragonmarked houses find a place in the world. Few people realize the influence House Sivis has had on the shape of the modern age-just as few know how often a royal adviser holds more power than the actual ruler. While the other dragonmarked houses fight for fame and recognition, House Sivis plays a long game of subtle influence behind the scenes, keeping order amid the chaos of unending intrigue.',
+  },
+
+  {
+    id: 'house-tharashk-heir',
+    name: 'House Tharashk Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-finding',
+    originFeatName: 'Mark of Finding',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Hunter\'s Intuition. When you make a Wisdom (Perception or Survival) check, you can roll 1d4 and add the number rolled to the ability check. Finder\'s Magic. You always have the Hunter\'s Mark spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). When you reach character level 3, you also always have the Locate Object spell prepared and can cast it the same way. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Finding Spells table are added to that feature\'s spell list. Mark of Finding Spells',
+    abilityBonusChoices: ['con', 'int', 'wis'],
+    skillsGranted: ['perception', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'Heirs of other houses lead lives of luxury, but in House Tharashk you learned self-reliance from an early age. What your young house lacks in resources, it makes up for in spirit and determination. Tharashk has a destiny to fulfill, and you have a part in it. Whether in combat or in social interaction, you have learned to play the role of the hunter: study your enemies, exploit their weaknesses, and do whatever it takes to achieve victory.',
+  },
+
+  {
+    id: 'house-thuranni-heir',
+    name: 'House Thuranni Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-shadow',
+    originFeatName: 'Mark of Shadow',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t Have Another Dragonmark Feat) Cunning Intuition. When you make a Dexterity (Stealth) or Charisma (Performance) check, you can roll 1d4 and add the number rolled to the ability check. Shape Shadows. You know the Minor Illusion cantrip. You also always have the Invisibility spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Shadow Spells table are added to that feature\'s spell list. Mark of Shadow Spells',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['performance', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Musical Instrument'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'musicalInstrument',
+    description: 'Given House Thuranni\'s short history and focus on espionage, its leaders expect you to further the interests of the house at every opportunity. During the house\'s formative years as an independent entity, every move you make has been watched closely. This isn\'t to say that every Thuranni heir must actively spy at the behest of house elders. But even the house\'s most insular artists and artisans must keep up with current political events and pass on or collect information when asked.',
+  },
+
+  {
+    id: 'house-vadalis-heir',
+    name: 'House Vadalis Heir',
+    source: 'eberron',
+    originFeatId: 'mark-of-handling',
+    originFeatName: 'Mark of Handling',
+    originFeatDescription:
+      'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Wild Intuition. When you make an Intelligence (Nature) or Wisdom (Animal Handling) check, you can roll 1d4 and add the number rolled to the ability check. Primal Connection. You always have the Animal Friendship and Speak with Animals spells prepared. You can cast each spell once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast these spells using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells (choose when you select this feat). Monstrous Connections. When you reach character level 3, you can target a Monstrosity when you cast Animal Friendship or Speak with Animals if the creature\'s Intelligence score is 3 or lower. Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Handling Spells table are added to that feature\'s spell list. Mark of Handling Spells',
+    abilityBonusChoices: ['con', 'wis', 'cha'],
+    skillsGranted: ['animalHandling', 'nature'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Herbalism Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You have grown up with respect for both family and nature. You understand the culture of the Five Nations, but you don\'t get drawn into the games of ambition and status that others play. You know the beauty and power inherent in life, the mysteries of birth and death, and the miracles that happen in between. Your insights into the natural world allow you to see through the lies and deception of city folk-and never let on how much of their subterfuge you recognize.',
+  },
+
+  {
+    id: 'inquisitive',
+    name: 'Inquisitive',
+    source: 'eberron',
+    originFeatId: 'alert',
+    originFeatName: 'Alert',
+    originFeatDescription:
+      'Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can\'t make this swap if you or the ally has the Incapacitated condition.',
+    abilityBonusChoices: ['con', 'int', 'cha'],
+    skillsGranted: ['insight', 'investigation'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Thieves\' Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You have honed your talents of investigation and deduction-fueled by a boundless curiosity-to explore mysteries, find missing people, recover stolen goods, unearth corruption and conspiracies, and solve crimes. As an inquisitive, you might have pursued freelance work, signed on with an inquisitive agency (perhaps one licensed by a dragonmarked house such as Medani or Tharashk), reported for a broadsheet, or worked for a police force.',
+  },
+
+  {
+    id: 'chondathan-freebooter',
+    name: 'Chondathan Freebooter',
+    source: 'faerun',
+    originFeatId: 'skilled',
+    originFeatName: 'Skilled',
+    originFeatDescription:
+      'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
+    abilityBonusChoices: ['str', 'dex', 'wis'],
+    skillsGranted: ['athletics', 'sleightOfHand'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Weaver\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Though most youths in Chondath accept their four-year term of compulsory military service, you bristled at that authoritarian attempt to control your life. You forsook your nationhood, discarded your given name, and worked as a freebooter with the first ship that would have you. Since then, you\'ve traveled the Vilhon Reach. Though you\'ve never sailed more than a few dozen leagues from land, you make up for it with deep local connections and the breadth of your experiences.',
+  },
+
+  {
+    id: 'dead-magic-dweller',
+    name: 'Dead Magic Dweller',
+    source: 'faerun',
+    originFeatId: 'healer',
+    originFeatName: 'Healer',
+    originFeatDescription:
+      'Battle Medic. If you have a Healer\'s Kit, you can expend one use of it and tend to a creature within 5 feet of yourself as a Utilize action. That creature can expend one of its Hit Point Dice, and you then roll that die. The creature regains a number of Hit Points equal to the roll plus your Proficiency Bonus. Healing Rerolls. Whenever you roll a die to determine the number of Hit Points you restore with a spell or with this feat\'s Battle Medic benefit, you can reroll the die if it rolls a 1, and you must use the new roll.',
+    abilityBonusChoices: ['str', 'con', 'wis'],
+    skillsGranted: ['medicine', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Leatherworker\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'The dead magic zones of the Anauroch desert are anathema to spellcasters and monsters that rely on magic - which is exactly why you made your life there. Perhaps you\'re on the run from Red Wizards, or you ran afoul of a powerful djinni in Calimshan. Whatever the case, you decided that living in Anauroch was your best option. After long months or years, you\'re stronger, wiser, and armed with hard-earned knowledge of desert medicine and wasteland survival.',
+  },
+
+  {
+    id: 'dragon-cultist',
+    name: 'Dragon Cultist',
+    source: 'faerun',
+    originFeatId: 'cult-of-the-dragon-initiate',
+    originFeatName: 'Cult of the Dragon Initiate',
+    originFeatDescription:
+      'Origin Feat Dragon\'s Tongue. You know Draconic. If you already know Draconic when you select this feat, you instead learn one language of your choice from the language tables in the Player\'s Handbook or chapter 2 of this book. Dragon\'s Terror. You can take a Magic action to instill terror in a creature you can see within 30 feet of yourself. The target must succeed on a Wisdom saving throw (DC 8 plus your Wisdom modifier and Proficiency Bonus) or have the Frightened condition until the end of your next turn. If the target succeeds on the save or when the effect ends for a target, the target is immune to this effect for 24 hours. Inspired by Fear. When you cause a creature to have the Frightened condition and you are the source of its fear, you can gain Heroic Inspiration if you lack it. Once you use this benefit, you can\'t use it again until you finish a Short or Long Rest.',
+    abilityBonusChoices: ['dex', 'con', 'int'],
+    skillsGranted: ['deception', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Calligrapher\'s Supplies'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You are an initiate of the Cult of the Dragon. You discovered or were brought to a cell cult, where you exemplified the values honored by dragon cultists: duplicity, secrecy, and determination. In exchange for your oath to serve the cult, the cult offered you the company of fellow dragon worshipers, plus access to resources that might help further your studies in the realms of arcana and occultism.',
+  },
+
+  {
+    id: 'emerald-enclave-caretaker',
+    name: 'Emerald Enclave Caretaker',
+    source: 'faerun',
+    originFeatId: 'emerald-enclave-fledgling',
+    originFeatName: 'Emerald Enclave Fledgling',
+    originFeatDescription:
+      'Origin Feat Speak with Animals. You always have the Speak with Animals spell prepared and can cast it with any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). When you cast this spell as a Ritual, its duration is 8 hours. Tag Team. When you take the Help action, you can switch places with a willing ally within 5 feet of yourself as part of that same action. This movement doesn\'t provoke Opportunity Attacks. You can\'t use this benefit if the ally has the Incapacitated condition.',
+    abilityBonusChoices: ['con', 'int', 'wis'],
+    skillsGranted: ['nature', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Herbalism Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'As a Caretaker with the Emerald Enclave, you take care of those who care for the world. Either alongside your fellow Emerald Enclave members or by yourself, you\'ve learned essential skills for living with the land: how to track game, where to forage for useful herbs, and even how to forecast the weather. You use these talents to maintain the balance between civilization and the wilds and to rid the world of unnatural creatures.',
+  },
+
+  {
+    id: 'flaming-fist-mercenary',
+    name: 'Flaming Fist Mercenary',
+    source: 'faerun',
+    originFeatId: 'tough',
+    originFeatName: 'Tough',
+    originFeatDescription:
+      'Your Hit Point maximum increases by an amount equal to twice your character level when you gain this feat. Whenever you gain a character level thereafter, your Hit Point maximum increases by an additional 2 Hit Points.',
+    abilityBonusChoices: ['str', 'con', 'cha'],
+    skillsGranted: ['intimidation', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Smith\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'The chief law enforcement branch of Baldur\'s Gate is the Flaming Fist, a brawny mercenary guild led by the city\'s grand duke. You once served as a Flaming Fist, where you learned how to preempt trouble with your intimidating stare and, when necessary, absorb deadly blows. Flaming Fist mercenaries, active or retired, are known as some of the toughest, most resilient warriors along the Sword Coast, and you seek to maintain that reputation.',
+  },
+
+  {
+    id: 'genie-touched',
+    name: 'Genie Touched',
+    source: 'faerun',
+    originFeatId: 'magic-initiate',
+    originFeatName: 'Magic Initiate (Wizard)',
+    originFeatDescription:
+      'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
+    abilityBonusChoices: ['dex', 'wis', 'cha'],
+    skillsGranted: ['perception', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Glassblower\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Although genies no longer rule Calimshan, genie magic is still common in your homeland. Perhaps you inadvertently summoned a djinni from a magic lamp, or maybe you came upon an oasis guarded by a marid. A dao might have saved you from a landslide, or you bargained with an efreeti for fleeting wealth. However your fate intersected with that of a genie, the experience left you with a keen eye, a silver tongue, and more than a touch of magic.',
+  },
+
+  {
+    id: 'harper',
+    name: 'Harper',
+    source: 'faerun',
+    originFeatId: 'harper-agent',
+    originFeatName: 'Harper Agent',
+    originFeatDescription:
+      'Origin Feat Thieves\' Cant. You know Thieves\' Cant. Instrument Training. You gain proficiency with a Musical Instrument of your choice. Distracting Melody. When you take the Help action to assist an ally\'s attack roll, the enemy you\'re distracting can be within 30 feet of you, rather than within 5 feet of you, provided the enemy can see or hear you.',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['performance', 'sleightOfHand'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You accepted an invitation to join the Harpers, pledging an oath to uphold the Harper code and act in service to the common good. Like all Harpers, you understand the value of teamwork as well as when it\'s best to go it alone. Harper veterans have taught you the order\'s secrets-magical melodies, special watchwords, and legerdemain-and have entrusted you to use such knowledge to surveil and undermine the forces of evil.',
+  },
+
+  {
+    id: 'ice-fisher',
+    name: 'Ice Fisher',
+    source: 'faerun',
+    originFeatId: 'alert',
+    originFeatName: 'Alert',
+    originFeatDescription:
+      'Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can\'t make this swap if you or the ally has the Incapacitated condition.',
+    abilityBonusChoices: ['str', 'dex', 'con'],
+    skillsGranted: ['animalHandling', 'athletics'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Woodcarver\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You come from a proud line of ice fishers out of Ten-Towns in Icewind Dale. Catching knucklehead trout isn\'t the most glorious trade in the North, but it\'s an honest living. You\'ve trained your senses for the slightest tug on the line, wrestled big trout out of ice-covered lakes, and gutted enough knucklehead trout to feed your village many times over. These experiences have toughened your body and mind for a life of adventuring.',
+  },
+
+  {
+    id: 'knight-of-the-gauntlet',
+    name: 'Knight Of The Gauntlet',
+    source: 'faerun',
+    originFeatId: 'tyro-of-the-gauntlet',
+    originFeatName: 'Tyro of the Gauntlet',
+    originFeatDescription:
+      'Origin Feat Stand as One. When an ally within 5 feet of you is subjected to an effect that would push or pull it, you can take a Reaction to prevent that ally from being pushed or pulled. To receive this benefit, the ally can\'t have the Incapacitated condition. Vigilant. When you take the Ready action, the next attack roll made against you has Disadvantage before the start of your next turn.',
+    abilityBonusChoices: ['str', 'int', 'wis'],
+    skillsGranted: ['athletics', 'medicine'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Smith\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Not all who answer the call of a higher power are content to pore over scripture in a stuffy temple apse. You chose the path of the holy warrior by joining the Order of the Gauntlet. As a knight of the Gauntlet, you exercise righteous scorn for the forces of evil, unswerving camaraderie for your siblings in arms, and heartfelt compassion for the survivors of war. With weapon and holy symbol in hand, you\'ve sworn not to rest until the light of justice has vanquished the shadow of chaos across Faerûn.',
+  },
+
+  {
+    id: 'lords-alliance-vassal',
+    name: 'Lords\' Alliance Vassal',
+    source: 'faerun',
+    originFeatId: 'lords-alliance-agent',
+    originFeatName: 'Lords\' Alliance Agent',
+    originFeatDescription:
+      'Origin Feat Inspiring Strike. Once per turn when you score a Critical Hit against a creature, you can choose an ally within 30 feet of yourself who can see or hear you and who lacks Heroic Inspiration. That ally gains Heroic Inspiration. Reassert Honor. When an enemy you can see deals damage to an ally of yours that is within 5 feet of you, you have Advantage on your next attack roll against that enemy before the end of your next turn.',
+    abilityBonusChoices: ['str', 'int', 'cha'],
+    skillsGranted: ['insight', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Calligrapher\'s Supplies'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You\'ve pledged your loyalty to a member-city of the Lords\' Alliance. As an Alliance agent, you must uphold the tenets of the Alliance and seek to increase safety and prosperity along the Sword Coast. You\'re sworn to bring honor and glory to your lord\'s house, whether that means securing trade roads for a merchant-lord of Waterdeep or vanquishing monsters upriver of Daggerford. You\'ve trained in the arts of swordplay and statecraft and are as deft with a blade as you are with a quill.',
+  },
+
+  {
+    id: 'moonwell-pilgrim',
+    name: 'Moonwell Pilgrim',
+    source: 'faerun',
+    originFeatId: 'magic-initiate',
+    originFeatName: 'Magic Initiate (Druid)',
+    originFeatDescription:
+      'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
+    abilityBonusChoices: ['con', 'wis', 'cha'],
+    skillsGranted: ['nature', 'performance'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Painter\'s Supplies'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Like many who hail from the Moonshae Isles, you grew up revering the blessed land, its unique gods, and the mysterious shrines called the moonwells. As a moonwell pilgrim, you undertook a quest to visit and commune with every moonwell on (or off) the map. Along your idyllic journeys, you collected a repertoire of Moonshavian folk songs, painted landscapes of enchanting vistas, and even learned how to wield a bit of primal magic.',
+  },
+
+  {
+    id: 'mulhorandi-tomb-raider',
+    name: 'Mulhorandi Tomb Raider',
+    source: 'faerun',
+    originFeatId: 'lucky',
+    originFeatName: 'Lucky',
+    originFeatDescription:
+      'Luck Points. You have a number of Luck Points equal to your Proficiency Bonus and can spend the points on the benefits below. You regain your expended Luck Points when you finish a Long Rest. Advantage. When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll. Disadvantage. When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.',
+    abilityBonusChoices: ['dex', 'con', 'int'],
+    skillsGranted: ['investigation', 'religion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Mason\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You grew up in a land of living god-kings, and as a child you were told countless stories of ancient empires and buried cities. In these tales, Mulhorand was a land overflowing with forgotten riches-priceless treasures awaiting anyone cunning and brave enough to seek them out. You\'ve taken it upon yourself to explore your homeland\'s crypts, tombs, and pyramids to reclaim your people\'s relics.',
+  },
+
+  {
+    id: 'mythalkeeper',
+    name: 'Mythalkeeper',
+    source: 'faerun',
+    originFeatId: 'crafter',
+    originFeatName: 'Crafter',
+    originFeatDescription:
+      'Tool Proficiency. You gain proficiency with three different Artisan\'s Tools of your choice from the Fast Crafting table. Discount. Whenever you buy a nonmagical item, you receive a 20 percent discount on it. Fast Crafting. When you finish a Long Rest, you can craft one piece of gear from the Fast Crafting table, provided you have the Artisan\'s Tools associated with that item and have proficiency with those tools. The item lasts until you finish another Long Rest, at which point the item falls apart.',
+    abilityBonusChoices: ['int', 'wis', 'cha'],
+    skillsGranted: ['arcana', 'history'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Jeweler\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Mythals are sources of great magical power that can alter the Weave or even the very nature of reality. Most were constructed in antiquity, and many have since been damaged or gone dormant. As a mythalkeeper from the Dalelands, your first experience with a mythal was likely in the ruins of Myth Drannor. You roam Faerûn in search of other ruined places of power, hoping to learn more about the history and powers of mythals-or even restore a malfunctioning one.',
+  },
+
+  {
+    id: 'purple-dragon-squire',
+    name: 'Purple Dragon Squire',
+    source: 'faerun',
+    originFeatId: 'purple-dragon-rook',
+    originFeatName: 'Purple Dragon Rook',
+    originFeatDescription:
+      'Origin Feat Entreat. You gain proficiency in one of the following skills: Insight, Performance, or Persuasion. Rallying Cry. When you roll Initiative and don\'t have the Incapacitated condition, you can choose a number of creatures equal to your Proficiency Bonus that you can see within 30 feet of yourself. Those creatures gain Heroic Inspiration. Once you use this benefit, you can\'t do so again until you finish a Long Rest.',
+    abilityBonusChoices: ['str', 'wis', 'cha'],
+    skillsGranted: ['animalHandling', 'insight'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Navigator\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You\'ve pledged your life to the safety of Cormyr and sought admission to that realm\'s order of elite warriors: the Purple Dragon Knights. But before you have the chance to join the ranks officially, you must first serve as a knight\'s squire. You\'ve found a liege willing to take you on and teach you the order\'s ways. Will you uphold the Purple Dragon Knights\' ideals of glory, honor, and strength and prove yourself worthy of knighthood?',
+  },
+
+  {
+    id: 'rashemi-wanderer',
+    name: 'Rashemi Wanderer',
+    source: 'faerun',
+    originFeatId: 'tough',
+    originFeatName: 'Tough',
+    originFeatDescription:
+      'Your Hit Point maximum increases by an amount equal to twice your character level when you gain this feat. Whenever you gain a character level thereafter, your Hit Point maximum increases by an additional 2 Hit Points.',
+    abilityBonusChoices: ['str', 'con', 'cha'],
+    skillsGranted: ['intimidation', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cartographer\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You spent years wandering the highlands of Rashemen, a dangerous windswept heath that\'s dotted with ancient obelisks enchanted to imprison Fiends and home to dragons, gnolls, and other deadly creatures. Friendships are hard to find in such an isolated land, and you\'ve learned to keep strangers at a distance.',
+  },
+
+  {
+    id: 'shadowmasters-exile',
+    name: 'Shadowmasters Exile',
+    source: 'faerun',
+    originFeatId: 'savage-attacker',
+    originFeatName: 'Savage Attacker',
+    originFeatDescription:
+      'You\'ve trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon\'s damage dice twice and use either roll against the target.',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['acrobatics', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Thieves\' Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You trained your whole life to become a member of the Shadowmasters, the mysterious thieves\' guild that controls the realm of Thesk from behind the scenes. Stealth and quick reflexes were just the start of your Shadowmaster education; you also needed to hone your ruthlessness to ensure the safety of the guild\'s secrets. But one wrong move led to your expulsion from the order. Now you must walk your own path.',
+  },
+
+  {
+    id: 'spellfire-initiate',
+    name: 'Spellfire Initiate',
+    source: 'faerun',
+    originFeatId: 'spellfire-spark',
+    originFeatName: 'Spellfire Spark',
+    originFeatDescription:
+      'Origin Feat Magic Absorption. Once per turn, when you take damage from a spell or magical effect, you reduce the total damage taken by 1d4. You can\'t use this benefit if you have the Incapacitated condition. Spellfire Flame. You learn the Sacred Flame cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can also cast this cantrip as a Bonus Action a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['con', 'int', 'cha'],
+    skillsGranted: ['arcana', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'You bear the gift of spellfire: a rare form of magic that channels the raw power of the Weave. Wielding spellfire takes a heavy toll on the body. You\'ve trained both mind and body to efficiently wield this sacred power.',
+  },
+
+  {
+    id: 'zhentarim-mercenary',
+    name: 'Zhentarim Mercenary',
+    source: 'faerun',
+    originFeatId: 'zhentarim-ruffian',
+    originFeatName: 'Zhentarim Ruffian',
+    originFeatDescription:
+      'Origin Feat Exploit Opening. When you roll damage for an Opportunity Attack, you can roll the damage dice twice and use either roll against the target. Family First. If you have Heroic Inspiration when you roll Initiative, you can expend it to give yourself and your allies Advantage on that Initiative roll.',
+    abilityBonusChoices: ['str', 'dex', 'cha'],
+    skillsGranted: ['intimidation', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Forgery Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Maybe you needed the money. Maybe you longed for a family, no matter how dubious. Or maybe you\'re just good at getting the job done by any means necessary. Whatever your reason, you enlisted with the Zhentarim, the most notorious mercenary guild in the Realms. Though the Zhentarim\'s leaders insist the organization is more like a family than a shadowy syndicate, few families exhibit as much dishonesty, nepotism, and corruption as this one. You\'ve honed your cunning, reflexes, and blade to climb the guild\'s ranks.',
+  },
+
+  {
+    id: 'haunted-one',
+    name: 'Haunted One',
+    source: 'ravenloft',
+    originFeatId: 'survivor',
+    originFeatName: 'Ability Scores: Constitution, Wisdom, Charisma Feat: Survivor or a Dark Gift feat of your choice Skill Proficiencies: Arcana and Survival Tool Proficiencies: Choose one kind of Gaming Set Equipment: Choose A or B: (A) Gaming Set (same as above), Crowbar, Holy Water (1 flask), Mirror, Oil(2 flasks), Signal Whistle, Tinderbox, Traveler\'s Clothes, 5 Torches, Waterskin, and 14 GP; or (B) 50 GP',
+    originFeatDescription:
+      'Origin Feat You gain the following benefits. Hypervigilance. Whenever you roll Initiative, you can reroll the d20 if the number rolled is 9 or lower. You must use the new roll. Steel Yourself. When you fail a saving throw to avoid or end the Charmed or Frightened condition, you can take a Reaction to add a bonus to the roll potentially causing it to succeed. The bonus is equal to your Proficiency Bonus. Once you take this Reaction, you can\'t do so again until you finish a Long Rest.',
+    abilityBonusChoices: ['con', 'wis', 'cha'],
+    skillsGranted: ['arcana', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'You are haunted by the events of your past. Whether it was a lone terrible incident or an accumulation of painful moments, you bear the unshakable weight of what happened to you. You\'ve tried to bury it and run away from it, to no avail; it can\'t be slain with a sword or banished via magic. Nevertheless, you persist.',
+  },
+
+  {
+    id: 'investigator',
+    name: 'Investigator',
+    source: 'ravenloft',
+    originFeatId: 'sharp-eye',
+    originFeatName: 'Ability Scores: Intelligence, Wisdom, Charisma Feat: Sharp Eye or a Dark Gift feat of your choice Skill Proficiencies: Insight and Investigation Tool Proficiencies: Disguise Kit Equipment: Choose A or B: (A) Disguise Kit, Manacles, Shovel, Traveler\'s Clothes, 3 Vials, and 16 GP; or (B) 50 GP',
+    originFeatDescription:
+      'Origin Feat When you take the Search or Study action, you can give yourself Advantage on any ability check made as part of that action. You can use this feature a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. If the check fails, the use of this feature isn\'t expended.',
+    abilityBonusChoices: ['int', 'wis', 'cha'],
+    skillsGranted: ['insight', 'investigation'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You relentlessly seek the truth. Perhaps you witnessed something remarkable or terrible and now desire to unravel its mystery, or maybe you\'re motivated by universal justice and honesty. Whether the cases you\'re embroiled in are local crimes or eldritch conspiracies, you\'re driven to reveal what others would keep hidden.',
+  },
+
+  {
+    id: 'mist-wanderer',
+    name: 'Mist Wanderer',
+    source: 'ravenloft',
+    originFeatId: 'mist-walker',
+    originFeatName: 'Ability Scores: Dexterity, Constitution, Wisdom Feat: A Dark Gift feat of your choice (see "Feats" later in this chapter; Mist Walker is recommended) Skill Proficiencies: Survival and Stealth Tool Proficiencies: Choose one kind of Artisan\'s Tools Equipment: Choose A or B: (A) Artisan\'s Tools (same as above), Lamp, Oil (5 flasks), Pouch, Rope, Tinderbox, Traveler\'s Clothes, and 30 GP; or (B) 50 GP',
+    originFeatDescription:
+      'Dark Gift Feat (Prerequisite: Ravenloft Campaign) You know how to slip through the Mists\' grasp, but this freedom comes at a price: If you remain in one area for too long, the Mists find you and drain your life force. You gain the following features. Domain Traveler. When you enter the Mists intent on reaching a specific domain, you are treated as if you possess a Mist talisman keyed to that domain. To use this feature, you must know the name of the domain you have chosen as your destination, but you don\'t need to have previously visited that land. This trait doesn\'t allow you to bypass domain borders closed by a Darklord\'s will. Mist Walk. When you take damage or fail a saving throw to avoid or end the Grappled or Restrained condition, you can take a Reaction and teleport up to 15 feet to an unoccupied space you can see. You can use this feature a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. Poisoned Roots. When you finish a Long Rest, the world around you in a 10-mile radius becomes a siphon that leeches away at your vitality. Whenever you finish a Short Rest in that area, make a Constitution saving throw (DC 13 plus your Proficiency Bonus). On a failed save, you get no benefits from finishing that rest.',
+    abilityBonusChoices: ['dex', 'con', 'wis'],
+    skillsGranted: ['survival', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Artisan\'s Tools'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'artisansTools',
+    description: 'You once knew your home. But one day, the Mists rose and drew you into a Domain of Dread. Ever since, you have wandered between domains, braving the mercurial Mists as you search for a way home. Your time in these cursed realms has changed you, yet you find solace in communities of fellow wanderers throughout the Mists.',
+  },
+
+  {
+    id: 'spirit-medium',
+    name: 'Spirit Medium',
+    source: 'ravenloft',
+    originFeatId: 'gathered-whispers',
+    originFeatName: 'Ability Scores: Constitution, Intelligence, Wisdom Feat: Dark Gift feat of your choice (see "Feats"; Gathered Whispers is recommended) Skill Proficiencies: Insight and Religion Tool Proficiencies: Choose one kind of Gaming Set Equipment: Choose A or B: (A) Dagger, Gaming Set (same as above), Basket, Bell, 8 Candles, Ink, Ink Pen, Paper (5 sheets), Tinderbox, Traveler\'s Clothes, and 32 GP; or (B) 50 GP',
+    originFeatDescription:
+      'Dark Gift Feat (Prerequisite: Ravenloft Campaign) You are haunted by a cacophony of whispering spirits only you can hear. You gain the following features. Spirit Whispers. You learn the Message spell and can cast it without Material components. Additionally, you always have the Augury spell prepared. You can cast it without a spell slot or spell components, and you must finish a Long Rest before you can cast it in this way again. You can also cast the spell using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this benefit (choose when you select this feat). Unearthly Scream. When you are hit by an attack roll, you can take a Reaction to channel your haunting spirits into a protective, otherworldly scream. You can add your Proficiency Bonus to your AC against that attack, potentially causing it to miss. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. Voices from Beyond. Immediately after you make a D20 Test and roll a 1 on the d20, the haunting whispers rise to a ghastly volume. Make a Wisdom saving throw (DC 13 plus your Proficiency Bonus). On a failed save, you have the Deafened condition until the end of your next turn. While Deafened, you have Disadvantage on ability checks and attack rolls.',
+    abilityBonusChoices: ['con', 'int', 'wis'],
+    skillsGranted: ['insight', 'religion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'Through strange rituals and fateful encounters, you\'ve discovered that you bear a unique connection to the spirits of the dead and damned. Your body is a conduit for such spirits, granting you prescient insight from beyond. But these spirits\' intentions aren\'t always innocent, and their gifts come at a haunting cost.',
+  },
+
+  {
+    id: 'agent-of-the-ninth-quill',
+    name: 'Agent of the Ninth Quill',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-infiltrator',
+    originFeatName: 'Arcane Infiltrator',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Friends cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Cunning Diversion. You can take the Dodge action as a Bonus Action. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['arcana', 'sleightOfHand'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Thieves\' Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Your sharp mind and keen burgling skills led you to fall in with the Ninth Quill, a collective of thieves, saboteurs, and spies who steal magical lore and relics from others. Through your escapades - from purloining magic items and arcane tomes to sabotaging groups of mages - you\'ve developed cunning skills and magical tricks to further your spy craft.',
+  },
+
+  {
+    id: 'bejeweled-conclave-spy',
+    name: 'Bejeweled Conclave Spy',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-eloquence',
+    originFeatName: 'Arcane Eloquence',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Vicious Mockery cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Smooth Talker. When you make a Charisma (Deception, Intimidation, or Persuasion) check, you can roll 1d4 and add the number rolled to the ability check.',
+    abilityBonusChoices: ['dex', 'wis', 'cha'],
+    skillsGranted: ['deception', 'perception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Publicly, you\'re a courtier, a mediator, or an entertainer. But behind that glamorous visage is a mind honed for gathering secrets. Trained by the enchanters of the Bejeweled Conclave, you know how to use your charm and wit (plus a little magic) to infiltrate organizations, uncover information, and broker deals.',
+  },
+
+  {
+    id: 'cosmic-dawn-experiment',
+    name: 'Cosmic Dawn Experiment',
+    source: 'arcana-unleashed',
+    originFeatId: 'transmuted-anatomy',
+    originFeatName: 'Transmuted Anatomy',
+    originFeatDescription:
+      'Origin Feat Lengthened Stride. Your Speed increases by 5 feet. Resilient Anatomy. You have Advantage on saving throws against effects that would compel you to shape-shift against your will. Additionally, when you fail a Constitution saving throw, you can take a Reaction to roll 1d4 and add the number rolled to the save, potentially turning the failure into a success. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['str', 'dex', 'con'],
+    skillsGranted: ['athletics', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Artisan\'s Tools'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'artisansTools',
+    description: 'Your body has been warped by the transmutation practices of the Bringers of the Cosmic Dawn. Perhaps you were inadvertently caught up in one of the organization\'s experiments, or maybe you were a member of the organization and sought to improve your physical form through magical might. Whatever the case, you use your strange anatomy to your benefit.',
+  },
+
+  {
+    id: 'covenant-of-the-grave-recruit',
+    name: 'Covenant of the Grave Recruit',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-undertaker',
+    originFeatName: 'Arcane Undertaker',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn one Cleric or Wizard cantrip of your choice. The cantrip must be from the Necromancy school. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Knowledge from the Dead. When you make an Intelligence (History) or Wisdom (Medicine) check, you can roll 1d4 and add the number rolled to the ability check. Understanding of Death. When you take the Help action to stabilize a creature with 0 Hit Points, you gain Heroic Inspiration. Once you use this benefit, you can\'t use it again until you finish a Long Rest.',
+    abilityBonusChoices: ['str', 'int', 'wis'],
+    skillsGranted: ['history', 'medicine'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Herbalism Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Death has always fascinated you. You\'ve studied that morbid topic alongside members of the Covenant of the Grave, analyzing the macabre with scientific precision. Though these studies, you\'ve amassed knowledge of medication, necromancy, and history.',
+  },
+
+  {
+    id: 'crucible-storm-chaser',
+    name: 'Crucible Storm Chaser',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-overload',
+    originFeatName: 'Arcane Overload',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Fire Bolt cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Power Surge. When you cast an Evocation spell and deal damage with it, you can add your Proficiency Bonus to one damage roll of that spell. Once you use this benefit, you can\'t do so again until you finish a Long Rest.',
+    abilityBonusChoices: ['str', 'con', 'int'],
+    skillsGranted: ['athletics', 'nature'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Glassblower\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Your daredevil tendencies and thirst for excitement led you to the Crucible Keepers, an organization dedicated to studying natural and magical catastrophes. From playing with molten glass to charging into a hurricane\'s eye, you thrive when disaster is mere steps away.',
+  },
+
+  {
+    id: 'familiar-trainer',
+    name: 'Familiar Trainer',
+    source: 'arcana-unleashed',
+    originFeatId: 'familiar-friend',
+    originFeatName: 'Familiar Friend',
+    originFeatDescription:
+      'Origin Feat Faithful Companion. You always have the Find Familiar spell prepared. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot or Material components, and you regain the ability to cast it in this way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Fortified Familiar. When you cast the Find Familiar spell, your familiar\'s Hit Point maximum and current Hit Points are increased by an amount equal to twice your character level. Helpful Friend. When you make an ability check using a skill in which you have proficiency while your familiar is within 5 feet of you, you gain Advantage on the check. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['con', 'int', 'wis'],
+    skillsGranted: ['animalHandling', 'arcana'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'A magical familiar bonded with you when you were young, accompanying you throughout your adolescence. Now, you can\'t imagine life without your furry - or feathery, scaly, or slimy - friend at your side. You\'ve learned to work in tandem with your familiar, and when adventure presents its challenges, your familiar is quick to remind you of the small joys in life.',
+  },
+
+  {
+    id: 'horizon-weaver-initiate',
+    name: 'Horizon Weaver Initiate',
+    source: 'arcana-unleashed',
+    originFeatId: 'portal-jumper',
+    originFeatName: 'Portal Jumper',
+    originFeatDescription:
+      'Origin Feat Otherworldly Resilience. You have Resistance to one of the following damage types: Necrotic, Psychic, or Radiant (choose when you select this feat). Portal Step. You can spend 15 feet of movement to teleport to an unoccupied space you can see within 15 feet of yourself. You can use this benefit a number of times equal to your Proficiency Bonus but only once per turn, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['dex', 'con', 'wis'],
+    skillsGranted: ['acrobatics', 'survival'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Weaver\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Your adolescence was marked by unquenchable wanderlust. You left home and began your travels as soon as you were able. Along the way, you encountered the adventurous conjurers of the Horizon Weavers, who taught you some of their teleportation magic to further your explorations.',
+  },
+
+  {
+    id: 'phantasmic-circus-trouper',
+    name: 'Phantasmic Circus Trouper',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-artist',
+    originFeatName: 'Arcane Artist',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Minor Illusion cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Inspiring Magic. When you cast a spell from the Illusion school, you can choose one ally within 30 feet of yourself who can see you. That ally gains Heroic Inspiration. Once you use this benefit, you can\'t use it again until you finish a Long Rest.',
+    abilityBonusChoices: ['dex', 'con', 'cha'],
+    skillsGranted: ['deception', 'performance'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Disguise Kit'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'Whether as a performer or a circus hand, you found a home among the members of the Phantasmic Circus. As you traveled across the world bringing magic and wonder to excited audiences, you learned some illusion magic and honed your talents for performance and misdirection.',
+  },
+
+  {
+    id: 'seer-apprentice',
+    name: 'Seer Apprentice',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-omens',
+    originFeatName: 'Arcane Omens',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Guidance cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Helpful Premonition. When you or a creature you can see within 30 feet of yourself fails a saving throw, you can take a Reaction to roll 1d4 and add the number rolled to the save\'s total, potentially turning the failure into a success. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
+    abilityBonusChoices: ['int', 'wis', 'cha'],
+    skillsGranted: ['history', 'insight'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Navigator\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'As an apprentice among the Seers of Sea and Sky, you learned to interpret minor omens from the clouds above and the fathoms below. The organization\'s rich network of libraries furthered your education, and you now travel across the world, imparting advice and aid to others.',
+  },
+
+  {
+    id: 'ward-of-the-sheltering-hands',
+    name: 'Ward of the Sheltering Hands',
+    source: 'arcana-unleashed',
+    originFeatId: 'arcane-safeguard',
+    originFeatName: 'Arcane Safeguard',
+    originFeatDescription:
+      'Origin Feat Cantrip. You learn the Resistance cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast the Resistance cantrip as a Bonus Action. You can do so a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. Sheltering Aid. When you take the Help action to assist with an ally\'s ability check, that ally gains a number of Temporary Hit Points equal to your Proficiency Bonus.',
+    abilityBonusChoices: ['con', 'wis', 'cha'],
+    skillsGranted: ['insight', 'medicine'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cook\'s Utensils'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'A turn of ill luck led you to the Sheltering Hands, an altruistic organization dedicated to defending the downtrodden. The organization helped you regain your footing and taught you some of its protective magic - in the hope that one day you too would shelter the less fortunate in their time of need.',
+  },
+
+  {
+    id: 'carouser',
+    name: 'Carouser',
+    source: 'exotic',
+    originFeatId: 'tireless-reveler',
+    originFeatName: 'Tireless Reveler',
+    originFeatDescription:
+      'Origin Feat When an ally you can see within 60 feet of yourself expends Heroic Inspiration, you can gain Heroic Inspiration if you lack it. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['deception', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: [],
+    toolChoices: ['Choose one kind of Gaming Set'],
+    toolChoiceCount: 1,
+    toolChoiceCategory: 'gamingSet',
+    description: 'You grew to adulthood in the beating heart of a large city, such as Baldur\'s Gate. You spent countless evenings in taverns, playhouses, parlors, and gambling dens, savoring all the city had to offer. You\'re a natural at interacting with people to learn their secrets, whether over a high-stakes game or at a high-class soiree. You might have been thrown out of an establishment or ten, but only by people who don\'t know how to party.',
+  },
+
+  {
+    id: 'lorwyn-expert',
+    name: 'Lorwyn Expert',
+    source: 'exotic',
+    originFeatId: 'child-of-the-sun',
+    originFeatName: 'Child of the Sun',
+    originFeatDescription:
+      'Origin Feat Eyes of Eirdu. You and allies within 10 feet of you have Advantage on saving throws made to avoid or end the Blinded condition. Faerie Fire. You learn the Faerie Fire spell. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. When you cast Faerie Fire without a spell slot using this benefit, taking damage can\'t break your Concentration on the spell.',
+    abilityBonusChoices: ['str', 'con', 'wis'],
+    skillsGranted: ['athletics', 'nature'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cartographer\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You hail from Lorwyn, a land of eternal sunshine, or you have studied the place with great intensity. You consider the majestic creature Eirdu the living embodiment of the sun, and you love embarking on whimsical adventures. You hold your loved ones close, even if only emotionally, for you\'ve seen some venture into Shadowmoor or beyond and become faded versions of themselves. You\'re nevertheless courageous and always long for new experiences.',
+  },
+
+  {
+    id: 'pact-seeker',
+    name: 'Pact Seeker',
+    source: 'exotic',
+    originFeatId: '',
+    originFeatName: 'Ability Scores: Constitution, Intelligence, Charisma Feat: Choose one Planar Pact feat Skill Proficiencies: Arcana and Persuasion Tool Proficiencies: Calligrapher\'s Supplies Equipment: Choose A or B: (A) Book, Calligrapher\'s Supplies, Ink, Ink Pen, Parchment (10 sheets), Traveler\'s Clothes, 2 GP; or (B) 50 GP.',
+    originFeatDescription:
+      'Ability Scores: Constitution, Intelligence, Charisma Feat: Choose one Planar Pact feat Skill Proficiencies: Arcana and Persuasion Tool Proficiencies: Calligrapher\'s Supplies Equipment: Choose A or B: (A) Book, Calligrapher\'s Supplies, Ink, Ink Pen, Parchment (10 sheets), Traveler\'s Clothes, 2 GP; or (B) 50 GP.',
+    abilityBonusChoices: ['con', 'int', 'cha'],
+    skillsGranted: ['arcana', 'persuasion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Calligrapher\'s Supplies'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You had a purpose in mind. Perhaps you were seeking out knowledge or power. Or maybe you were in search of hidden secrets. One way or another, your journey lead you to seek out an extraplanar entity. Once you made contact, a deal was struck, and your life changed.',
+  },
+
+  {
+    id: 'shadowmoor-expert',
+    name: 'Shadowmoor Expert',
+    source: 'exotic',
+    originFeatId: 'shadowmoor-hexer',
+    originFeatName: 'Shadowmoor Hexer',
+    originFeatDescription:
+      'Origin Feat Hex. You always have the Hex spell prepared. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Curse Magic. When a creature that you\'ve cursed with Hex hits you with an attack roll, the creature takes Psychic damage equal to your Proficiency Bonus. A creature takes this damage only once per turn.',
+    abilityBonusChoices: ['dex', 'int', 'cha'],
+    skillsGranted: ['acrobatics', 'deception'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Glassblower\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You are from Shadowmoor or have studied it for years. It\'s a gloomy, chaotic place perpetually lit by pale moonlight. You might survive Shadowmoor\'s merciless conditions thanks to your wit and cunning, or you might keep threats at bay with your brawn and bravery. Regardless of where you tread, you keenly understand that friendship is a rare commodity. You believe that knowing who to trust and who to keep at arm\'s length isn\'t just practical - it\'s often a matter of life or death.',
+  },
+
+  {
+    id: 'vampire-devotee',
+    name: 'Vampire Devotee',
+    source: 'exotic',
+    originFeatId: 'vampire-s-plaything',
+    originFeatName: 'Vampire\'s Plaything',
+    originFeatDescription:
+      'Origin Feat Decanting. When you finish a Long Rest, you can create one Potion of Healing or an Antitoxin, as long as you have an empty vial or flask. These liquids evaporate when you finish another Long Rest. Timely Retreat. You can take a Bonus Action to take the Dash action or the Disengage action. You can use this benefit a number of times equal to your Proficiency Bonus, and you recover all expended uses when you finish a Long Rest. Vampiric Connection. The DM determines the fate of your former vampire master. While you and your former vampire master are on the same plane of existence, the vampire can communicate with you telepathically, and you can choose to allow the vampire to perceive through your senses.',
+    abilityBonusChoices: ['str', 'con', 'cha'],
+    skillsGranted: ['persuasion', 'stealth'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Cook\'s Utensils'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You were in service to a vampire or a small group of vampires lairing together. The Undead drank your blood more times than you can count. You might have served willingly, perhaps with aspirations of one day becoming a vampire yourself. Or you might have been magically charmed and retain only a few muddled memories of your time as a vampire familiar. In either case, your time in the vampire den is over.',
+  },
+
+  {
+    id: 'vampire-survivor',
+    name: 'Vampire Survivor',
+    source: 'exotic',
+    originFeatId: 'vampire-hunter',
+    originFeatName: 'Vampire Hunter',
+    originFeatDescription:
+      'Origin Feat Adroit Escape. You have Advantage on checks to escape from nonmagical restraints or the Grappled condition. Vitality Ward. When you take Necrotic damage, you can take a Reaction to mitigate the damage. Roll a number of d6s equal to your Proficiency Bonus, and add them together. Reduce the Necrotic damage you take by this total. Once you use this benefit, you can\'t use it again until you finish a Short or Long Rest.',
+    abilityBonusChoices: ['dex', 'con', 'wis'],
+    skillsGranted: ['insight', 'religion'],
+    skillChoices: [],
+    skillChoiceCount: 0,
+    toolsGranted: ['Woodcarver\'s Tools'],
+    toolChoices: [],
+    toolChoiceCount: 0,
+    description: 'You witnessed or survived a vampire attack. You might have been directly involved in this confrontation, or perhaps you were frozen in terror by what you saw. Regardless, you remain vigilant for monster attacks and pride yourself on being ready for anything. No vampire will catch you or your allies by surprise again.',
   },
 ];
 

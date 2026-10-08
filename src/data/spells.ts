@@ -25,12 +25,8 @@ export {
 };
 
 /**
- * Every spell in the catalog, ordered by level then name.
- *
- * Coverage is levels 0-9 (cantrips through 9th level). Levels 0-5 are a capped
- * selection rather than the complete SRD list; levels 6-9 are likewise a
- * selection, but wide enough that every class list has usable options at the
- * levels it actually reaches.
+ * Complete SRD 5.2 spell catalog (all levels 0-9).
+ * Aggregated from per-level modules.
  */
 export const SPELLS: SpellDef[] = [
   ...SPELL_CANTRIPS,

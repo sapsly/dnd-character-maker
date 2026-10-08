@@ -1,15 +1,18 @@
+/**
+ * Equipment catalog (2024 D&D).
+ *
+ * Sources: dnd2024.wikidot.com equipment pages (weapon, armor,
+ * adventuring-gear, tool, mounts-and-vehicles), cross-checked against
+ * the 2024 Player's Handbook.
+ *
+ * Weapons/armor carry the 2024 Weapon Mastery and armor rules.
+ * Tools (Artisan's Tools, Gaming Sets, Musical Instruments, Thieves'
+ * Tools, Forgery Kit, Herbalism Kit, Navigator's Tools, Cartographer's
+ * Tools, Calligrapher's Supplies, Disguise Kit, Poisoner's Kit) live in
+ * `src/data/tools.ts` and are NOT duplicated in GEAR.
+ */
 import type { ArmorDef, WeaponDef } from '../types/character';
 
-/**
- * SRD 5.2 weapons (2024 D&D).
- *
- * The 2024 rules replace per-weapon special properties with the Weapon Mastery
- * system: each weapon has exactly one mastery property that its wielder
- * may use. `mastery` here is the single mastery property the weapon grants;
- * a character must actually hold the mastery (chosen via a class feature) to
- * apply it. Versatile weapons use `versatileDamage` when wielded two-handed
- * and grant the Versatile mastery.
- */
 export const WEAPONS: WeaponDef[] = [
   // ---------------- Simple melee ----------------
   {
@@ -442,11 +445,6 @@ export const WEAPONS_BY_ID: Record<string, WeaponDef> = Object.fromEntries(
   WEAPONS.map((w) => [w.id, w]),
 );
 
-/**
- * SRD 5.2 armor. `dexterityCap` is null for heavy armor and for shields.
- * 2024 adds Medium armor (Breastplate, Half Plate) with Dex capped at +2.
- * Speed reduction from armor is applied by the rules engine, not stored here.
- */
 export const ARMOR: ArmorDef[] = [
   {
     id: 'padded',
@@ -532,7 +530,7 @@ export const ARMOR: ArmorDef[] = [
     baseAc: 15,
     dexterityCap: 2,
     stealthDisadvantage: true,
-    strengthRequired: 12,
+    strengthRequired: 0,
     cost: '750 gp',
     weightLb: 40,
   },
@@ -597,19 +595,6 @@ export const ARMOR_BY_ID: Record<string, ArmorDef> = Object.fromEntries(
   ARMOR.map((a) => [a.id, a]),
 );
 
-/**
- * Adventuring gear catalog (2024 PHB Chapter 6).
- *
- * Includes packs and simple gear referenced by starting equipment packages.
- * Tools (Artisan's Tools, Gaming Sets, Musical Instruments, Thieves' Tools,
- * Forgery Kit, Herbalism Kit, Navigator's Tools, Cartographer's Tools,
- * Calligrapher's Supplies, Disguise Kit, Poisoner's Kit) are defined in
- * `src/data/tools.ts` and are NOT duplicated here.
- *
- * Costs are from PHB 2024 equipment tables. Where a cost is not verified,
- * the `cost` field is omitted rather than guessed.
- * Weights in pounds (lb) from PHB where available.
- */
 export type GearCategory =
   | 'adventuringGear'
   | 'pack'
@@ -632,123 +617,78 @@ export interface GearDef {
 }
 
 /**
- * Adventuring gear referenced by starting equipment packages.
- * Ordered by category then name.
+ * Adventuring gear catalog (2024 PHB Chapter 6), rebuilt from the wiki
+ * adventuring-gear table. Includes the five 2024 equipment packs, spellcasting
+ * focuses, holy symbols, clothing, ammunition, and simple gear. Costs and
+ * weights are from the wiki (PHB); 'Varies' rows carry no cost/weight.
  */
 export const GEAR: GearDef[] = [
-  // ---- Packs (verified costs from PHB 2024) ----
   {
-    id: 'burglar-pack',
-    name: "Burglar's Pack",
-    category: 'pack',
-    cost: '16 gp',
-    weightLb: 4,
-    description:
-      'Includes a backpack, a bag of 1,000 ball bearings, 10 feet of string, a bell, 5 candles, a crowbar, a hammer, 10 pitons, a hooded lantern, 2 flasks of oil, 5 days rations, a tinderbox, and a waterskin. Also has 50 feet of hempen rope strapped to the side.',
-  },
-  {
-    id: 'dungeoneer-pack',
-    name: "Dungeoneer's Pack",
-    category: 'pack',
-    cost: '12 gp',
-    weightLb: 55,
-    description:
-      'Includes a backpack, a crowbar, a hammer, 10 pitons, 10 torches, a tinderbox, 10 days rations, and a waterskin. Also has 50 feet of hempen rope strapped to the side.',
-  },
-  {
-    id: 'entertainer-pack',
-    name: "Entertainer's Pack",
-    category: 'pack',
-    cost: '40 gp',
-    weightLb: 58.5,
-    description:
-      'Includes a backpack, a bedroll, 2 costumes, 5 candles, 5 days rations, a waterskin, and a disguise kit.',
-  },
-  {
-    id: 'explorer-pack',
-    name: "Explorer's Pack",
-    category: 'pack',
-    cost: '10 gp',
-    weightLb: 55,
-    description:
-      'Includes a backpack, a bedroll, a mess kit, a tinderbox, 10 torches, 10 days rations, and a waterskin. Also has 50 feet of hempen rope strapped to the side.',
-  },
-  {
-    id: 'diplomat-pack',
-    name: "Diplomat's Pack",
-    category: 'pack',
-    cost: '39 gp',
-    weightLb: 46,
-    description:
-      'Includes a chest, 2 cases for maps and scrolls, a set of fine clothes, a bottle of ink, an ink pen, a lamp, 2 flasks of oil, 5 sheets of paper, a vial of perfume, sealing wax, and soap.',
-  },
-  {
-    id: 'priest-pack',
-    name: "Priest's Pack",
-    category: 'pack',
-    cost: '19 gp',
-    weightLb: 25.5,
-    description:
-      'Includes a backpack, a blanket, 10 candles, a tinderbox, an alms box, 2 blocks of incense, a censer, vestments, 2 days rations, and a waterskin.',
-  },
-  {
-    id: 'scholar-pack',
-    name: "Scholar's Pack",
-    category: 'pack',
-    cost: '40 gp',
-    weightLb: 11.5,
-    description:
-      'Includes a backpack, a book of lore, a bottle of ink, an ink pen, 10 sheets of parchment, a little bag of sand, and a small knife.',
-  },
-
-  // ---- Simple adventuring gear ----
-  {
-    id: 'pouch',
-    name: 'Pouch',
+    id: 'acid',
+    name: 'Acid',
     category: 'adventuringGear',
-    cost: '5 sp',
+    cost: '25 gp',
     weightLb: 1,
-    description: 'A cloth or leather pouch that can hold up to 20 sling bullets or 50 blowgun needles, among other things.',
+    description: 'When you take the Attack action, you can replace one of your attacks with throwing a vial of Acid. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d6 Acid damage.',
   },
   {
-    id: 'crowbar',
-    name: 'Crowbar',
+    id: 'alchemist-s-fire',
+    name: 'Alchemist\'s Fire',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    weightLb: 1,
+    description: 'When you take the Attack action, you can replace one of your attacks with throwing a flask of Alchemist’s Fire. Target one creature or object you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 1d4 Fire damage and start burning (see the rules glossary).',
+  },
+  {
+    id: 'ammunition',
+    name: 'Ammunition',
+    category: 'adventuringGear',
+    description: 'Ammunition is required by a weapon that has the Ammunition property. A weapon’s description specifies the type of ammunition used by the weapon. The Ammunition table lists the different types and the amount you get when you buy them.',
+  },
+  {
+    id: 'antitoxin',
+    name: 'Antitoxin',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    description: 'As a Bonus Action, you can drink a vial of Antitoxin to gain Advantage on saving throws to avoid or end the Poisoned condition for 1 hour.',
+  },
+  {
+    id: 'arcane-focus',
+    name: 'Arcane Focus',
+    category: 'focus',
+    description: 'An Arcane Focus takes one of the forms in the Arcane Focuses table and is bejeweled or carved to channel arcane magic. A Sorcerer, Warlock, or Wizard can use such an item as a Spellcasting Focus.',
+  },
+  {
+    id: 'backpack',
+    name: 'Backpack',
     category: 'adventuringGear',
     cost: '2 gp',
     weightLb: 5,
-    description: 'Using a crowbar grants advantage to Strength checks where the crowbar\'s leverage can be applied.',
+    description: 'A Backpack holds up to 30 pounds within 1 cubic foot. It can also serve as a saddlebag.',
   },
   {
-    id: 'fine-clothes',
-    name: 'Fine Clothes',
-    category: 'clothing',
-    cost: '15 gp',
-    weightLb: 6,
-    description: 'High-quality garments suitable for nobility or wealthy merchants.',
-  },
-  {
-    id: 'costume',
-    name: 'Costume',
-    category: 'clothing',
-    cost: '5 gp',
-    weightLb: 4,
-    description: 'A set of clothes for a specific role or performance.',
-  },
-  {
-    id: 'travelers-clothes',
-    name: "Traveler's Clothes",
-    category: 'clothing',
-    cost: '2 gp',
-    weightLb: 4,
-    description: 'Sturdy, practical clothing for life on the road.',
-  },
-  {
-    id: 'robe',
-    name: 'Robe',
-    category: 'clothing',
+    id: 'ball-bearings',
+    name: 'Ball Bearings',
+    category: 'adventuringGear',
     cost: '1 gp',
-    weightLb: 4,
-    description: 'A simple robe, often worn by clergy, scholars, or spellcasters.',
+    weightLb: 2,
+    description: 'As a Utilize action, you can spill Ball Bearings from their pouch. They spread to cover a level, 10-foot-square area within 10 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 10 Dexterity saving throw or have the Prone condition. It takes 10 minutes to recover the Ball Bearings.',
+  },
+  {
+    id: 'barrel',
+    name: 'Barrel',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 70,
+    description: 'A Barrel holds up to 40 gallons of liquid or up to 4 cubic feet of dry goods.',
+  },
+  {
+    id: 'basket',
+    name: 'Basket',
+    category: 'adventuringGear',
+    cost: '4 sp',
+    weightLb: 2,
+    description: 'A Basket holds up to 40 pounds within 2 cubic feet.',
   },
   {
     id: 'bedroll',
@@ -756,7 +696,14 @@ export const GEAR: GearDef[] = [
     category: 'adventuringGear',
     cost: '1 gp',
     weightLb: 7,
-    description: 'A roll of blankets and padding for sleeping outdoors.',
+    description: 'A Bedroll sleeps one Small or Medium creature. While in a Bedroll, you automatically succeed on saving throws against extreme cold (see the Dungeon Master’s Guide).',
+  },
+  {
+    id: 'bell',
+    name: 'Bell',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    description: 'When rung as a Utilize action, a Bell produces a sound that can be heard up to 60 feet away.',
   },
   {
     id: 'blanket',
@@ -764,87 +711,22 @@ export const GEAR: GearDef[] = [
     category: 'adventuringGear',
     cost: '5 sp',
     weightLb: 3,
-    description: 'A wool blanket for warmth.',
+    description: 'While wrapped in a blanket, you have Advantage on saving throws against extreme cold (see the Dungeon Master’s Guide).',
   },
   {
-    id: 'tent',
-    name: 'Tent',
-    category: 'adventuringGear',
-    cost: '2 gp',
-    weightLb: 20,
-    description: 'A simple canvas tent for two people.',
-  },
-  {
-    id: 'quiver',
-    name: 'Quiver',
+    id: 'block-and-tackle',
+    name: 'Block and Tackle',
     category: 'adventuringGear',
     cost: '1 gp',
-    weightLb: 1,
-    description: 'Holds up to 20 arrows or bolts.',
+    weightLb: 5,
+    description: 'A Block and Tackle allows you to hoist up to four times the weight you can normally lift.',
   },
   {
-    id: 'manacles',
-    name: 'Manacles',
+    id: 'bright-fungal-cloak',
+    name: 'Bright Fungal Cloak',
     category: 'adventuringGear',
-    cost: '2 gp',
-    weightLb: 6,
-    description: 'Metal restraints for a Medium creature. Includes a key.',
-  },
-  {
-    id: 'hooded-lantern',
-    name: 'Hooded Lantern',
-    category: 'adventuringGear',
-    cost: '5 gp',
-    weightLb: 2,
-    description: 'Burns oil (1 flask = 6 hours), shedding bright light in a 30-foot radius and dim light for 30 more feet. Can be covered as an action to reduce light to dim in a 5-foot radius.',
-  },
-  {
-    id: 'lamp',
-    name: 'Lamp',
-    category: 'adventuringGear',
-    cost: '5 sp',
-    weightLb: 1,
-    description: 'Burns oil (1 flask = 6 hours), shedding bright light in a 15-foot radius and dim light for 15 more feet.',
-  },
-  {
-    id: 'oil-flask',
-    name: 'Oil (flask)',
-    category: 'adventuringGear',
-    cost: '1 sp',
-    weightLb: 1,
-    description: 'A flask of oil. Can be used as fuel for lamps/lanterns or thrown as a makeshift weapon.',
-  },
-  {
-    id: 'iron-pot',
-    name: 'Iron Pot',
-    category: 'adventuringGear',
-    cost: '2 gp',
-    weightLb: 10,
-    description: 'A cast-iron cooking pot.',
-  },
-  {
-    id: 'shovel',
-    name: 'Shovel',
-    category: 'adventuringGear',
-    cost: '2 gp',
-    weightLb: 8,
-    description: 'A sturdy digging tool.',
-  },
-  {
-    id: 'perfume',
-    name: 'Perfume',
-    category: 'adventuringGear',
-    cost: '5 gp',
-    weightLb: 0.5,
-    description: 'A small vial of perfume.',
-  },
-  {
-    id: 'mirror',
-    name: 'Mirror',
-    category: 'adventuringGear',
-    cost: '5 gp',
-    weightLb: 0.5,
-    description: 'A small steel mirror.',
+    cost: '25 gp',
+    description: 'While wearing a Bright Fungal Cloak, you can take a Bonus Action to furl or unfurl it. When the cloak is unfurled, it sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet. One pound of fungus is sewn into a Bright Fungal Cloak. This fungus can be eaten as food. Once all the fungus is consumed, the cloak becomes a mundane set of Traveler’s Clothes.',
   },
   {
     id: 'book',
@@ -852,79 +734,599 @@ export const GEAR: GearDef[] = [
     category: 'adventuringGear',
     cost: '25 gp',
     weightLb: 5,
-    description: 'A bound volume of written pages. Could be prayers, history, philosophy, or occult lore.',
+    description: 'A Book contains fiction or nonfiction. If you consult an accurate nonfiction Book about its topic, you gain a +5 bonus to Intelligence (Arcana, History, Nature, or Religion) checks you make about that topic.',
   },
   {
-    id: 'parchment-sheet',
-    name: 'Parchment (sheet)',
+    id: 'bottle-glass',
+    name: 'Bottle, Glass',
     category: 'adventuringGear',
-    cost: '1 sp',
-    weightLb: 0,
-    description: 'A single sheet of parchment for writing.',
+    cost: '2 gp',
+    weightLb: 2,
+    description: 'A Glass Bottle holds up to 1½ pints.',
   },
   {
-    id: 'rope-hempen',
-    name: 'Rope (hempen, 50 ft)',
+    id: 'bucket',
+    name: 'Bucket',
+    category: 'adventuringGear',
+    cost: '5 cp',
+    weightLb: 2,
+    description: 'A Bucket holds up to half a cubic foot of contents.',
+  },
+  {
+    id: 'burglar-s-pack',
+    name: 'Burglar\'s Pack',
+    category: 'pack',
+    cost: '16 gp',
+    weightLb: 42,
+    description: 'A Burglar’s Pack contains the following items: Backpack, Ball Bearings, Bell, 10 Candles, Crowbar, Hooded Lantern, 7 flasks of Oil, 5 days of Rations, Rope, Tinderbox, and Waterskin.',
+  },
+  {
+    id: 'caltrops',
+    name: 'Caltrops',
     category: 'adventuringGear',
     cost: '1 gp',
-    weightLb: 10,
-    description: '50 feet of hempen rope. AC 11, 5 HP. Can be burst with DC 17 Strength.',
+    weightLb: 2,
+    description: 'As a Utilize action, you can spread Caltrops from their bag to cover a 5-foot-square area within 5 feet of yourself. A creature that enters this area for the first time on a turn must succeed on a DC 15 Dexterity saving throw or take 1 Piercing damage and have its Speed reduced to 0 until the start of its next turn. It takes 10 minutes to recover the Caltrops.',
   },
   {
-    id: 'bolts-20',
-    name: 'Crossbow Bolts (20)',
+    id: 'candle',
+    name: 'Candle',
     category: 'adventuringGear',
-    cost: '1 gp',
-    weightLb: 1.5,
-    description: '20 crossbow bolts.',
+    cost: '1 cp',
+    description: 'For 1 hour, a lit Candle sheds Bright Light in a 5-foot radius and Dim Light for an additional 5 feet.',
   },
   {
-    id: 'arrows-20',
-    name: 'Arrows (20)',
+    id: 'case-crossbow-bolt',
+    name: 'Case, Crossbow Bolt',
     category: 'adventuringGear',
     cost: '1 gp',
     weightLb: 1,
-    description: '20 arrows.',
+    description: 'A Crossbow Bolt Case holds up to 20 Bolts.',
   },
   {
-    id: 'healers-kit',
-    name: "Healer's Kit",
+    id: 'case-map-or-scroll',
+    name: 'Case, Map or Scroll',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 1,
+    description: 'A Map or Scroll Case holds up to 10 sheets of paper or 5 sheets of parchment.',
+  },
+  {
+    id: 'chain',
+    name: 'Chain',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    weightLb: 10,
+    description: 'As a Utilize action, you can wrap a Chain around an unwilling creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Strength (Athletics) check. If the creature’s legs are bound, the creature has the Restrained condition until it escapes. Escaping the Chain requires the creature to make a successful DC 18 Dexterity (Acrobatics) check as an action. Bursting the Chain requires a successful DC 20 Strength (Athletics) check as an action.',
+  },
+  {
+    id: 'chest',
+    name: 'Chest',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    weightLb: 25,
+    description: 'A Chest holds up to 12 cubic feet of contents.',
+  },
+  {
+    id: 'climber-s-kit',
+    name: 'Climber\'s Kit',
+    category: 'adventuringGear',
+    cost: '25 gp',
+    weightLb: 12,
+    description: 'A Climber’s Kit includes boot tips, gloves, pitons, and a harness. As a Utilize action, you can use the Climber’s Kit to anchor yourself; when you do, you can’t fall more than 25 feet from the anchor point, and you can’t move more than 25 feet from there without undoing the anchor as a Bonus Action.',
+  },
+  {
+    id: 'clothes-fine',
+    name: 'Clothes, Fine',
+    category: 'clothing',
+    cost: '15 gp',
+    weightLb: 6,
+    description: 'Fine Clothes are made of expensive fabrics and adorned with expertly crafted details. Some events and locations admit only people wearing these clothes.',
+  },
+  {
+    id: 'clothes-traveler-s',
+    name: 'Clothes, Traveler\'s',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 4,
+    description: 'Traveler’s Clothes are resilient garments designed for travel in various environments.',
+  },
+  {
+    id: 'component-pouch',
+    name: 'Component Pouch',
+    category: 'adventuringGear',
+    cost: '25 gp',
+    weightLb: 2,
+    description: 'A Component Pouch is watertight and filled with compartments that hold all the free Material components of your spells.',
+  },
+  {
+    id: 'costume',
+    name: 'Costume',
+    category: 'clothing',
+    cost: '5 gp',
+    weightLb: 4,
+    description: 'While wearing a Costume, you have Advantage on any ability check you make to impersonate the person or type of person it represents.',
+  },
+  {
+    id: 'crowbar',
+    name: 'Crowbar',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 5,
+    description: 'Using a Crowbar gives you Advantage on Strength checks where the Crowbar’s leverage can be applied.',
+  },
+  {
+    id: 'desert-clothing',
+    name: 'Desert Clothing',
+    category: 'clothing',
+    cost: '5 gp',
+    description: 'When you are wearing Desert Clothing and not wearing Medium or Heavy armor, you automatically succeed on saving throws against the effects of extreme heat. See chapter 3 of the Dungeon Master’s Guide for rules on extreme heat.',
+  },
+  {
+    id: 'devil-mask',
+    name: 'Devil Mask',
+    category: 'clothing',
+    cost: '25 gp',
+    description: 'While you are wearing a Devil Mask, other creatures have Disadvantage on Intelligence (Investigation) and Wisdom (Insight) checks made to discern your true identity or intentions.',
+  },
+  {
+    id: 'diplomat-s-pack',
+    name: 'Diplomat\'s Pack',
+    category: 'pack',
+    cost: '39 gp',
+    weightLb: 39,
+    description: 'A Diplomat’s Pack contains the following items: Chest, Fine Clothes, Ink, 5 Ink Pens, Lamp, 2 Map or Scroll Cases, 4 flasks of Oil, 5 sheets of Paper, 5 sheets of Parchment, Perfume, and Tinderbox.',
+  },
+  {
+    id: 'druidic-focus',
+    name: 'Druidic Focus',
+    category: 'focus',
+    description: 'A Druidic Focus takes one of the forms in the Druidic Focuses table and is carved, tied with ribbon, or painted to channel primal magic. A Druid or Ranger can use such an object as a Spellcasting Focus.',
+  },
+  {
+    id: 'dungeoneer-s-pack',
+    name: 'Dungeoneer\'s Pack',
+    category: 'pack',
+    cost: '12 gp',
+    weightLb: 55,
+    description: 'A Dungeoneer’s Pack contains the following items: Backpack, Caltrops, Crowbar, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.',
+  },
+  {
+    id: 'entertainer-s-pack',
+    name: 'Entertainer\'s Pack',
+    category: 'pack',
+    cost: '40 gp',
+    weightLb: 58.5,
+    description: 'An Entertainer’s Pack contains the following items: Backpack, Bedroll, Bell, Bullseye Lantern, 3 Costumes, Mirror, 8 flasks of Oil, 9 days of Rations, Tinderbox, and Waterskin.',
+  },
+  {
+    id: 'explorer-s-pack',
+    name: 'Explorer\'s Pack',
+    category: 'pack',
+    cost: '10 gp',
+    weightLb: 55,
+    description: 'An Explorer’s Pack contains the following items: Backpack, Bedroll, 2 flasks of Oil, 10 days of Rations, Rope, Tinderbox, 10 Torches, and Waterskin.',
+  },
+  {
+    id: 'flask',
+    name: 'Flask',
+    category: 'adventuringGear',
+    cost: '2 cp',
+    weightLb: 1,
+    description: 'A Flask holds up to 1 pint.',
+  },
+  {
+    id: 'garb-of-light-and-shadow',
+    name: 'Garb of Light and Shadow',
+    category: 'clothing',
+    cost: '50 gp',
+    description: 'This garb appeals to Fey from one Domain of Delight, such as the Gloaming Court or the Summer Court. While wearing the garb, you have Advantage on ability checks to influence Fey associated with that Domain of Delight.',
+  },
+  {
+    id: 'genie-robe',
+    name: 'Genie Robe',
+    category: 'clothing',
+    cost: '50 gp',
+    description: 'This robe appeals to Elementals associated with a particular Elemental Plane (Air, Earth, Fire, Water). While wearing a Genie Robe, you have Advantage on ability checks made to influence Elementals associated with that plane.',
+  },
+  {
+    id: 'grappling-hook',
+    name: 'Grappling Hook',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    weightLb: 4,
+    description: 'As a Utilize action, you can throw the Grappling Hook at a railing, a ledge, or another catch within 50 feet of yourself, and the hook catches on if you succeed on a DC 13 Dexterity (Acrobatics) check. If you tied a Rope to the hook, you can then climb it.',
+  },
+  {
+    id: 'healer-s-kit',
+    name: 'Healer\'s Kit',
     category: 'adventuringGear',
     cost: '5 gp',
     weightLb: 3,
-    description: '10 uses. As an action, you can expend one use to stabilize a creature at 0 HP without a medicine check.',
+    description: 'A Healer’s Kit has ten uses. As a Utilize action, you can expend one of its uses to stabilize an Unconscious creature that has 0 Hit Points without needing to make a Wisdom (Medicine) check.',
   },
   {
     id: 'holy-symbol',
     name: 'Holy Symbol',
     category: 'holySymbol',
+    description: 'A Holy Symbol takes one of the forms in the Holy Symbol table and is bejeweled or painted to channel divine magic. A Cleric or Paladin can use a Holy Symbol as a Spellcasting Focus.',
+  },
+  {
+    id: 'holy-water',
+    name: 'Holy Water',
+    category: 'adventuringGear',
+    cost: '25 gp',
+    weightLb: 1,
+    description: 'When you take the Attack action, you can replace one of your attacks with throwing a flask of Holy Water. Target one creature you can see within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or take 2d8 Radiant damage if it is a Fiend or an Undead.',
+  },
+  {
+    id: 'hunting-trap',
+    name: 'Hunting Trap',
+    category: 'adventuringGear',
     cost: '5 gp',
-    weightLb: 0,
-    description: 'A representation of a deity or pantheon. Used as a spellcasting focus by clerics and paladins.',
+    weightLb: 25,
+    description: 'As a Utilize action, you can set a Hunting Trap, which is a sawtooth steel ring that snaps shut when a creature steps on a pressure plate in the center. The trap is affixed by a heavy chain to an immobile object, such as a tree or a spike driven into the ground. A creature that steps on the plate must succeed on a DC 13 Dexterity saving throw or take 1d4 Piercing damage and have its Speed reduced to 0 until the start of its next turn. Thereafter, until the creature breaks free of the trap, its movement is limited by the length of the chain (typically 3 feet). A creature can use its action to make a DC 13 Strength (Athletics) check, freeing itself or another creature within its reach on a success. Each failed check deals 1 Piercing damage to the trapped creature.',
   },
   {
-    id: 'druidic-focus-quarterstaff',
-    name: 'Druidic Focus (Quarterstaff)',
-    category: 'focus',
-    cost: '2 sp',
+    id: 'ink',
+    name: 'Ink',
+    category: 'adventuringGear',
+    cost: '10 gp',
+    description: 'Ink comes in a 1-ounce bottle, which provides enough ink to write about 500 pages.',
+  },
+  {
+    id: 'ink-pen',
+    name: 'Ink Pen',
+    category: 'adventuringGear',
+    cost: '2 cp',
+    description: 'Using Ink, an Ink Pen is used to write or draw.',
+  },
+  {
+    id: 'jug',
+    name: 'Jug',
+    category: 'adventuringGear',
+    cost: '2 cp',
     weightLb: 4,
-    description: 'A quarterstaff specially prepared as a druidic focus.',
+    description: 'A Jug holds up to 1 gallon.',
   },
   {
-    id: 'druidic-focus-mistletoe',
-    name: 'Druidic Focus (Sprig of Mistletoe)',
-    category: 'focus',
-    cost: '1 gp',
-    weightLb: 0,
-    description: 'A sprig of mistletoe used as a druidic focus.',
+    id: 'ladder',
+    name: 'Ladder',
+    category: 'adventuringGear',
+    cost: '1 sp',
+    weightLb: 25,
+    description: 'A Ladder is 10 feet tall. You must climb to move up or down it.',
   },
+  {
+    id: 'lamp',
+    name: 'Lamp',
+    category: 'adventuringGear',
+    cost: '5 sp',
+    weightLb: 1,
+    description: 'A Lamp burns Oil as fuel to cast Bright Light in a 15-foot radius and Dim Light for an additional 30 feet.',
+  },
+  {
+    id: 'lantern-bullseye',
+    name: 'Lantern, Bullseye',
+    category: 'adventuringGear',
+    cost: '10 gp',
+    weightLb: 2,
+    description: 'A Bullseye Lantern burns Oil as fuel to cast Bright Light in a 60-foot Cone and Dim Light for an additional 60 feet.',
+  },
+  {
+    id: 'lantern-hooded',
+    name: 'Lantern, Hooded',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    weightLb: 2,
+    description: 'A Hooded Lantern burns Oil as fuel to cast Bright Light in a 30-foot radius and Dim Light for an additional 30 feet. As a Bonus Action, you can lower the hood, reducing the light to Dim Light in a 5-foot radius, or raise it again.',
+  },
+  {
+    id: 'lock',
+    name: 'Lock',
+    category: 'adventuringGear',
+    cost: '10 gp',
+    weightLb: 1,
+    description: 'A Lock comes with a key. Without the key, a creature can use Thieves’ Tools to pick this Lock with a successful DC 15 Dexterity (Sleight of Hand) check.',
+  },
+  {
+    id: 'locking-spellbook',
+    name: 'Locking Spellbook',
+    category: 'adventuringGear',
+    cost: '35 gp',
+    description: 'This 100-page leather-bound tome can be used as a Spellbook. It is closed with a lock that comes with a key. As a Utilize action, a creature can try to pick the lock using Thieves’ Tools, doing so with a successful DC 15 Dexterity (Sleight of Hand) check.',
+  },
+  {
+    id: 'magnifying-glass',
+    name: 'Magnifying Glass',
+    category: 'adventuringGear',
+    cost: '100 gp',
+    description: 'A Magnifying Glass grants Advantage on any ability check made to appraise or inspect a highly detailed item. Lighting a fire with a Magnifying Glass requires light as bright as sunlight to focus, tinder to ignite, and about 5 minutes for the fire to ignite.',
+  },
+  {
+    id: 'manacles',
+    name: 'Manacles',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 6,
+    description: 'As a Utilize action, you can use Manacles to bind an unwilling Small or Medium creature within 5 feet of yourself that has the Grappled, Incapacitated, or Restrained condition if you succeed on a DC 13 Dexterity (Sleight of Hand) check. While bound, a creature has Disadvantage on attack rolls, and the creature is Restrained if the Manacles are attached to a chain or hook that is fixed in place. Escaping the Manacles requires a successful DC 20 Dexterity (Sleight of Hand) check as an action. Bursting them requires a successful DC 25 Strength (Athletics) check as an action. Each set of Manacles comes with a key. Without the key, a creature can use Thieves’ Tools to pick the Manacles’ lock with a successful DC 15 Dexterity (Sleight of Hand) check.',
+  },
+  {
+    id: 'map',
+    name: 'Map',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    description: 'If you consult an accurate Map, you gain a +5 bonus to Wisdom (Survival) checks you make to find your way in the place represented on it.',
+  },
+  {
+    id: 'mirror',
+    name: 'Mirror',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    weightLb: 0.5,
+    description: 'A handheld steel Mirror is useful for personal cosmetics but also for peeking around corners and reflecting light as a signal.',
+  },
+  {
+    id: 'monster-camouflage',
+    name: 'Monster Camouflage',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    description: 'A suit of Monster Camouflage looks like a Beast or Monstrosity, such as an owlbear. To discern that you’re disguised, a creature must take the Study action to inspect your appearance and succeed on a DC 10 Intelligence (Investigation or Nature) check. The creature has Advantage on this check if it is within 30 feet of you and automatically succeeds on this check if you do anything the monster you’re disguised as couldn’t do.',
+  },
+  {
+    id: 'net',
+    name: 'Net',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 3,
+    description: 'When you take the Attack action, you can replace one of your attacks with throwing a Net. Target a creature you can see within 15 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or have the Restrained condition until it escapes. The target succeeds automatically if it is Huge or larger. To escape, the target or a creature within 5 feet of it must take an action to make a DC 10 Strength (Athletics) check, freeing the Restrained creature on a success. Destroying the Net (AC 10; 5 HP; Immunity to Bludgeoning, Poison, and Psychic damage) also frees the target, ending the effect.',
+  },
+  {
+    id: 'oil',
+    name: 'Oil',
+    category: 'adventuringGear',
+    cost: '1 sp',
+    weightLb: 1,
+    description: 'You can douse a creature, object, or space with Oil or use it as fuel, as detailed below. Dousing a Creature or an Object. When you take the Attack action, you can replace one of your attacks with throwing an Oil flask. Target one creature or object within 20 feet of yourself. The target must succeed on a Dexterity saving throw (DC 8 plus your Dexterity modifier and Proficiency Bonus) or be covered in oil. If the target takes Fire damage before the oil dries (after 1 minute), the target takes an extra 5 Fire damage from burning oil. Dousing a Space. You can take the Utilize action to pour an Oil flask on level ground to cover a 5-foot-square area within 5 feet of yourself. If lit, the oil burns until the end of the turn 2 rounds from when the oil was lit (or 12 seconds) and deals 5 Fire damage to any creature that enters the area or ends its turn there. A creature can take this damage only once per turn. Fuel. Oil serves as fuel for Lamps and Lanterns. Once lit, a flask of Oil burns for 6 hours in a Lamp or Lantern. That duration doesn’t need to be consecutive; you can extinguish the burning Oil (as a Utilize action) and rekindle it again until it has burned for a total of 6 hours.',
+  },
+  {
+    id: 'paper',
+    name: 'Paper',
+    category: 'adventuringGear',
+    cost: '2 sp',
+    description: 'One sheet of Paper can hold about 250 handwritten words.',
+  },
+  {
+    id: 'parchment',
+    name: 'Parchment',
+    category: 'adventuringGear',
+    cost: '1 sp',
+    description: 'One sheet of Parchment can hold about 250 handwritten words.',
+  },
+  {
+    id: 'perfume',
+    name: 'Perfume',
+    category: 'adventuringGear',
+    cost: '5 gp',
+    description: 'Perfume comes in a 4-ounce vial. For 1 hour after applying Perfume to yourself, you have Advantage on Charisma (Persuasion) checks made to influence an Indifferent Humanoid within 5 feet of yourself.',
+  },
+  {
+    id: 'poison-basic',
+    name: 'Poison, Basic',
+    category: 'adventuringGear',
+    cost: '100 gp',
+    description: 'As a Bonus Action, you can use a vial of Basic Poison to coat one weapon or up to three pieces of ammunition. A creature that takes Piercing or Slashing damage from the poisoned weapon or ammunition takes an extra 1d4 Poison damage. Once applied, the poison retains potency for 1 minute or until its damage is dealt, whichever comes first.',
+  },
+  {
+    id: 'pole',
+    name: 'Pole',
+    category: 'adventuringGear',
+    cost: '5 cp',
+    weightLb: 7,
+    description: 'A Pole is 10 feet long. You can use it to touch something up to 10 feet away. If you must make a Strength (Athletics) check as part of a High or Long Jump, you can use the Pole to vault, giving yourself Advantage on the check.',
+  },
+  {
+    id: 'pot-iron',
+    name: 'Pot, Iron',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 10,
+    description: 'An Iron Pot holds up to 1 gallon.',
+  },
+  {
+    id: 'potion-of-healing',
+    name: 'Potion of Healing',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    weightLb: 0.5,
+    description: 'This potion is a magic item. As a Bonus Action, you can drink it or administer it to another creature within 5 feet of yourself. The creature that drinks the magical red fluid in this vial regains 2d4 + 2 Hit Points.',
+  },
+  {
+    id: 'pouch',
+    name: 'Pouch',
+    category: 'adventuringGear',
+    cost: '5 sp',
+    weightLb: 1,
+    description: 'A Pouch holds up to 6 pounds within one-fifth of a cubic foot.',
+  },
+  {
+    id: 'priest-s-pack',
+    name: 'Priest\'s Pack',
+    category: 'pack',
+    cost: '33 gp',
+    weightLb: 29,
+    description: 'A Priest’s Pack contains the following items: Backpack, Blanket, Holy Water, Lamp, 7 days of Rations, Robe, and Tinderbox.',
+  },
+  {
+    id: 'quiver',
+    name: 'Quiver',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 1,
+    description: 'A Quiver holds up to 20 Arrows.',
+  },
+  {
+    id: 'ram-portable',
+    name: 'Ram, Portable',
+    category: 'adventuringGear',
+    cost: '4 gp',
+    weightLb: 35,
+    description: 'You can use a Portable Ram to break down doors. When doing so, you gain a +4 bonus to the Strength check. One other character can help you use the ram, giving you Advantage on this check.',
+  },
+  {
+    id: 'rations',
+    name: 'Rations',
+    category: 'adventuringGear',
+    cost: '5 sp',
+    weightLb: 2,
+    description: 'Rations consist of travel-ready food, including jerky, dried fruit, hardtack, and nuts. See “Malnutrition” in the rules glossary for the risks of not eating.',
+  },
+  {
+    id: 'robe',
+    name: 'Robe',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 4,
+    description: 'A Robe has vocational or ceremonial significance. Some events and locations admit only people wearing a Robe bearing certain colors or symbols.',
+  },
+  {
+    id: 'rope',
+    name: 'Rope',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 5,
+    description: 'As a Utilize action, you can tie a knot with Rope if you succeed on a DC 10 Dexterity (Sleight of Hand) check. The Rope can be burst with a successful DC 20 Strength (Athletics) check. You can bind an unwilling creature with the Rope only if the creature has the Grappled, Incapacitated, or Restrained condition. If the creature’s legs are bound, the creature has the Restrained condition until it escapes. Escaping the Rope requires the creature to make a successful DC 15 Dexterity (Acrobatics) check as an action.',
+  },
+  {
+    id: 'sack',
+    name: 'Sack',
+    category: 'adventuringGear',
+    cost: '1 cp',
+    weightLb: 0.5,
+    description: 'A Sack holds up to 30 pounds within 1 cubic foot.',
+  },
+  {
+    id: 'scholar-s-pack',
+    name: 'Scholar\'s Pack',
+    category: 'pack',
+    cost: '40 gp',
+    weightLb: 22,
+    description: 'A Scholar’s Pack contains the following items: Backpack, Book, Ink, Ink Pen, Lamp, 10 flasks of Oil, 10 sheets of Parchment, and Tinderbox.',
+  },
+  {
+    id: 'shovel',
+    name: 'Shovel',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 5,
+    description: 'Working for 1 hour, you can use a Shovel to dig a hole that is 5 feet on each side in soil or similar material.',
+  },
+  {
+    id: 'signal-whistle',
+    name: 'Signal Whistle',
+    category: 'adventuringGear',
+    cost: '5 cp',
+    description: 'When blown as a Utilize action, a Signal Whistle produces a sound that can be heard up to 600 feet away.',
+  },
+  {
+    id: 'spell-scroll-cantrip',
+    name: 'Spell Scroll (Cantrip)',
+    category: 'adventuringGear',
+    cost: '30 gp',
+    description: 'A Spell Scroll (Cantrip) is a magic item that bears the words of a cantrip determined by the scroll’s creator. If the spell is on your class’s spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed.',
+  },
+  {
+    id: 'spell-scroll-level-1',
+    name: 'Spell Scroll (Level 1)',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    description: 'A Spell Scroll (Level 1) is a magic item that bears the words of a level 1 spell, respectively, determined by the scroll’s creator. If the spell is on your class’s spell list, you can read the scroll and cast the spell using its normal casting time and without providing any Material components. If the spell requires a saving throw or an attack roll, the spell save DC is 13, and the attack bonus is +5. The scroll disintegrates when the casting is completed.',
+  },
+  {
+    id: 'spikes-iron',
+    name: 'Spikes, Iron',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 5,
+    description: 'Iron Spikes come in bundles of ten. As a Utilize action, you can use a blunt object, such as a Light Hammer, to hammer a spike into wood, earth, or a similar material. You can do so to jam a door shut or to then tie a Rope or Chain to the Spike.',
+  },
+  {
+    id: 'spyglass',
+    name: 'Spyglass',
+    category: 'adventuringGear',
+    cost: '1,000 gp',
+    weightLb: 1,
+    description: 'Objects viewed through a Spyglass are magnified to twice their size.',
+  },
+  {
+    id: 'string',
+    name: 'String',
+    category: 'adventuringGear',
+    cost: '1 sp',
+    description: 'String is 10 feet long. You can tie a knot in it as a Utilize action.',
+  },
+  {
+    id: 'tent',
+    name: 'Tent',
+    category: 'adventuringGear',
+    cost: '2 gp',
+    weightLb: 20,
+    description: 'A Tent sleeps up to two Small or Medium creatures.',
+  },
+  {
+    id: 'tinderbox',
+    name: 'Tinderbox',
+    category: 'adventuringGear',
+    cost: '5 sp',
+    weightLb: 1,
+    description: 'A Tinderbox is a small container holding flint, fire steel, and tinder (usually dry cloth soaked in light oil) used to kindle a fire. Using it to light a Candle, Lamp, Lantern, or Torch—or anything else with exposed fuel—takes a Bonus Action. Lighting any other fire takes 1 minute.',
+  },
+  {
+    id: 'torch',
+    name: 'Torch',
+    category: 'adventuringGear',
+    cost: '1 cp',
+    weightLb: 1,
+    description: 'A Torch burns for 1 hour, casting Bright Light in a 20-foot radius and Dim Light for an additional 20 feet. When you take the Attack action, you can attack with the Torch, using it as a Simple Melee weapon. On a hit, the target takes 1 Fire damage.',
+  },
+  {
+    id: 'vial',
+    name: 'Vial',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    description: 'A Vial holds up to 4 ounces.',
+  },
+  {
+    id: 'warm-fungal-clothing',
+    name: 'Warm Fungal Clothing',
+    category: 'adventuringGear',
+    cost: '15 gp',
+    description: 'When you’re wearing Warm Fungal Clothing, you automatically succeed on saving throws against the effects of extreme cold. See chapter 3 of the Dungeon Master’s Guide for rules on extreme cold. One pound of fungus is sewn into Fungal Clothing. This fungus can be eaten as food. Once all the fungus is consumed, this becomes a mundane set of Traveler’s Clothes.',
+  },
+  {
+    id: 'waterskin',
+    name: 'Waterskin',
+    category: 'adventuringGear',
+    cost: '2 sp',
+    weightLb: 5,
+    description: 'A Waterskin holds up to 4 pints. If you don’t drink sufficient water, you risk dehydration (see the rules glossary).',
+  },
+  {
+    id: 'winter-camouflage',
+    name: 'Winter Camouflage',
+    category: 'adventuringGear',
+    cost: '50 gp',
+    description: 'While you wear Winter Camouflage in an appropriate environment, you have Advantage on Dexterity (Stealth) checks.',
+  },
+
+  // ---- Spellcasting focus variants (PHB 2024) ----
   {
     id: 'arcane-focus-crystal',
     name: 'Arcane Focus (Crystal)',
     category: 'focus',
     cost: '10 gp',
     weightLb: 1,
-    description: 'A crystal used as an arcane spellcasting focus.',
+    description: 'A crystal used as a arcane spellcasting focus.',
   },
   {
     id: 'arcane-focus-orb',
@@ -932,23 +1334,116 @@ export const GEAR: GearDef[] = [
     category: 'focus',
     cost: '20 gp',
     weightLb: 3,
-    description: 'An orb used as an arcane spellcasting focus.',
+    description: 'A orb used as a arcane spellcasting focus.',
   },
   {
-    id: 'arcane-focus-quarterstaff',
-    name: 'Arcane Focus (Quarterstaff)',
+    id: 'arcane-focus-rod',
+    name: 'Arcane Focus (Rod)',
+    category: 'focus',
+    cost: '10 gp',
+    weightLb: 2,
+    description: 'A rod used as a arcane spellcasting focus.',
+  },
+  {
+    id: 'arcane-focus-staff',
+    name: 'Arcane Focus (Staff)',
     category: 'focus',
     cost: '5 gp',
     weightLb: 4,
-    description: 'A quarterstaff specially prepared as an arcane focus.',
+    description: 'A staff used as a arcane spellcasting focus.',
   },
   {
-    id: 'spellbook',
-    name: 'Spellbook',
+    id: 'arcane-focus-wand',
+    name: 'Arcane Focus (Wand)',
+    category: 'focus',
+    cost: '10 gp',
+    weightLb: 1,
+    description: 'A wand used as a arcane spellcasting focus.',
+  },
+  {
+    id: 'druidic-focus-sprig-of-mistletoe',
+    name: 'Druidic Focus (Sprig of Mistletoe)',
+    category: 'focus',
+    cost: '1 gp',
+    description: 'A sprig of mistletoe used as a druidic spellcasting focus.',
+  },
+  {
+    id: 'druidic-focus-wooden-staff',
+    name: 'Druidic Focus (Wooden Staff)',
+    category: 'focus',
+    cost: '5 gp',
+    weightLb: 4,
+    description: 'A wooden staff used as a druidic spellcasting focus.',
+  },
+  {
+    id: 'druidic-focus-yew-wand',
+    name: 'Druidic Focus (Yew Wand)',
+    category: 'focus',
+    cost: '10 gp',
+    description: 'A yew wand used as a druidic spellcasting focus.',
+  },
+  {
+    id: 'holy-symbol-amulet',
+    name: 'Holy Symbol (Amulet)',
+    category: 'holySymbol',
+    cost: '5 gp',
+    description: 'A amulet used as a holy symbol spellcasting focus.',
+  },
+  {
+    id: 'holy-symbol-emblem',
+    name: 'Holy Symbol (Emblem)',
+    category: 'holySymbol',
+    cost: '5 gp',
+    description: 'A emblem used as a holy symbol spellcasting focus.',
+  },
+  {
+    id: 'holy-symbol-reliquary',
+    name: 'Holy Symbol (Reliquary)',
+    category: 'holySymbol',
+    cost: '5 gp',
+    description: 'A reliquary used as a holy symbol spellcasting focus.',
+  },
+
+  // ---- Ammunition (wiki weapon page) ----
+  {
+    id: 'arrows-20',
+    name: 'Arrows (20)',
     category: 'adventuringGear',
-    cost: '50 gp',
-    weightLb: 3,
-    description: 'A wizard\'s spellbook. Contains 100 pages; each spell takes 1 page per spell level.',
+    cost: '1 gp',
+    weightLb: 1,
+    description: '20 arrows, stored in a quiver.',
+  },
+  {
+    id: 'bolts-20',
+    name: 'Bolts (20)',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 1.5,
+    description: '20 bolts, stored in a case.',
+  },
+  {
+    id: 'bullets-firearm-10',
+    name: 'Bullets, Firearm (10)',
+    category: 'adventuringGear',
+    cost: '3 gp',
+    weightLb: 2,
+    description: '10 bullets, firearm, stored in a pouch.',
+  },
+  {
+    id: 'bullets-sling-20',
+    name: 'Bullets, Sling (20)',
+    category: 'adventuringGear',
+    cost: '4 cp',
+    weightLb: 1.5,
+    description: '20 bullets, sling, stored in a pouch.',
+  },
+  {
+    id: 'needles-50',
+    name: 'Needles (50)',
+    category: 'adventuringGear',
+    cost: '1 gp',
+    weightLb: 1,
+    description: '50 needles, stored in a pouch.',
   },
 ];
 
@@ -969,3 +1464,316 @@ export function getGear(id: string): GearDef | null {
 export function gearByCategory(category: GearCategory): GearDef[] {
   return GEAR.filter((g) => g.category === category);
 }
+
+export interface MountDef {
+  id: string;
+  name: string;
+  cost: string;
+  /** Load the mount can carry in pounds. */
+  carryingCapacityLb?: number;
+  description?: string;
+}
+
+/**
+ * Mounts from the wiki mounts-and-vehicles page (PHB 2024).
+ */
+export const MOUNTS: MountDef[] = [
+  {
+    id: 'axe-beak',
+    name: 'Axe Beak',
+    cost: '50 gp',
+    carryingCapacityLb: 210,
+  },
+  {
+    id: 'camel',
+    name: 'Camel',
+    cost: '50 gp',
+    carryingCapacityLb: 450,
+  },
+  {
+    id: 'elephant',
+    name: 'Elephant',
+    cost: '200 gp',
+    carryingCapacityLb: 1320,
+  },
+  {
+    id: 'flying-snake',
+    name: 'Flying Snake',
+    cost: '25 gp',
+    carryingCapacityLb: 60,
+  },
+  {
+    id: 'horse-draft',
+    name: 'Horse, Draft',
+    cost: '50 gp',
+    carryingCapacityLb: 540,
+  },
+  {
+    id: 'horse-riding',
+    name: 'Horse, Riding',
+    cost: '75 gp',
+    carryingCapacityLb: 480,
+  },
+  {
+    id: 'mastiff',
+    name: 'Mastiff',
+    cost: '25 gp',
+    carryingCapacityLb: 195,
+  },
+  {
+    id: 'mule',
+    name: 'Mule',
+    cost: '8 gp',
+    carryingCapacityLb: 420,
+  },
+  {
+    id: 'pony',
+    name: 'Pony',
+    cost: '30 gp',
+    carryingCapacityLb: 225,
+  },
+  {
+    id: 'sled-dog',
+    name: 'Sled Dog',
+    cost: '50 gp',
+    carryingCapacityLb: 210,
+  },
+  {
+    id: 'warhorse',
+    name: 'Warhorse',
+    cost: '400 gp',
+    carryingCapacityLb: 540,
+  },
+];
+
+export type VehicleKind = 'saddle' | 'drawn' | 'ship' | 'eberron-ship';
+
+export interface VehicleDef {
+  id: string;
+  name: string;
+  kind: VehicleKind;
+  cost: string;
+  weightLb?: number;
+  /** Speed text, e.g. '8 mph' (ships). */
+  speed?: string;
+  crew?: number;
+  passengers?: number;
+  cargoTons?: number;
+  ac?: number;
+  hp?: number;
+  damageThreshold?: number;
+  description?: string;
+}
+
+/**
+ * Saddles, drawn vehicles, and ships from the wiki mounts-and-vehicles page.
+ */
+export const VEHICLES: VehicleDef[] = [
+  {
+    id: 'saddle-exotic',
+    name: 'Exotic Saddle',
+    kind: 'saddle',
+    cost: '60 gp',
+    weightLb: 40,
+    description: 'Required for riding an aquatic or flying mount.',
+  },
+  {
+    id: 'saddle-military',
+    name: 'Military Saddle',
+    kind: 'saddle',
+    cost: '20 gp',
+    weightLb: 30,
+    description: 'Gives Advantage on ability checks to remain mounted.',
+  },
+  {
+    id: 'saddle-riding',
+    name: 'Riding Saddle',
+    kind: 'saddle',
+    cost: '10 gp',
+    weightLb: 25,
+    description: 'A standard riding saddle.',
+  },
+  {
+    id: 'carriage',
+    name: 'Carriage',
+    kind: 'drawn',
+    cost: '100 gp',
+    weightLb: 600,
+  },
+  {
+    id: 'cart',
+    name: 'Cart',
+    kind: 'drawn',
+    cost: '15 gp',
+    weightLb: 200,
+  },
+  {
+    id: 'chariot',
+    name: 'Chariot',
+    kind: 'drawn',
+    cost: '250 gp',
+    weightLb: 100,
+  },
+  {
+    id: 'covered-wagon',
+    name: 'Covered Wagon',
+    kind: 'drawn',
+    cost: '250 gp',
+    weightLb: 1,
+  },
+  {
+    id: 'feed-per-day',
+    name: 'Feed per day',
+    kind: 'drawn',
+    cost: '5 cp',
+    weightLb: 10,
+    description: 'Feed for one large or smaller animal for a day.',
+  },
+  {
+    id: 'sled',
+    name: 'Sled',
+    kind: 'drawn',
+    cost: '20 gp',
+    weightLb: 300,
+  },
+  {
+    id: 'stabling-per-day',
+    name: 'Stabling per day',
+    kind: 'drawn',
+    cost: '5 sp',
+    description: 'One night of stabling for a mount.',
+  },
+  {
+    id: 'wagon',
+    name: 'Wagon',
+    kind: 'drawn',
+    cost: '35 gp',
+    weightLb: 400,
+  },
+  {
+    id: 'airship',
+    name: 'Airship',
+    kind: 'ship',
+    cost: '40,000 gp',
+    speed: '8 mph',
+    crew: 10,
+    passengers: 20,
+    cargoTons: 1,
+    ac: 13,
+    hp: 300,
+  },
+  {
+    id: 'galley',
+    name: 'Galley',
+    kind: 'ship',
+    cost: '30,000 gp',
+    speed: '4 mph',
+    crew: 80,
+    cargoTons: 150,
+    ac: 15,
+    hp: 500,
+    damageThreshold: 20,
+  },
+  {
+    id: 'keelboat',
+    name: 'Keelboat',
+    kind: 'ship',
+    cost: '3,000 gp',
+    speed: '1 mph',
+    crew: 1,
+    passengers: 6,
+    cargoTons: 0.5,
+    ac: 15,
+    hp: 100,
+    damageThreshold: 10,
+  },
+  {
+    id: 'longship',
+    name: 'Longship',
+    kind: 'ship',
+    cost: '10,000 gp',
+    speed: '3 mph',
+    crew: 40,
+    passengers: 150,
+    cargoTons: 10,
+    ac: 15,
+    hp: 300,
+    damageThreshold: 15,
+  },
+  {
+    id: 'rowboat',
+    name: 'Rowboat',
+    kind: 'ship',
+    cost: '50 gp',
+    speed: '1½ mph',
+    crew: 1,
+    passengers: 3,
+    ac: 11,
+    hp: 50,
+  },
+  {
+    id: 'sailing-ship',
+    name: 'Sailing Ship',
+    kind: 'ship',
+    cost: '10,000 gp',
+    speed: '2 mph',
+    crew: 20,
+    passengers: 20,
+    cargoTons: 100,
+    ac: 15,
+    hp: 300,
+    damageThreshold: 15,
+  },
+  {
+    id: 'warship',
+    name: 'Warship',
+    kind: 'ship',
+    cost: '25,000 gp',
+    speed: '2½',
+    crew: 60,
+    passengers: 60,
+    cargoTons: 200,
+    ac: 15,
+    hp: 500,
+    damageThreshold: 20,
+  },
+  {
+    id: 'lyrandar-air-cruiser',
+    name: 'Lyrandar Air Cruiser',
+    kind: 'eberron-ship',
+    cost: '50,000 gp',
+    speed: '10 mph (Fly Speed 100 ft. [hover])',
+    crew: 10,
+    passengers: 40,
+    cargoTons: 2,
+    ac: 16,
+    hp: 600,
+    damageThreshold: 20,
+  },
+  {
+    id: 'lyrandar-skyskiff',
+    name: 'Lyrandar Skyskiff',
+    kind: 'eberron-ship',
+    cost: '20,000 gp',
+    speed: '7 mph (Fly Speed 70 ft. [hover])',
+    crew: 2,
+    passengers: 2,
+    cargoTons: 0.5,
+    ac: 18,
+    hp: 150,
+    damageThreshold: 5,
+  },
+  {
+    id: 'strider-airship',
+    name: 'Strider Airship',
+    kind: 'eberron-ship',
+    cost: '40,000 gp',
+    speed: '8 mph (Fly Speed 80 ft. [hover])',
+    crew: 6,
+    passengers: 20,
+    cargoTons: 1,
+    ac: 16,
+    hp: 350,
+    damageThreshold: 10,
+  },
+];

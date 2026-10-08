@@ -12,10 +12,11 @@ import { rogue } from './rogue';
 import { sorcerer } from './sorcerer';
 import { warlock } from './warlock';
 import { wizard } from './wizard';
+import { artificer } from './artificer';
 
-export { barbarian, bard, cleric, druid, fighter, monk, paladin, ranger, rogue, sorcerer, warlock, wizard };
+export { barbarian, bard, cleric, druid, fighter, monk, paladin, ranger, rogue, sorcerer, warlock, wizard, artificer };
 
-/** All twelve classes, ordered for display. */
+/** All 13 classes, ordered for display. */
 export const CLASSES: ClassDef[] = [
   barbarian,
   bard,
@@ -29,6 +30,7 @@ export const CLASSES: ClassDef[] = [
   sorcerer,
   warlock,
   wizard,
+  artificer,
 ];
 
 const BY_ID: Record<string, ClassDef> = Object.fromEntries(CLASSES.map((c) => [c.id, c]));

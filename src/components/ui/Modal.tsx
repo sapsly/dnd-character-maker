@@ -25,6 +25,12 @@ export interface ModalProps {
   footer?: ReactNode
   size?: 'sm' | 'md'
   className?: string
+  /**
+   * Extra class for the backdrop only. Lets a caller vary the scrim (e.g. a
+   * blurred backdrop) without touching the dialog's own styling, and without
+   * changing what existing modals render.
+   */
+  backdropClassName?: string
 }
 
 /**
@@ -41,6 +47,7 @@ export function Modal({
   footer,
   size = 'sm',
   className,
+  backdropClassName,
 }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const restoreRef = useRef<HTMLElement | null>(null)
@@ -97,7 +104,7 @@ export function Modal({
 
   return createPortal(
     <div
-      className="modal-backdrop"
+      className={['modal-backdrop', backdropClassName].filter(Boolean).join(' ')}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
