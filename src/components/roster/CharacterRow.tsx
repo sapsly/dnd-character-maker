@@ -3,6 +3,7 @@ import type { Character } from '../../types/character'
 import { getClass } from '../../data/classes'
 import { SPECIES_BY_ID } from '../../data/species'
 import { ACCENTS } from '../../lib/theme'
+import { useAuth } from '../../context/AuthContext'
 import { Icon } from '../ui/Icon'
 import { Tag } from '../ui/Tag'
 import { buttonClassName } from '../ui/Button'
@@ -58,6 +59,7 @@ function swatchInk(color: string): string {
 }
 
 export function CharacterRow({ character, onExport, onDelete }: CharacterRowProps) {
+  const { user } = useAuth()
   const name = character.meta.name.trim() || 'Unnamed character'
   const favorite = character.meta.isFavorite
   const others = otherClassesLabel(character)
@@ -66,6 +68,11 @@ export function CharacterRow({ character, onExport, onDelete }: CharacterRowProp
   const accent = character.accent
     ? ACCENTS.find((option) => option.value === character.accent)
     : undefined
+  // What the file is for depends on where the roster lives: a backup of a
+  // browser-only roster, or a portable copy of one kept on the account.
+  const exportTitle = user
+    ? `Download ${name} as a JSON file — your roster is on your account`
+    : `Download ${name} as a JSON file — your roster is in this browser`
 
   return (
     <li
@@ -146,6 +153,7 @@ export function CharacterRow({ character, onExport, onDelete }: CharacterRowProp
           className={buttonClassName('ghost', 'sm', 'roster-icon-action')}
           onClick={() => onExport(character)}
           aria-label={`Export ${name}`}
+          title={exportTitle}
         >
           <Icon name="download" size={15} />
         </button>

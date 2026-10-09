@@ -329,6 +329,88 @@
   }
 }
 
+/* --- 3.8 Stone-tablet press: a brief shake + a couple of stone chips ---
+     Tap a slab and it rattles once, and two splinters drop off the bottom edge.
+     Deliberate scope choices:
+       • The shake animates the independent `translate` property, so it
+         COMPOSES with the `transform: translate(var(--bw), var(--bw))`
+         press-into-shadow above instead of replacing it.
+       • No `.card` / `.panel` / `.empty-state` / `.modal` / page / header:
+         `:active` bubbles to ancestors, so a text field inside a card would
+         shake the whole card — disorienting on big surfaces. Clickable cards
+         (.compendium-card, .create-choice) and rows/buttons get it instead.
+       • Chips ride `::after`, which is free on these hosts — the crop ticks own
+         `.card`/`.panel`/`.empty-state::after`, and the accent rail owns
+         `.roster-row::before`. Transform + opacity only: no layout thrash.
+     Both gates (screen §7.2, reduced-motion) wrap the whole thing, so
+     reduced-motion users get a plain, instant press. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes brutalist-shake {
+    0%   { translate: 0 0; }
+    22%  { translate: -4px 1px; }
+    46%  { translate: 4px -1px; }
+    70%  { translate: -3px 1px; }
+    100% { translate: 0 0; }
+  }
+
+  @keyframes brutalist-chip-fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.85; }
+    100% { transform: translateY(24px) rotate(46deg); opacity: 0; }
+  }
+
+  /* 1 — the shake: 4px of horizontal jitter over 200ms, one pass. */
+  [data-skin='brutalist'] .btn:active,
+  [data-skin='brutalist'] .icon-btn:active,
+  [data-skin='brutalist'] .roster-row:active,
+  [data-skin='brutalist'] .compendium-card:active,
+  [data-skin='brutalist'] .create-step:active,
+  [data-skin='brutalist'] .create-choice:active {
+    animation: brutalist-shake 200ms cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
+  }
+
+  /* 2 — containing block for the chip pseudo. .roster-row's relative also
+     pins the 3.5.5 hover rail to the row itself: without it the absolutely
+     positioned rail resolves against the initial containing block and runs
+     the height of the document instead of the row. */
+  [data-skin='brutalist'] .btn,
+  [data-skin='brutalist'] .icon-btn,
+  [data-skin='brutalist'] .roster-row,
+  [data-skin='brutalist'] .compendium-card,
+  [data-skin='brutalist'] .create-choice {
+    position: relative;
+  }
+
+  /* 3 — two fragments per host, packed into one pseudo (a 6px chip sitting on
+     the edge plus a 5px chip a few pixels in) so a single ::after can fall. */
+  [data-skin='brutalist'] .btn::after,
+  [data-skin='brutalist'] .icon-btn::after,
+  [data-skin='brutalist'] .roster-row::after,
+  [data-skin='brutalist'] .compendium-card::after,
+  [data-skin='brutalist'] .create-choice::after {
+    content: '';
+    position: absolute;
+    left: 24%;
+    bottom: -2px;
+    width: 15px;
+    height: 7px;
+    opacity: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(var(--border-strong), var(--border-strong)) 0 100% / 6px 4px no-repeat,
+      linear-gradient(var(--border-strong), var(--border-strong)) 9px 0 / 5px 3px no-repeat;
+  }
+
+  /* 4 — the fall: 360ms, transform + opacity only. Off in compact (§7.1) —
+     the shake above is kept there, it is feedback rather than decoration. */
+  [data-skin='brutalist']:not([data-density='compact']) .btn:active::after,
+  [data-skin='brutalist']:not([data-density='compact']) .icon-btn:active::after,
+  [data-skin='brutalist']:not([data-density='compact']) .roster-row:active::after,
+  [data-skin='brutalist']:not([data-density='compact']) .compendium-card:active::after,
+  [data-skin='brutalist']:not([data-density='compact']) .create-choice:active::after {
+    animation: brutalist-chip-fall 360ms ease-in 1;
+  }
+}
+
 /* Compact density adjustments for brutalist */
 [data-density='compact'][data-skin='brutalist'],
 [data-skin='brutalist'][data-density='compact'] {
@@ -763,17 +845,10 @@
     border-radius: var(--radius-pill);
   }
 
-  [data-skin='playful'] .tag--solid:nth-child(2n),
-  [data-skin='playful'] .roster-level:nth-child(2n),
-  [data-skin='playful'] .create-step-index:nth-child(2n) {
-    transform: rotate(3deg);
-  }
-
-  [data-skin='playful'] .tag--solid:nth-child(2n+1),
-  [data-skin='playful'] .roster-level:nth-child(2n+1),
-  [data-skin='playful'] .create-step-index:nth-child(2n+1) {
-    transform: rotate(-3deg);
-  }
+  /* Badges sit FLAT at rest. The old ±3° static rotation (and the 0.4° hover
+     tilt below) made text sit at an angle — complaint was readability in the
+     compendium. Sticker character now comes from the ink outline + gloss, and
+     the tilt itself only happens while you are actually pressing (2.6). */
 
   [data-skin='playful'] .tag--solid::after,
   [data-skin='playful'] .roster-level::after,
@@ -958,8 +1033,12 @@
    .brand-mark, .divider-line, .card (peel + dot texture) --- */
 
 /* --- 2.6 Micro-interaction character: bouncy ---
-     Hover: lift 2px + rotate 0.4°; Press: scale(0.97);
-     Reduced-motion: color/opacity only, drop transform/rotation --- */
+     Hover: a calm lift + a deeper accent-halo shadow — it NEVER rotates or
+     skews, so text stays upright and the compendium stays readable.
+     Press: the only tilt in the skin — a low-amplitude 0.6° wobble plus a hair
+     of scale, so the click still feels satisfying without moving the words.
+     Reduced-motion: colour/opacity only; every transform below sits behind
+     `@media screen and (prefers-reduced-motion: no-preference)`. --- */
 [data-skin='playful'] .card,
 [data-skin='playful'] .panel,
 [data-skin='playful'] .btn,
@@ -992,7 +1071,7 @@
     transform: none;
   }
 
-  /* Disable sticker rotation in reduced motion */
+  /* Badges never tilt in reduced motion (they are flat at rest now anyway). */
   [data-skin='playful'] .tag--solid,
   [data-skin='playful'] .roster-level,
   [data-skin='playful'] .create-step-index {
@@ -1000,28 +1079,49 @@
   }
 }
 
-[data-skin='playful'] .card:hover,
-[data-skin='playful'] .panel:hover {
-  transform: translateY(-2px) rotate(0.4deg);
-  box-shadow: var(--shadow-lg);
+@media screen and (prefers-reduced-motion: no-preference) {
+  /* Hover — lift + halo deepen. No angle, no skew: reading never tilts. */
+  [data-skin='playful'] .card:hover,
+  [data-skin='playful'] .panel:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  [data-skin='playful'] .btn:hover,
+  [data-skin='playful'] .tag:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Press — tilt happens ONLY here, at 0.6° with a 0.985 scale. */
+  [data-skin='playful'] .card:active,
+  [data-skin='playful'] .panel:active,
+  [data-skin='playful'] .btn:active,
+  [data-skin='playful'] .tag:active,
+  [data-skin='playful'] .roster-row:active,
+  [data-skin='playful'] .compendium-card:active,
+  [data-skin='playful'] .create-step:active,
+  [data-skin='playful'] .create-choice:active {
+    transform: rotate(0.6deg) scale(0.985);
+  }
+
+  [data-skin='playful'] .btn:active,
+  [data-skin='playful'] .tag:active {
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Stickers wobble only while the surface they are pinned to is pressed. */
+  [data-skin='playful'] .roster-row:active .roster-level,
+  [data-skin='playful'] .create-step:active .create-step-index,
+  [data-skin='playful'] .tag--solid:active {
+    transform: rotate(0.75deg) scale(0.985);
+  }
 }
 
-[data-skin='playful'] .btn:hover,
-[data-skin='playful'] .tag:hover {
-  transform: translateY(-2px) rotate(0.4deg);
-}
-
-[data-skin='playful'] .btn:active,
-[data-skin='playful'] .tag:active {
-  transform: scale(0.97);
-  box-shadow: var(--shadow-sm);
-}
-
-/* --- §7.1 Density: playful texture OFF, sticker rotation OFF in compact --- */
+/* --- §7.1 Density: playful texture OFF, sticker tilt OFF in compact --- */
 [data-density='compact'][data-skin='playful'],
 [data-skin='playful'][data-density='compact'] {
   /* Dot-grid texture already disabled via @media screen block above */
-  /* Sticker rotation disabled */
+  /* Badges stay dead flat: the press-wobble below is switched off too */
 }
 [data-density='compact'][data-skin='playful'] .tag--solid,
 [data-density='compact'][data-skin='playful'] .roster-level,
@@ -1536,6 +1636,27 @@
        can sit as a background layer and blend into whatever surface colour
        the cascade provides (light, dark, tone variants). */
     --deco-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
+
+    /* 5.5.8 — tea stains: ONE 420px tile carrying two cup rings, a spill
+       blotch and the drip that ran off the lower ring. Shapes and alpha are
+       baked into the SVG (same trick as the fibre), so it can ride as a
+       background layer and multiply into whatever surface the cascade
+       provides.
+       Contrast contract (SPEC §5.7, "re-measure with the overlay on"): the
+       light tile peaks at ~0.08 alpha over `--surface`, which leaves
+       `--text-faint` at ~4.7:1 — the ring is a warm shift, not a darkening
+       that can eat a label. The dark tile uses a deeper warm at higher alpha
+       because multiply on a near-black ground can only make the paper
+       DARKER, and darker under cream text can only raise the ratio. */
+    --deco-tea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cdefs%3E%3Cfilter id='tea' x='-40%25' y='-40%25' width='180%25' height='180%25'%3E%3CfeGaussianBlur stdDeviation='6'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='%23a8642a' stroke-linecap='round'%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='12' stroke-opacity='.045' filter='url(%23tea)'/%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='3.5' stroke-opacity='.05'/%3E%3Cellipse cx='286' cy='96' rx='48' ry='43' stroke-width='1.5' stroke-opacity='.026'/%3E%3Cpath d='M300 136q7 30 -2 58' stroke-width='6' stroke-opacity='.03' filter='url(%23tea)'/%3E%3C/g%3E%3Cg fill='%23a8642a' filter='url(%23tea)'%3E%3Cellipse cx='96' cy='302' rx='44' ry='30' fill-opacity='.042'/%3E%3Cellipse cx='120' cy='288' rx='21' ry='14' fill-opacity='.03'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  /* Same tile, darker ground: identical geometry so the sheet reads as one
+     stock in both modes — only the ink changes, and the alpha rises because
+     a mark this dark has to, to be visible at all on #272019. */
+  [data-skin='parchment'][data-theme='dark'],
+  [data-theme='dark'] [data-skin='parchment'] {
+    --deco-tea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cdefs%3E%3Cfilter id='tead' x='-40%25' y='-40%25' width='180%25' height='180%25'%3E%3CfeGaussianBlur stdDeviation='6'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='%232a1505' stroke-linecap='round'%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='12' stroke-opacity='.3' filter='url(%23tead)'/%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='3.5' stroke-opacity='.42'/%3E%3Cellipse cx='286' cy='96' rx='48' ry='43' stroke-width='1.5' stroke-opacity='.2'/%3E%3Cpath d='M300 136q7 30 -2 58' stroke-width='6' stroke-opacity='.24' filter='url(%23tead)'/%3E%3C/g%3E%3Cg fill='%232a1505' filter='url(%23tead)'%3E%3Cellipse cx='96' cy='302' rx='44' ry='30' fill-opacity='.3'/%3E%3Cellipse cx='120' cy='288' rx='21' ry='14' fill-opacity='.22'/%3E%3C/g%3E%3C/svg%3E");
   }
 
   /* Deckled paper stock: borders get nibbled away with the fill at the edge,
@@ -1553,6 +1674,44 @@
       inset 0 0 0 1px color-mix(in srgb, var(--border) 55%, transparent),
       inset 0 1px 0 color-mix(in srgb, var(--edge) 80%, transparent),
       inset 0 -2px 6px color-mix(in srgb, var(--border) 22%, transparent);
+  }
+
+  /* 5.5.8 — the stain pass: the same four surfaces that carry the deckle and
+     the fibre get the tea tile on top of them, multiplied into the stock.
+       • layer order — `background-image` paints first-listed ON TOP, so the
+         stain multiplies down through the fibre layer and into the paper
+         colour: the mark soaked into the stock, the grain was printed over it;
+       • per-surface offsets (below) stop the 420px tile landing in the same
+         corner of every notice — a pinned page shows its rings wherever the
+         cup happened to sit, and a tall card picks the tile up again rather
+         than repeating a stamp;
+       • §7.1 — the compact block further down sets `background-image: none`
+         at higher specificity, taking the whole stack (fibre + stain) out of
+         the working view;
+       • §7.2 — this pass lives inside `@media screen`, and the print block
+         below restates the gate so it survives a refactor. */
+  [data-skin='parchment'] .card,
+  [data-skin='parchment'] .panel,
+  [data-skin='parchment'] .empty-state,
+  [data-skin='parchment'] .roster-row {
+    background-image: var(--deco-tea), var(--deco-fibre);
+    background-repeat: repeat, repeat;
+    background-size: 420px 420px, 220px 220px;
+    background-blend-mode: multiply, overlay;
+  }
+
+  /* One position value cycled over both layers, so stain and grain shift
+     together and no two surfaces show the same crop of the tile. */
+  [data-skin='parchment'] .panel {
+    background-position: 42% 78%;
+  }
+
+  [data-skin='parchment'] .empty-state {
+    background-position: 78% 14%;
+  }
+
+  [data-skin='parchment'] .roster-row {
+    background-position: 26% 54%;
   }
 
   /* Hover (state = accent token, §7.5): the old external lift-shadow is
@@ -1600,7 +1759,18 @@
   /* Page browning: corner vignette + two faint spill stains, under the fibre
      overlay (z 9998) so grain reads on top of the tonal variation. Multiply
      in light (darkens the ground only — contrast rises), soft-light in dark
-     kept gentle; falloff starts beyond ~58% so text areas are untouched. */
+     kept gentle; falloff starts beyond ~58% so text areas are untouched.
+     5.5.8 rides four MORE layers on top of that list, kept deliberately
+     INSIDE the untouched zone (r < 0.58 of the vignette ellipse) so the two
+     passes layer around each other instead of doubling the browning:
+     two cup rings in the side gutters, a spill in the bottom-right margin and
+     one soft crease where the sheet was folded in thirds. Peaks ≤0.052 alpha
+     in light, which holds `--text-faint` at ≥4.7:1 even if a narrow layout
+     runs a label under a ring; the dark pass uses a deep warm because
+     soft-light can only darken this ground, and darker under cream text can
+     only raise the ratio. Screen-only (§7.2), off in compact via the
+     `display: none` below (§7.1) — both gates already exist for the
+     browning, so the stains inherit them untouched. */
   [data-skin='parchment'] body::after {
     content: '';
     position: fixed;
@@ -1608,6 +1778,10 @@
     pointer-events: none;
     z-index: 9998;
     background:
+      radial-gradient(circle 78px at 5% 74%, transparent 0 70%, rgba(168, 100, 42, 0.052) 82%, rgba(168, 100, 42, 0.024) 92%, transparent 100%),
+      radial-gradient(circle 54px at 94% 26%, transparent 0 68%, rgba(168, 100, 42, 0.046) 82%, rgba(168, 100, 42, 0.02) 93%, transparent 100%),
+      radial-gradient(ellipse 130px 76px at 92% 90%, rgba(168, 100, 42, 0.044) 0%, rgba(168, 100, 42, 0.016) 55%, transparent 100%),
+      linear-gradient(90deg, transparent 0 30%, rgba(168, 100, 42, 0.014) 33%, rgba(168, 100, 42, 0.032) 34.6%, rgba(168, 100, 42, 0.014) 36%, transparent 40%),
       radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 42%),
       radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 38%),
       radial-gradient(150% 130% at 50% 44%, transparent 58%, rgba(96, 70, 38, 0.28) 100%);
@@ -1616,6 +1790,10 @@
 
   [data-skin='parchment'][data-theme='dark'] body::after {
     background:
+      radial-gradient(circle 78px at 5% 74%, transparent 0 70%, rgba(60, 30, 10, 0.42) 82%, rgba(60, 30, 10, 0.2) 92%, transparent 100%),
+      radial-gradient(circle 54px at 94% 26%, transparent 0 68%, rgba(60, 30, 10, 0.36) 82%, rgba(60, 30, 10, 0.16) 93%, transparent 100%),
+      radial-gradient(ellipse 130px 76px at 92% 90%, rgba(60, 30, 10, 0.38) 0%, rgba(60, 30, 10, 0.14) 55%, transparent 100%),
+      linear-gradient(90deg, transparent 0 30%, rgba(60, 30, 10, 0.12) 33%, rgba(60, 30, 10, 0.26) 34.6%, rgba(60, 30, 10, 0.12) 36%, transparent 40%),
       radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 42%),
       radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 38%),
       radial-gradient(150% 130% at 50% 44%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
@@ -1655,7 +1833,9 @@
   }
 }
 
-/* --- §7.1 Density: parchment grain OFF in compact (handled above), perforations kept --- */
+/* --- §7.1 Density: parchment grain OFF in compact (handled above), tea stains
+       OFF with it (5.5.8 rides the same `background-image` the compact block
+       already clears), perforations kept --- */
 /* No additional compact block needed */
 
 /* --- §7.2 Print: gate all decorative pseudo-elements and transforms --- */
@@ -1670,9 +1850,155 @@
   [data-skin='parchment'] body::after {
     display: none;
   }
+
+  /* 5.5.8 tea stains: the whole stack already lives in the §5.5.7
+     `@media screen` block, so nothing here would paint on paper anyway —
+     state it so the gate survives a refactor (§7.2: every texture is
+     screen-only). Grain and stain both go; the deckle, the fibre and the
+     stain share one `background-image`, so this clears the lot. */
+  [data-skin='parchment'] .card,
+  [data-skin='parchment'] .panel,
+  [data-skin='parchment'] .empty-state,
+  [data-skin='parchment'] .roster-row {
+    background-image: none;
+  }
 }
 
 /* End of parchment skin */
+
+/* ==========================================================================
+   Site-wide entrance pass — one micro-animation recipe per skin
+   ==========================================================================
+   A route change re-mounts the page, so the surfaces that carry the skin
+   settle in once, at 160–340ms, and then hold perfectly still. Nothing here
+   loops: there is no `infinite` anywhere in this file, and no perpetual
+   motion is added by any rule below.
+
+   Every gate lives in this one place:
+     • `@media screen` (§7.2) — paper never fades in; it is printed.
+     • `prefers-reduced-motion: no-preference` — reduced-motion users get a
+       fully static page: these keyframes are never even parsed for them.
+       (global.css's guard is the belt, this is the braces.)
+     • `:root`-level `[data-density='compact']` excluded (§7.1) — compact is
+       a working view, so nothing there moves, staggers or fades.
+     • `animation-fill-mode: backwards` — the from-state only holds through
+       the delay; the moment an entrance finishes the element sits on its
+       plain resting styles, so every `:hover` / `:active` rule in §2.6
+       (playful), §3.8 (brutalist) and §5.6 (parchment) keeps sole ownership
+       of `transform` from then on. The entrance therefore cannot fight the
+       press work: it is over before the user can reach the surface.
+
+   Character comes from four tokens per skin, read by ONE shared keyframe —
+   so all five recipes stay structurally identical while the tempo, travel
+   and easing say whose skin it is. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes skin-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(var(--_entrance-rise, 6px)) scale(var(--_entrance-scale, 1));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* --- the five recipes ---------------------------------------------- */
+
+  /* classic — a quiet editorial settle: small rise, no bounce, no theatre. */
+  [data-skin] {
+    --_entrance-dur: 260ms;
+    --_entrance-ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    --_entrance-rise: 6px;
+    --_entrance-scale: 1;
+  }
+
+  /* playful — §2.6's spring, applied to arrival: 12px of lift on the same
+     overshoot bezier the hover uses, so landing feels like the rest of it. */
+  [data-skin='playful'] {
+    --_entrance-dur: 340ms;
+    --_entrance-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --_entrance-rise: 12px;
+    --_entrance-scale: 0.96;
+  }
+
+  /* brutalist — §3.6, mechanical: no travel, no scale, four hard opacity
+     steps. It reads as a cut being stamped rather than a page fading. */
+  [data-skin='brutalist'] {
+    --_entrance-dur: 160ms;
+    --_entrance-ease: steps(4, end);
+    --_entrance-rise: 0px;
+    --_entrance-scale: 1;
+  }
+
+  /* cozy — §4.6's soft overshoot, a touch gentler than playful's. */
+  [data-skin='cozy'] {
+    --_entrance-dur: 320ms;
+    --_entrance-ease: cubic-bezier(0.34, 1.4, 0.64, 1);
+    --_entrance-rise: 8px;
+    --_entrance-scale: 0.985;
+  }
+
+  /* parchment — §5.6 weighty and damped: 4px, no scale, nothing that could
+     read as a sheet sliding off the board. */
+  [data-skin='parchment'] {
+    --_entrance-dur: 320ms;
+    --_entrance-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --_entrance-rise: 4px;
+    --_entrance-scale: 1;
+  }
+
+  /* --- what moves -----------------------------------------------------
+     The masthead leads; every content surface lands a beat behind it, and
+     the first six items of a list step in after that. The app shell itself
+     (.app-header) deliberately stays out: chrome should not re-arrive on
+     every route, only content does. */
+  [data-skin]:not([data-density='compact']) .page-head {
+    animation: skin-entrance var(--_entrance-dur) var(--_entrance-ease) backwards;
+  }
+
+  [data-skin]:not([data-density='compact']) .card,
+  [data-skin]:not([data-density='compact']) .panel,
+  [data-skin]:not([data-density='compact']) .roster-row,
+  [data-skin]:not([data-density='compact']) .compendium-card,
+  [data-skin]:not([data-density='compact']) .create-step,
+  [data-skin]:not([data-density='compact']) .create-choice {
+    animation: skin-entrance var(--_entrance-dur) var(--_entrance-ease) backwards;
+    animation-delay: 60ms;
+  }
+
+  /* --- stagger: items 2–6 step in 40ms apart, everything after joins the
+        last step so a long list never turns into a wait. --------------- */
+  [data-skin]:not([data-density='compact']) .roster-row:nth-child(2),
+  [data-skin]:not([data-density='compact']) .compendium-card:nth-child(2),
+  [data-skin]:not([data-density='compact']) .create-choice:nth-child(2) {
+    animation-delay: 100ms;
+  }
+
+  [data-skin]:not([data-density='compact']) .roster-row:nth-child(3),
+  [data-skin]:not([data-density='compact']) .compendium-card:nth-child(3),
+  [data-skin]:not([data-density='compact']) .create-choice:nth-child(3) {
+    animation-delay: 140ms;
+  }
+
+  [data-skin]:not([data-density='compact']) .roster-row:nth-child(4),
+  [data-skin]:not([data-density='compact']) .compendium-card:nth-child(4),
+  [data-skin]:not([data-density='compact']) .create-choice:nth-child(4) {
+    animation-delay: 180ms;
+  }
+
+  [data-skin]:not([data-density='compact']) .roster-row:nth-child(5),
+  [data-skin]:not([data-density='compact']) .compendium-card:nth-child(5),
+  [data-skin]:not([data-density='compact']) .create-choice:nth-child(5) {
+    animation-delay: 220ms;
+  }
+
+  [data-skin]:not([data-density='compact']) .roster-row:nth-child(6),
+  [data-skin]:not([data-density='compact']) .compendium-card:nth-child(6),
+  [data-skin]:not([data-density='compact']) .create-choice:nth-child(6) {
+    animation-delay: 260ms;
+  }
+}
 
 /* ==========================================================================
    SkinPicker thumbnail previews (§8)

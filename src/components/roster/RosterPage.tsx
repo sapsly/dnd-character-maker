@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import type { ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Character } from '../../types/character'
+import { useAuth } from '../../context/AuthContext'
 import { downloadCharacter, parseImport } from '../../lib/storage'
 import { Button } from '../ui/Button'
 import { EmptyState } from '../ui/EmptyState'
@@ -24,14 +25,21 @@ function sortRoster(characters: Character[]): Character[] {
   })
 }
 
-function countLabel(count: number): string {
-  if (count === 0) return 'No characters saved yet'
-  return count === 1 ? '1 character saved' : `${count} characters saved`
+/**
+ * Where the roster lives decides how the count reads: signed in, characters
+ * are stored on the account; signed out, they are stored in this browser.
+ * Stating it keeps the promise honest in both directions.
+ */
+function countLabel(count: number, signedIn: boolean): string {
+  const where = signedIn ? 'to your account' : 'in this browser'
+  if (count === 0) return `No characters saved yet`
+  return count === 1 ? `1 character saved ${where}` : `${count} characters saved ${where}`
 }
 
 export default function RosterPage() {
   const { characters, loading, error, saveCharacter, removeCharacter, reload, clearError } =
     useCharacters()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   const fileInputRef = useRef<HTMLInputElement | null>(null)
@@ -133,7 +141,9 @@ export default function RosterPage() {
       <header className="page-head">
         <div>
           <h1 className="page-title">Roster</h1>
-          <p className="page-subtitle">{loading ? 'Loading characters' : countLabel(characters.length)}</p>
+          <p className="page-subtitle">
+            {loading ? 'Loading characters' : countLabel(characters.length, Boolean(user))}
+          </p>
         </div>
         <div className="page-actions">
           <Button variant="primary" icon="plus" onClick={() => navigate('/create')}>

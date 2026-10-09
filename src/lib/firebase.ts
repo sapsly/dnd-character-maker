@@ -28,12 +28,26 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// Initialize Firebase app (singleton)
-export const app: FirebaseApp = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
+// Whether a complete Firebase config was provided at build time.
+// When false the app runs fully local-only: auth/db stay null and Firestore
+// calls return `ok: false` instead of crashing at import time.
+export const isBackendConfigured = Boolean(
+  firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
+    firebaseConfig.projectId &&
+    firebaseConfig.appId
+);
 
-// Export auth and firestore instances
-export const auth: Auth = getAuth(app);
-export const db: Firestore = getFirestore(app);
+// Initialize Firebase app (singleton) — only when configured.
+export const app: FirebaseApp | null = isBackendConfigured
+  ? getApps().length > 0
+    ? getApps()[0]
+    : initializeApp(firebaseConfig)
+  : null;
+
+// Export auth and firestore instances (null when Firebase is not configured)
+export const auth: Auth | null = app ? getAuth(app) : null;
+export const db: Firestore | null = app ? getFirestore(app) : null;
 
 // Collection paths
 export const USERS_COLLECTION = 'users';
@@ -43,14 +57,15 @@ export const CHARACTERS_SUBCOLLECTION = 'characters';
  * Get the Firestore collection reference for the current user's characters.
  */
 export function getUserCharactersRef(userId: string) {
-  return collection(db, USERS_COLLECTION, userId, CHARACTERS_SUBCOLLECTION);
+  // Only reachable when isBackendConfigured (db non-null) via the guarded CRUD fns below.
+  return collection(db!, USERS_COLLECTION, userId, CHARACTERS_SUBCOLLECTION);
 }
 
 /**
  * Get a specific character document reference.
  */
 export function getCharacterRef(userId: string, characterId: string) {
-  return doc(db, USERS_COLLECTION, userId, CHARACTERS_SUBCOLLECTION, characterId);
+  return doc(db!, USERS_COLLECTION, userId, CHARACTERS_SUBCOLLECTION, characterId);
 }
 
 // ---------- Firestore Character CRUD ----------
@@ -152,6 +167,9 @@ export async function migrateLocalCharactersToFirestore(
   localCharacters: Character[]
 ): Promise<FirestoreResult<number>> {
   if (localCharacters.length === 0) return { ok: true, value: 0 };
+  if (!db) {
+    return { ok: false, value: 0, error: 'Firebase backend is not configured' };
+  }
 
   try {
     const batch = writeBatch(db);

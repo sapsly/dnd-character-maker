@@ -6,10 +6,8 @@ import LevelUpPage from './components/levelup/LevelUpPage'
 import CreateCharacterPage from './components/create/CreateCharacterPage'
 import EditCharacterPage from './components/create/EditCharacterPage'
 import CompendiumPage from './components/compendium/CompendiumPage'
-import { DensityToggle } from './components/ui/DensityToggle'
-import { AccentPicker } from './components/ui/AccentPicker'
-import { ThemeModePicker } from './components/ui/ThemeModePicker'
-import { SkinPicker } from './components/ui/SkinPicker'
+import { HeaderSettings } from './components/ui/HeaderSettings'
+import { AccountMenu } from './components/auth/AccountMenu'
 
 function NotFoundPage() {
   return (
@@ -65,13 +63,15 @@ function AppShell() {
               </NavLink>
             </nav>
             <div className="app-header-settings">
-              <DensityToggle label="Layout density" />
-              {/* Skin sets the world, accent picks the hue within it, mode sets
-                  the light — so skin sits next to accent, and the two controls
-                  the user learns together (accent/mode) never move apart. */}
-              <SkinPicker label="Visual style" />
-              <AccentPicker label="Accent colour" />
-              <ThemeModePicker label="Colour mode" />
+              {/* Account leads the strip: it is the control that must stay
+                  visible when this row scrolls sideways on a phone, and the
+                  only one that changes who is using the app. Settings stays
+                  last so its popover anchors flush to the content edge, and
+                  every appearance control — skin, density, accent, colour
+                  mode — now lives inside it, leaving the strip to the account
+                  and one whisper. */}
+              <AccountMenu />
+              <HeaderSettings />
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AppShell />
     </BrowserRouter>
   )

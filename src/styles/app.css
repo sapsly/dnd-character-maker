@@ -67,8 +67,8 @@
   flex: 0 1 auto;
 }
 
-/* Nav sits between brand and the appearance controls — where you are, then
-   how this looks. */
+/* Nav sits between brand and the account / settings controls — where you are,
+   then who you are and how this looks. */
 .app-nav {
   display: flex;
   align-items: center;
@@ -81,10 +81,10 @@
   align-items: center;
   gap: var(--space-4);
   flex: 0 0 auto;
-  /* At the widths where the 1127px control cluster wraps onto its own header
-     row (~1210-1536px) this keeps it flush with the right edge instead of
-     leaving a blank band, matching the single-row layout above 1600px. It is
-     inert in the <=1200px scroll strip, where the box is already 100% wide. */
+  /* At the widths where the appearance cluster wraps onto its own header row
+     this keeps it flush with the right edge instead of leaving a blank band,
+     matching the single-row layout above. It is inert in the <=1200px scroll
+     strip, where the box is already 100% wide. */
   margin-left: auto;
   padding-left: var(--space-4);
   border-left: var(--bw) solid var(--border);
@@ -94,6 +94,138 @@
      escape this strip's scroll clip, which widens the page and makes every
      route scroll sideways on a phone. */
   position: relative;
+}
+
+/* --- Header settings trigger + popover ------------------------------------
+
+   The header keeps two quiet pills — the account control and this button —
+   and every appearance control (skin, density, accent, colour mode) lives
+   behind it, so the strip spends its width on navigation instead of chrome.
+   -------------------------------------------------------------------------- */
+
+/* Quiet by design — a hairline pill at the same 36px height as the account
+   control beside it, so the row stays even and neither pill out-shouts the
+   other. */
+.header-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  background-color: transparent;
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: var(--track-wide);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.header-settings-btn:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* Open is marked by a lifted surface and an accent-tinted hairline, so the
+   state never rests on position alone. */
+.header-settings-btn[aria-expanded='true'] {
+  background-color: var(--surface);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--text);
+}
+
+/* Portalled to <body> and anchored with `position: fixed` from measured
+   viewport coordinates (JS writes --settings-pop-x / -y), which is what lets
+   it escape the header's `backdrop-filter` containing block, the ≤1200px
+   strip's `overflow-x` clip and that strip's right-edge fade mask alike. */
+.settings-popover {
+  position: fixed;
+  top: var(--settings-pop-y, 4.5rem);
+  right: var(--settings-pop-x, 1rem);
+  /* Above the sticky header (20), below the modal layer (40/60). */
+  z-index: 30;
+  /* 20rem rather than 19: the skin picker moved in here, and at 19rem its
+     three shortest segments measure 271px against the 266px left inside the
+     shell — so they fell 2-2-1 and the row read as a ragged block. One extra
+     rem buys the 3-2 split the other rows already have. Below that width the
+     shell wraps anyway (it is built to). */
+  width: min(20rem, calc(100vw - 1.5rem));
+  /* Short viewports scroll the panel instead of pushing it off the bottom. */
+  max-height: calc(100vh - var(--settings-pop-y, 4.5rem) - var(--space-3));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background-color: var(--surface);
+  border: var(--bw) solid var(--border);
+  border-radius: var(--radius-lg);
+  /* The .panel recipe: a two-tier cast (tight + ambient) with the lit top
+     seam, so the popover reads as the same raised surface as every card. */
+  box-shadow: var(--shadow-md), inset 0 1px 0 var(--edge);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    /* Keeps the panel hit-testable through the whole exit fade. */
+    visibility 0s linear 150ms;
+}
+
+.settings-popover.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition:
+    opacity 150ms ease,
+    transform 150ms ease,
+    visibility 0s;
+}
+
+.settings-pop-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+/* Row name, styled to match `.theme-picker-label` / `.density-toggle-label`
+   so a control looks the same here as it did in the header. Decorative: the
+   picker underneath carries its own copy as the group's accessible name. */
+.settings-pop-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* The global reduced-motion guard in global.css already flattens every
+   transition; this keeps the intent local and visible to the next reader. */
+@media (prefers-reduced-motion: reduce) {
+  .settings-popover,
+  .settings-popover.is-open {
+    transition: none;
+  }
+}
+
+/* The panel is portalled outside `.app-header`, so print.css's header hide
+   cannot reach it — keep an open popover out of printed sheets. */
+@media print {
+  .settings-popover {
+    display: none;
+  }
 }
 
 .brand-mark {
@@ -318,9 +450,9 @@
    Responsive ladder
    ========================================================================== */
 
-/* Tablet and below (and any width where the four appearance controls no
-   longer fit beside the brand — they need ~1190px total): the header becomes
-   two rows — brand + nav on top, a scrollable controls strip underneath. */
+/* Tablet and below (and any width where the appearance controls no longer fit
+   beside the brand): the header becomes two rows — brand + nav on top, a
+   scrollable controls strip underneath. */
 @media (max-width: 1200px) {
   .app-header-inner {
     row-gap: var(--space-3);
@@ -353,9 +485,10 @@
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
     scroll-padding-inline: var(--space-1);
-    /* The strip holds ~620px of controls in a ~350px lane, so it is always
-       scrollable here. The trailing fade is the only affordance that says so —
-       without it the colour-mode toggle simply looks missing. */
+    /* Signed in, the strip holds ~400px of controls (address chip + Sign out
+       + Settings) in a ~350px lane on phones, so it stays scrollable here. The
+       trailing fade is the only affordance that says so — without it the
+       Settings button simply looks missing. */
     -webkit-mask-image: linear-gradient(
       to right,
       #000 0,

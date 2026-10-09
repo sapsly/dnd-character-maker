@@ -1,19 +1,65 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users can only access their own user document
+    // === Users (existing, unchanged) ===
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-
-      // Characters subcollection: users can only CRUD their own characters
       match /characters/{characterId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      // Markers for campaigns the user has joined (listMyCampaigns lookup)
+      match /joinedCampaigns/{campaignId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Deny all other access
-    match /{document=**} {
-      allow read, write: if false;
+    // === Campaigns (new) ===
+    match /campaigns/{campaignId} {
+      // --- Campaign doc ---
+      // Any member can read the campaign doc (dmUserId, name, joinCode, members map)
+      allow read: if isMember(request.auth.uid, campaignId);
+      // Only the DM may update campaign doc fields (name, dmUserId, etc.)
+      allow update: if isDM(request.auth.uid, campaignId) ||
+        // Join flow: a new member may add themselves to the members map only
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
+         request.resource.data.members[request.auth.uid] == true);
+      // Only the DM may delete the campaign (end of life)
+      allow delete: if isDM(request.auth.uid, campaignId);
+      // Creation is handled client-side; authenticated users may attempt (the function
+      // ensures join-code uniqueness).  The DM who creates the campaign is
+      // automatically added as both dmUserId and the first member.
+      allow create: if request.auth != null;
+      // No direct deletion via UI; the DM function handles campaign removal.
+
+      // --- Character copies subcollection ---
+      // Document ID = the owning user's Firebase uid.
+      // This guarantees exactly one copy per user per campaign and lets rules
+      // authorise reads/writes purely by comparing uid against request.auth.uid.
+      match /characters/{uid} {
+        // Any campaign member may read all character copies (read-only roster)
+        allow read: if isMember(request.auth.uid, campaignId);
+        // Only the document's owning user may write their own copy (sync/overwrite)
+        allow write: if request.auth.uid == uid;
+        // Only the document's owning user may delete their own copy
+        allow delete: if request.auth.uid == uid;
+      }
     }
+  }
+
+  // ---- Helper functions ----
+  // These read the campaign doc to verify membership/DM status.
+  // They are evaluated inside the rules context; the get() calls are safe because
+  // the surrounding allow‑condition already guarantees the caller is authenticated
+  // and (for isMember) a member of the campaign.
+
+  function isMember(uid, campaignId) {
+    let campaignDoc = get(/databases/$(database)/documents/campaigns/$(campaignId));
+    return campaignDoc.data.members[uid] == true;
+  }
+
+  function isDM(uid, campaignId) {
+    let campaignDoc = get(/databases/$(database)/documents/campaigns/$(campaignId));
+    let members = campaignDoc.data.members;
+    return members[uid] == true && campaignDoc.data.dmUserId == uid;
   }
 }

@@ -32,6 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!auth) {
+      // Firebase not configured in this build: no account state, local-only mode.
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       setLoading(false);
@@ -46,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       'auth/email-already-in-use': 'An account with that email already exists.',
       'auth/weak-password': 'Password should be at least 6 characters.',
       'auth/invalid-email': 'Please enter a valid email address.',
+      'auth/invalid-credential': 'Incorrect email or password.',
       'auth/popup-closed-by-user': 'Sign-in was cancelled.',
       'auth/network-request-failed': 'Network error. Check your connection.',
       'auth/too-many-requests': 'Too many attempts. Try again later.',
@@ -55,10 +61,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearError = () => setError(null);
 
+  /** Returns the auth instance, or throws a friendly error when Firebase is unconfigured. */
+  const requireAuth = () => {
+    if (!auth) {
+      throw new Error('Cloud login is unavailable: Firebase is not configured in this build.');
+    }
+    return auth;
+  };
+
   const login = async (email: string, password: string) => {
     clearError();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(requireAuth(), email, password);
     } catch (err) {
       handleError(err as AuthError);
       throw err;
@@ -68,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signup = async (email: string, password: string) => {
     clearError();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(requireAuth(), email, password);
     } catch (err) {
       handleError(err as AuthError);
       throw err;
@@ -79,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearError();
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(requireAuth(), provider);
     } catch (err) {
       handleError(err as AuthError);
       throw err;
@@ -89,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     clearError();
     try {
-      await signOut(auth);
+      await signOut(requireAuth());
     } catch (err) {
       handleError(err as AuthError);
       throw err;
@@ -99,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const resetPassword = async (email: string) => {
     clearError();
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(requireAuth(), email);
     } catch (err) {
       handleError(err as AuthError);
       throw err;
