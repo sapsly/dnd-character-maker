@@ -9,6 +9,7 @@ import {
   deleteCampaign,
   syncCharacterToCampaign,
   removeCharacterFromCampaign,
+  leaveCampaign,
   type Campaign,
   type CampaignCharacter,
 } from '../../lib/campaigns'
@@ -54,6 +55,8 @@ export default function CampaignDetail() {
   const [removeMemberSubmitting, setRemoveMemberSubmitting] = useState(false)
   const [deleteCampaignOpen, setDeleteCampaignOpen] = useState(false)
   const [deleteCampaignSubmitting, setDeleteCampaignSubmitting] = useState(false)
+  const [leaveCampaignOpen, setLeaveCampaignOpen] = useState(false)
+  const [leaveCampaignSubmitting, setLeaveCampaignSubmitting] = useState(false)
 
   const [syncCharacterOpen, setSyncCharacterOpen] = useState(false)
   const [syncCharacterId, setSyncCharacterId] = useState('')
@@ -133,7 +136,7 @@ export default function CampaignDetail() {
         if (stillExists) {
           // Could show a toast here, but spec says non-blocking confirm with copy text
           // We'll just log for now as the spec mentions showing copy text
-          console.warn('Member removed — their synced character copy stays until they sync again')
+          console.warn('Member removed, but their synced character copy could not be deleted')
         }
       }
     } else {
@@ -203,6 +206,21 @@ export default function CampaignDetail() {
     }
     setRemoveOwnCharacterSubmitting(false)
     setRemoveOwnCharacterOpen(false)
+  }
+
+  // Handle leave campaign (non-DM members only)
+  const handleLeaveCampaign = async () => {
+    if (!campaign || !user || leaveCampaignSubmitting) return
+    setLeaveCampaignSubmitting(true)
+
+    const result = await leaveCampaign(user.uid, campaign.id)
+    if (result.ok) {
+      navigate('/campaigns')
+    } else {
+      setError(result.error ?? 'Could not leave campaign')
+    }
+    setLeaveCampaignSubmitting(false)
+    setLeaveCampaignOpen(false)
   }
 
   // Loading state
@@ -279,6 +297,18 @@ export default function CampaignDetail() {
               <span className="campaigns-code">{campaign.joinCode}</span>
             </button>
           </Tooltip>
+          {!isDM && (
+            <Tooltip text="Leave campaign" side="top">
+              <Button
+                variant="ghost"
+                icon="arrow-right"
+                onClick={() => setLeaveCampaignOpen(true)}
+                disabled={leaveCampaignSubmitting}
+              >
+                Leave
+              </Button>
+            </Tooltip>
+          )}
           <Link to="/campaigns">
             <Button variant="ghost" icon="chevron-up">
               Back
@@ -447,8 +477,8 @@ export default function CampaignDetail() {
       >
         <div className="campaigns-confirm-modal">
           <p className="campaigns-confirm-text">
-            Remove this member from the campaign? They will lose access to the party and their
-            synced character copy will remain until they sync again.
+            Remove this member from the campaign? They will lose access to the party, and their
+            synced character copy will be removed.
           </p>
           <div className="campaigns-confirm-actions">
             <Button variant="secondary" onClick={() => setRemoveMemberOpen(null)} disabled={removeMemberSubmitting}>
@@ -552,6 +582,28 @@ export default function CampaignDetail() {
             </Button>
             <Button variant="danger" onClick={handleRemoveOwnCharacter} disabled={removeOwnCharacterSubmitting}>
               {removeOwnCharacterSubmitting ? 'Removing…' : 'Remove character'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Leave Campaign Modal */}
+      <Modal
+        open={leaveCampaignOpen}
+        onClose={() => setLeaveCampaignOpen(false)}
+        title="Leave campaign"
+        size="sm"
+      >
+        <div className="campaigns-confirm-modal">
+          <p className="campaigns-confirm-text">
+            Leave this campaign? You'll need the join code to rejoin.
+          </p>
+          <div className="campaigns-confirm-actions">
+            <Button variant="secondary" onClick={() => setLeaveCampaignOpen(false)} disabled={leaveCampaignSubmitting}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleLeaveCampaign} disabled={leaveCampaignSubmitting}>
+              {leaveCampaignSubmitting ? 'Leaving…' : 'Leave campaign'}
             </Button>
           </div>
         </div>

@@ -111,17 +111,22 @@ export default function RosterPage() {
     })
   }
 
-  const handleDelete = (character: Character) => {
-    const result = removeCharacter(character.id)
-    setPendingDelete(null)
-    if (!result.ok) {
-      setNotice({ tone: 'error', text: result.error ?? 'That character could not be deleted.' })
-      return
+  const handleDelete = async (character: Character) => {
+    try {
+      const result = await removeCharacter(character.id)
+      setPendingDelete(null)
+      if (!result.ok) {
+        setNotice({ tone: 'error', text: result.error ?? 'That character could not be deleted.' })
+        return
+      }
+      setNotice({
+        tone: 'success',
+        text: `Deleted ${character.meta.name.trim() || 'character'}.`,
+      })
+    } catch {
+      setPendingDelete(null)
+      setNotice({ tone: 'error', text: 'Unexpected error deleting that character.' })
     }
-    setNotice({
-      tone: 'success',
-      text: `Deleted ${character.meta.name.trim() || 'character'}.`,
-    })
   }
 
   const fileInput = (

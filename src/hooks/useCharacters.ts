@@ -13,6 +13,9 @@ import {
   migrateLocalCharactersToFirestore,
   type FirestoreResult,
 } from '../lib/firebase';
+import {
+  removeCharacterFromUserCampaigns,
+} from '../lib/campaigns';
 import { useCallback, useEffect, useState } from 'react';
 import type { Character } from '../types/character';
 
@@ -98,8 +101,23 @@ export function useCharacters() {
       setError(null);
       if (user) {
         const result = await deleteCharacterFirestore(user.uid, id);
-        if (result.ok) setCharacters((prev) => prev.filter((c) => c.id !== id));
-        else setError(result.error ?? 'Failed to delete character');
+        if (result.ok) {
+          // Also remove from localStorage to prevent resurrection on next login.
+          // Best-effort: these must never reject, or the character would reappear.
+          try {
+            deleteLocal(id);
+          } catch {
+            // ignore
+          }
+          try {
+            await removeCharacterFromUserCampaigns(user.uid, id);
+          } catch {
+            // ignore
+          }
+          setCharacters((prev) => prev.filter((c) => c.id !== id));
+        } else {
+          setError(result.error ?? 'Failed to delete character');
+        }
         return result;
       } else {
         const result = deleteLocal(id);

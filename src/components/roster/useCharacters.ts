@@ -1,13 +1,14 @@
 import { useCharacters as useCharactersCore } from '../../hooks/useCharacters';
 import type { Character } from '../../types/character';
 import type { StorageResult } from '../../lib/storage';
+import type { FirestoreResult } from '../../lib/firebase';
 
 export interface UseCharacters {
   characters: Character[];
   loading: boolean;
   error: string | null;
   saveCharacter: (character: Character) => StorageResult<Character[]>;
-  removeCharacter: (id: string) => StorageResult<Character[]>;
+  removeCharacter: (id: string) => Promise<StorageResult<Character[]> | FirestoreResult<void>>;
   reload: () => void;
   clearError: () => void;
 }
@@ -30,9 +31,9 @@ export function useCharacters(): UseCharacters {
     return { ok: true, value: characters, error: undefined };
   };
 
-  const removeCharacter = (id: string): StorageResult<Character[]> => {
-    remove(id);
-    return { ok: true, value: characters.filter((c) => c.id !== id), error: undefined };
+  const removeCharacter = async (id: string): Promise<StorageResult<Character[]> | FirestoreResult<void>> => {
+    // Propagate the actual result from the core remove (includes FirestoreResult for signed-in)
+    return remove(id);
   };
 
   return { characters, loading, error, saveCharacter, removeCharacter, reload, clearError };

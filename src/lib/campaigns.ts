@@ -345,10 +345,9 @@ export async function removeCampaignMember(
     const campaignRef = doc(db, CAMPAIGNS_COLLECTION, campaignId);
     await updateDoc(campaignRef, { [`members.${memberUid}`]: deleteField() });
 
-    // NOTE: The character copy delete is owner-only per rules (request.auth.uid == uid).
-    // A DM cannot delete another user's character copy via client SDK.
-    // This would need a Cloud Function or rules tweak to allow DM deletion.
-    // We attempt it here; if it fails, the members map update still succeeds.
+    // NOTE: The character copy delete is now allowed for the DM (rules allow delete if
+    // request.auth.uid == uid || isDM(request.auth.uid, campaignId)). We attempt it here;
+    // if it fails, the members map update still succeeds.
     const characterRef = doc(db, CAMPAIGNS_COLLECTION, campaignId, CHARACTERS_SUBCOLLECTION, memberUid);
     try {
       await deleteDoc(characterRef);
@@ -363,6 +362,79 @@ export async function removeCampaignMember(
       ok: false,
       value: false,
       error: `Could not remove member: ${error instanceof Error ? error.message : 'unknown error'}`,
+    };
+  }
+}
+
+export async function leaveCampaign(
+  userId: string,
+  campaignId: string
+): Promise<FirestoreResult<void>> {
+  if (!db) {
+    return { ok: false, value: undefined, error: 'Firebase backend is not configured' };
+  }
+
+  try {
+    const campaignRef = doc(db, CAMPAIGNS_COLLECTION, campaignId);
+    await updateDoc(campaignRef, { [`members.${userId}`]: deleteField() });
+
+    // Best-effort: delete own synced character copy
+    try {
+      await deleteDoc(doc(db, CAMPAIGNS_COLLECTION, campaignId, CHARACTERS_SUBCOLLECTION, userId));
+    } catch {
+      // Ignore: character copy may not exist or delete may be denied
+    }
+
+    // Best-effort: delete own joinedCampaigns marker
+    try {
+      await deleteDoc(doc(db, 'users', userId, JOINED_CAMPAIGNS_SUBCOLLECTION, campaignId));
+    } catch {
+      // Ignore: marker may not exist or delete may be denied
+    }
+
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return {
+      ok: false,
+      value: undefined,
+      error: `Could not leave campaign: ${error instanceof Error ? error.message : 'unknown error'}`,
+    };
+  }
+}
+
+export async function removeCharacterFromUserCampaigns(
+  userId: string,
+  characterId: string
+): Promise<FirestoreResult<void>> {
+  if (!db) {
+    return { ok: false, value: undefined, error: 'Firebase backend is not configured' };
+  }
+
+  try {
+    const joinedRef = collection(db, 'users', userId, JOINED_CAMPAIGNS_SUBCOLLECTION);
+    const joinedSnap = await getDocs(joinedRef);
+
+    for (const joinedDoc of joinedSnap.docs) {
+      const data = joinedDoc.data();
+      const campaignId = data.campaignId ?? joinedDoc.id;
+
+      try {
+        const charRef = doc(db, CAMPAIGNS_COLLECTION, campaignId, CHARACTERS_SUBCOLLECTION, userId);
+        const charSnap = await getDoc(charRef);
+        if (charSnap.exists() && charSnap.data().originalCharId === characterId) {
+          await deleteDoc(charRef);
+        }
+      } catch {
+        // Best-effort per campaign; ignore errors and continue
+      }
+    }
+
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return {
+      ok: false,
+      value: undefined,
+      error: `Could not clean up campaign copies: ${error instanceof Error ? error.message : 'unknown error'}`,
     };
   }
 }
