@@ -74,10 +74,16 @@
 }
 
 /* Every button sits down under the pointer and drops the shadow it lifted
-   with, so hover and press are distinguishable by motion as well as colour. */
+   with, so hover and press are distinguishable by motion as well as colour.
+   The settle rides the button CONTENTS (`.btn-label` / icons), never the
+   button box: a held press keeps its exact hitbox and cannot slip off the
+   target, while the label still visually sinks 1px. */
 .btn:active:not(:disabled) {
-  transform: translateY(1px);
   box-shadow: none;
+}
+
+.btn:active:not(:disabled) > * {
+  transform: translateY(1px);
 }
 
 .btn--secondary {

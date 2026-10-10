@@ -16,12 +16,17 @@ service cloud.firestore {
     // === Campaigns (new) ===
     match /campaigns/{campaignId} {
       // --- Campaign doc ---
-      // Any member can read the campaign doc (dmUserId, name, joinCode, members map)
-      allow read: if isMember(request.auth.uid, campaignId);
+      // Members may GET the campaign doc (dmUserId, name, joinCode, members map).
+      // LIST is disabled; join-code lookup is via the joinCodes collection.
+      allow get: if resource.data.members[request.auth.uid] == true;
+      allow list: if false;
       // Only the DM may update campaign doc fields (name, dmUserId, etc.)
+      // Join flow: a new member may add ONLY themselves to the members map (no removals, no changes to existing).
       allow update: if isDM(request.auth.uid, campaignId) ||
-        // Join flow: a new member may add themselves to the members map only
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members']) &&
+         request.resource.data.members.diff(resource.data.members).removedKeys().size() == 0 &&
+         request.resource.data.members.diff(resource.data.members).changedKeys().size() == 0 &&
+         request.resource.data.members.diff(resource.data.members).addedKeys().hasOnly([request.auth.uid]) &&
          request.resource.data.members[request.auth.uid] == true);
       // Only the DM may delete the campaign (end of life)
       allow delete: if isDM(request.auth.uid, campaignId);
@@ -44,6 +49,15 @@ service cloud.firestore {
         allow delete: if request.auth.uid == uid;
       }
     }
+
+    // === Join Codes (new) ===
+    // joinCodes/{code} holds { campaignId, dmUserId, createdAt }
+    match /joinCodes/{code} {
+      allow get: if request.auth != null;
+      allow create: if isDM(request.auth.uid, request.resource.data.campaignId);
+      allow update: if false;
+      allow delete: if request.auth.uid != null && isDM(request.auth.uid, resource.data.campaignId);
+    }
   }
 
   // ---- Helper functions ----
@@ -53,12 +67,12 @@ service cloud.firestore {
   // and (for isMember) a member of the campaign.
 
   function isMember(uid, campaignId) {
-    let campaignDoc = get(/databases/$(database)/documents/campaigns/$(campaignId));
+    let campaignDoc = get(/databases/(default)/documents/campaigns/$(campaignId));
     return campaignDoc.data.members[uid] == true;
   }
 
   function isDM(uid, campaignId) {
-    let campaignDoc = get(/databases/$(database)/documents/campaigns/$(campaignId));
+    let campaignDoc = get(/databases/(default)/documents/campaigns/$(campaignId));
     let members = campaignDoc.data.members;
     return members[uid] == true && campaignDoc.data.dmUserId == uid;
   }

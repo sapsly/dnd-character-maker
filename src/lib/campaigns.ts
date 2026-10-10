@@ -6,8 +6,6 @@ import {
   setDoc,
   deleteDoc,
   updateDoc,
-  query,
-  where,
   serverTimestamp,
   deleteField,
   type DocumentSnapshot,
@@ -51,9 +49,8 @@ function generateJoinCode(length = JOIN_CODE_LENGTH): string {
 
 async function isJoinCodeTaken(joinCode: string): Promise<boolean> {
   if (!db) return true;
-  const q = query(collection(db, CAMPAIGNS_COLLECTION), where('joinCode', '==', joinCode));
-  const snap = await getDocs(q);
-  return !snap.empty;
+  const snap = await getDoc(doc(db, 'joinCodes', joinCode));
+  return snap.exists();
 }
 
 async function generateUniqueJoinCode(): Promise<string> {
@@ -123,6 +120,20 @@ export async function createCampaign(
       members: { [userId]: true },
     };
     await setDoc(campaignRef, payload);
+
+    await setDoc(doc(db, 'joinCodes', code), {
+      campaignId: campaignRef.id,
+      dmUserId: userId,
+      createdAt: now,
+    });
+
+    const joinedRef = doc(db, 'users', userId, JOINED_CAMPAIGNS_SUBCOLLECTION, campaignRef.id);
+    await setDoc(joinedRef, {
+      role: 'dm',
+      campaignId: campaignRef.id,
+      joinedAt: serverTimestamp(),
+    });
+
     const campaign: Campaign = {
       id: campaignRef.id,
       joinCode: code,
@@ -150,35 +161,40 @@ export async function joinCampaign(
   }
 
   try {
-    const q = query(
-      collection(db, CAMPAIGNS_COLLECTION),
-      where('joinCode', '==', joinCode)
-    );
-    const snap = await getDocs(q);
-    if (snap.empty) {
+    const codeSnap = await getDoc(doc(db, 'joinCodes', joinCode));
+    if (!codeSnap.exists()) {
       return { ok: false, value: null as any, error: 'Campaign not found with that join code.' };
     }
-    const campaignSnap = snap.docs[0];
-    const campaign = campaignDocToCampaign(campaignSnap);
-    if (!campaign) {
-      return { ok: false, value: null as any, error: 'Campaign data is invalid.' };
-    }
-    if (campaign.members[userId]) {
+    const campaignId = codeSnap.data().campaignId;
+
+    const existing = await getCampaign(userId, campaignId);
+    if (existing.ok && existing.value && existing.value.members[userId]) {
       return { ok: false, value: null as any, error: 'You are already in this campaign.' };
     }
 
-    const campaignRef = doc(db, CAMPAIGNS_COLLECTION, campaign.id);
-    await updateDoc(campaignRef, { [`members.${userId}`]: true });
+    await updateDoc(doc(db, CAMPAIGNS_COLLECTION, campaignId), { ['members.' + userId]: true });
 
-    const joinedRef = doc(db, 'users', userId, JOINED_CAMPAIGNS_SUBCOLLECTION, campaign.id);
+    const joinedRef = doc(db, 'users', userId, JOINED_CAMPAIGNS_SUBCOLLECTION, campaignId);
     await setDoc(joinedRef, {
       role: 'member',
-      campaignId: campaign.id,
+      campaignId,
       joinedAt: serverTimestamp(),
     });
 
-    campaign.members[userId] = true;
-    return { ok: true, value: campaign };
+    const result = await getCampaign(userId, campaignId);
+    return result.ok && result.value
+      ? { ok: true, value: result.value }
+      : {
+          ok: true,
+          value: {
+            id: campaignId,
+            name: '',
+            joinCode,
+            dmUserId: '',
+            createdAt: new Date().toISOString(),
+            members: { [userId]: true },
+          },
+        };
   } catch (error) {
     return {
       ok: false,
@@ -360,7 +376,18 @@ export async function deleteCampaign(
   }
 
   try {
+    const existing = await getCampaign(_dmUserId, campaignId);
     const campaignRef = doc(db, CAMPAIGNS_COLLECTION, campaignId);
+    // Delete the joinCodes mapping FIRST: its delete rule calls isDM(), which reads the
+    // campaign doc. That read fails once the campaign doc is gone, so the code cleanup
+    // must happen while the campaign doc still exists.
+    if (existing.ok && existing.value) {
+      try {
+        await deleteDoc(doc(db, 'joinCodes', existing.value.joinCode));
+      } catch {
+        // Best-effort cleanup; ignore if join code doc doesn't exist
+      }
+    }
     await deleteDoc(campaignRef);
     // Note: Subcollections (characters) and joinedCampaigns markers are not automatically
     // deleted by Firestore. A Cloud Function or batch job should clean those up.

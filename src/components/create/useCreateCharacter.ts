@@ -57,6 +57,8 @@ export interface WizardState {
   speciesId: string
   /** Lineage choice for species that offer one (Elf, Gnome, Tiefling). Undefined for species without lineages. */
   lineageId: SpeciesLineageId | undefined
+  /** Origin feat chosen for a species that grants one at 1st level (only Human). */
+  speciesFeatId: string | null
   classId: string
   backgroundId: string
   scoreMethod: ScoreMethod
@@ -96,6 +98,7 @@ export interface CreateCharacterModel {
   stepErrors: string[]
   nameErrors: string[]
   speciesErrors: string[]
+  speciesFeatErrors: string[]
   backgroundErrors: string[]
   scoreErrors: string[]
   skillErrors: string[]
@@ -112,6 +115,7 @@ export interface CreateCharacterModel {
   setPlayerName: (value: string) => void
   setSpeciesId: (value: string) => void
   setLineageId: (id: SpeciesLineageId) => void
+  setSpeciesFeatId: (id: string | null) => void
   setClassId: (value: string) => void
   setBackgroundId: (value: string) => void
   setScoreMethod: (value: ScoreMethod) => void
@@ -199,6 +203,7 @@ function initialState(existing?: Character | null): WizardState {
       playerName: '',
       speciesId: 'human',
       lineageId: undefined,
+      speciesFeatId: null,
       classId: 'fighter',
       backgroundId: 'acolyte',
       scoreMethod: 'standard',
@@ -227,6 +232,8 @@ function initialState(existing?: Character | null): WizardState {
     playerName: existing.meta.playerName ?? '',
     speciesId: existing.species?.speciesId ?? 'human',
     lineageId: existing.species?.lineageId,
+    speciesFeatId:
+      existing.choices.find((c) => c.kind === 'speciesFeat')?.picks[0]?.optionId ?? null,
     classId: existing.classes?.[0]?.classId ?? 'fighter',
     backgroundId,
     scoreMethod: existing.abilityScoreMethod ?? 'standard',
@@ -258,25 +265,9 @@ function initialState(existing?: Character | null): WizardState {
  * Class skills and weapon masteries are picked during creation too, so they are
  * never emitted here at all.
  */
-function pendingChoices(
-  character: Character,
-  classDef: ClassDef | null,
-  species: SpeciesDef | null,
-): Choice[] {
+function pendingChoices(character: Character, classDef: ClassDef | null): Choice[] {
   const out: Choice[] = []
   const classEntry = character.classes[0]
-
-  if (species?.featLevels?.includes(1)) {
-    out.push({
-      id: createId('choice'),
-      kind: 'speciesFeat',
-      grantedAtLevel: 1,
-      label: `${species.name} ancestry feat`,
-      count: 1,
-      picks: [],
-      resolved: false,
-    })
-  }
 
   // Spell choices for classes with spellcasting at level 1
   if (classDef?.spellcasting) {
@@ -332,6 +323,27 @@ function pendingChoices(
   }
 
   return out
+}
+
+/**
+ * The species-granted Origin feat (only Human offers one at 1st level). Unlike
+ * the choices above, the wizard always records this one so the character sheet
+ * can show which feat was taken: resolved with the pick when chosen, unresolved
+ * (and therefore outstanding) while still empty.
+ */
+function speciesFeatChoice(species: SpeciesDef | null, featId: string | null): Choice[] {
+  if (!species?.featLevels?.includes(1)) return []
+  return [
+    {
+      id: createId('choice'),
+      kind: 'speciesFeat',
+      grantedAtLevel: 1,
+      label: `${species.name} ancestry feat`,
+      count: 1,
+      picks: featId ? [{ optionId: featId }] : [],
+      resolved: Boolean(featId),
+    },
+  ]
 }
 
 /**
@@ -401,6 +413,12 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     if (!species) return ['That species is not in the catalogue.']
     return []
   }, [species])
+
+  const speciesFeatErrors = useMemo(() => {
+    if (!species?.featLevels?.includes(1)) return []
+    if (!state.speciesFeatId) return ['Choose the Origin feat your species grants at 1st level.']
+    return []
+  }, [species, state.speciesFeatId])
 
   const backgroundErrors = useMemo(() => {
     if (!background) return ['That background is not in the catalogue.']
@@ -568,7 +586,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
   const stepErrors = useMemo(() => {
     switch (state.step) {
       case 'identity':
-        return [...nameErrors, ...speciesErrors]
+        return [...nameErrors, ...speciesErrors, ...speciesFeatErrors]
       case 'class':
         return classDef ? [...skillErrors, ...weaponMasteryErrors] : ['That class is not in the catalogue.']
       case 'background':
@@ -578,14 +596,14 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
       case 'spells':
         return []
       case 'review':
-        return [...nameErrors, ...speciesErrors, ...backgroundErrors, ...scoreErrors, ...skillErrors, ...weaponMasteryErrors, ...equipmentErrors]
+        return [...nameErrors, ...speciesErrors, ...speciesFeatErrors, ...backgroundErrors, ...scoreErrors, ...skillErrors, ...weaponMasteryErrors, ...equipmentErrors]
       default:
         return []
     }
-  }, [state.step, nameErrors, speciesErrors, backgroundErrors, scoreErrors, toolErrors, classDef, skillErrors, weaponMasteryErrors, equipmentErrors])
+  }, [state.step, nameErrors, speciesErrors, speciesFeatErrors, backgroundErrors, scoreErrors, toolErrors, classDef, skillErrors, weaponMasteryErrors, equipmentErrors])
 
   const canAdvance = stepErrors.length === 0
-  const canCreate = canAdvance && nameErrors.length === 0 && backgroundErrors.length === 0 && scoreErrors.length === 0 && skillErrors.length === 0 && weaponMasteryErrors.length === 0 && equipmentErrors.length === 0
+  const canCreate = canAdvance && nameErrors.length === 0 && speciesFeatErrors.length === 0 && backgroundErrors.length === 0 && scoreErrors.length === 0 && skillErrors.length === 0 && weaponMasteryErrors.length === 0 && equipmentErrors.length === 0
 
   const setStep = useCallback((step: WizardStep) => {
     setSaveError(null)
@@ -618,12 +636,25 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     (value: string) => setState((s) => {
       // Changing species resets lineage when the new species has no lineage options.
       const hasLineages = lineagesForSpecies(value).length > 0
-      return { ...s, speciesId: value, lineageId: hasLineages ? s.lineageId : undefined }
+      // A species-granted Origin feat only applies while a granting species is
+      // selected, so a stale pick must not survive a switch to a species
+      // without one.
+      const grantsFeat = SPECIES.find((sp) => sp.id === value)?.featLevels?.includes(1) ?? false
+      return {
+        ...s,
+        speciesId: value,
+        lineageId: hasLineages ? s.lineageId : undefined,
+        speciesFeatId: grantsFeat ? s.speciesFeatId : null,
+      }
     }),
     [],
   )
   const setLineageId = useCallback(
     (id: SpeciesLineageId) => setState((s) => ({ ...s, lineageId: id })),
+    [],
+  )
+  const setSpeciesFeatId = useCallback(
+    (id: string | null) => setState((s) => ({ ...s, speciesFeatId: id })),
     [],
   )
   const setClassId = useCallback((value: string) => {
@@ -781,7 +812,23 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
       // are re-queued rather than kept. Anything already resolved is still lost
       // in that case, which is why the editor warns before saving.
       if (classChanged || speciesChanged) {
-        character = { ...character, choices: pendingChoices(character, classDef, species) }
+        character = {
+          ...character,
+          choices: [
+            ...pendingChoices(character, classDef),
+            ...speciesFeatChoice(species, state.speciesFeatId),
+          ],
+        }
+      } else {
+        // Nothing structural changed: keep the character's choices, but refresh
+        // the species-granted Origin feat so a pick made in the editor sticks.
+        character = {
+          ...character,
+          choices: [
+            ...existing.choices.filter((c) => c.kind !== 'speciesFeat'),
+            ...speciesFeatChoice(species, state.speciesFeatId),
+          ],
+        }
       }
     } else {
       const base = createCharacter({
@@ -825,7 +872,13 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
       // Resolved against `created`, not `base`: `base` predates the wizard's
       // picks, so queueing against it would owe cantrips and spells the player
       // already chose during creation.
-      character = { ...created, choices: pendingChoices(created, classDef, species) }
+      character = {
+        ...created,
+        choices: [
+          ...pendingChoices(created, classDef),
+          ...speciesFeatChoice(species, state.speciesFeatId),
+        ],
+      }
     }
 
     const saved = upsertCharacter(character)
@@ -858,6 +911,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     stepErrors,
     nameErrors,
     speciesErrors,
+    speciesFeatErrors,
     backgroundErrors,
     scoreErrors,
     skillErrors,
@@ -874,6 +928,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     setPlayerName,
     setSpeciesId,
     setLineageId,
+    setSpeciesFeatId,
     setClassId,
     setBackgroundId,
     setScoreMethod,

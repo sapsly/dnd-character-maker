@@ -171,8 +171,9 @@
 [data-skin='brutalist'] .btn:active,
 [data-skin='brutalist'] .modal:active,
 [data-skin='brutalist'] .tag:active {
+  /* Press reads as the hard shadow collapsing. The slab itself does NOT move:
+     a displaced box moves its hitbox, which turns a held press into a miss. */
   box-shadow: none;
-  transform: translate(var(--bw), var(--bw));
 }
 
 /* 3.5.2 Registration crop ticks on .panel / .card (screen only) */
@@ -301,7 +302,6 @@
 
 [data-skin='brutalist'] .empty-state:active {
   box-shadow: none;
-  transform: translate(var(--bw), var(--bw));
 }
 
 @media screen {
@@ -329,12 +329,14 @@
   }
 }
 
-/* --- 3.8 Stone-tablet press: a brief shake + a couple of stone chips ---
-     Tap a slab and it rattles once, and two splinters drop off the bottom edge.
+/* --- 3.8 Stone-tablet press: a held rattle + a couple of stone chips ---
+     Hold a slab and its CONTENTS rattle for as long as the press lasts, and
+     two splinters drop off the bottom edge.
      Deliberate scope choices:
-       • The shake animates the independent `translate` property, so it
-         COMPOSES with the `transform: translate(var(--bw), var(--bw))`
-         press-into-shadow above instead of replacing it.
+       • The rattle rides the contents (`:active > *`), never the host box, so
+         a held press can never lose the pointer: the element keeps its exact
+         hitbox while its label/icons jitter. Bare-text hosts have no element
+         child to rattle, so the 3.5.1 shadow collapse is their whole press.
        • No `.card` / `.panel` / `.empty-state` / `.modal` / page / header:
          `:active` bubbles to ancestors, so a text field inside a card would
          shake the whole card — disorienting on big surfaces. Clickable cards
@@ -347,9 +349,9 @@
 @media screen and (prefers-reduced-motion: no-preference) {
   @keyframes brutalist-shake {
     0%   { translate: 0 0; }
-    22%  { translate: -4px 1px; }
-    46%  { translate: 4px -1px; }
-    70%  { translate: -3px 1px; }
+    25%  { translate: -3px 0; }
+    50%  { translate: 3px 0; }
+    75%  { translate: -2px 0; }
     100% { translate: 0 0; }
   }
 
@@ -358,14 +360,19 @@
     100% { transform: translateY(24px) rotate(46deg); opacity: 0; }
   }
 
-  /* 1 — the shake: 4px of horizontal jitter over 200ms, one pass. */
-  [data-skin='brutalist'] .btn:active,
-  [data-skin='brutalist'] .icon-btn:active,
-  [data-skin='brutalist'] .roster-row:active,
-  [data-skin='brutalist'] .compendium-card:active,
-  [data-skin='brutalist'] .create-step:active,
-  [data-skin='brutalist'] .create-choice:active {
-    animation: brutalist-shake 200ms cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
+  /* 1 — the held rattle: while a slab is pressed its CONTENTS jitter ±3px and
+     keep jittering for as long as the press is held (`infinite`). The host box
+     never moves, so a held press can never lose the pointer. Bare-text hosts
+     have no element child to rattle — their press is the 3.5.1 shadow
+     collapse, kept still and legible. */
+  [data-skin='brutalist'] .btn:active > *,
+  [data-skin='brutalist'] .icon-btn:active > *,
+  [data-skin='brutalist'] .tag:active > *,
+  [data-skin='brutalist'] .roster-row:active > *,
+  [data-skin='brutalist'] .compendium-card:active > *,
+  [data-skin='brutalist'] .create-step:active > *,
+  [data-skin='brutalist'] .create-choice:active > * {
+    animation: brutalist-shake 160ms linear infinite;
   }
 
   /* 2 — containing block for the chip pseudo. .roster-row's relative also
@@ -1141,738 +1148,13 @@
 }
 
 /* ==========================================================================
-   Skin: parchment — Parchment / tavern noticeboard
-   ========================================================================== */
-
-/* --- 5.1 Light palette (the hero: aged page) + 5.3 Shape/weight --- */
-[data-skin='parchment'][data-theme='light'],
-[data-theme='light'] [data-skin='parchment'] {
-  --bg:             #efe5d0;
-  --bg-elevated:    #f7efe0;
-  --surface:        #fbf5e8;
-  --surface-hover:  #f2e9d6;
-  --surface-sunken: #e6dac2;
-  --border:         #6f6350;
-  --border-strong:  #4c4335;
-  --border-subtle:  #cdbfa4;
-  --text:           #241c12;
-  --text-strong:    #120d07;
-  --text-muted:     #574a39;
-  --text-faint:     #6b5d4a;
-  --edge:           rgba(255,255,255,0.65);
-  --bg-wash-1: color-mix(in srgb, var(--accent) 9%, transparent);
-  --bg-wash-2: color-mix(in srgb, var(--accent) 4.5%, transparent);
-  --bg-wash-3: color-mix(in srgb, var(--accent) 7%, transparent);
-  --scrim: rgba(38,28,16,0.60);
-
-  --shadow-sm: 0 1px 1px rgba(90,70,40,0.14);
-  --shadow-md: 0 2px 3px rgba(90,70,40,0.12), 0 8px 18px -10px rgba(90,70,40,0.24);
-  --shadow-lg: 0 3px 6px rgba(90,70,40,0.14), 0 22px 44px -18px rgba(90,70,40,0.30);
-
-  --radius-sm: 2px; --radius-md: 3px; --radius-lg: 4px; --radius-xl: 6px;
-  --radius-pill: 9999px;
-  --bw: 1px; --bw-2: 2px; --bw-thick: 4px;
-}
-
-/* --- 5.2 Dark palette (tavern interior at night) + 5.3 Shape/weight --- */
-[data-skin='parchment'][data-theme='dark'],
-[data-theme='dark'] [data-skin='parchment'] {
-  --bg:             #171310;
-  --bg-elevated:    #201a15;
-  --surface:        #272019;
-  --surface-hover:  #322a21;
-  --surface-sunken: #120f0c;
-  --border:         #58493a;
-  --border-strong:  #8a7458;
-  --border-subtle:  #3a3128;
-  --text:           #f0e4d2;
-  --text-strong:    #fff6e8;
-  --text-muted:     #bdac94;
-  --text-faint:     #a3907a;
-  --edge:           rgba(255,229,190,0.07);
-  --bg-wash-1: color-mix(in srgb, var(--accent) 9%, transparent);
-  --bg-wash-2: color-mix(in srgb, var(--accent) 4%, transparent);
-  --bg-wash-3: color-mix(in srgb, var(--accent) 6.5%, transparent);
-  --scrim: rgba(8,6,4,0.78);
-
-  --shadow-sm: 0 1px 1px rgba(0,0,0,0.50);
-  --shadow-md: 0 2px 3px rgba(0,0,0,0.45), 0 10px 22px -10px rgba(0,0,0,0.60);
-  --shadow-lg: 0 3px 6px rgba(0,0,0,0.45), 0 24px 46px -20px rgba(0,0,0,0.70);
-
-  --radius-sm: 2px; --radius-md: 3px; --radius-lg: 4px; --radius-xl: 6px;
-  --radius-pill: 9999px;
-  --bw: 1px; --bw-2: 2px; --bw-thick: 4px;
-}
-
-/* --- 5.4 Typography: Fraunces display + Archivo body, engraved labels --- */
-[data-skin='parchment'] {
-  --display-variation: 'wght' 600, 'SOFT' 35, 'WONK' 1;
-  --leading-display: 1.02;
-  --track-display-tight: -0.02em;
-  --leading-body: 1.7;
-  --track-label: 0.16em;
-}
-
-[data-skin='parchment'] .page-title {
-  font-family: var(--font-display);
-  font-variation-settings: var(--display-variation);
-  font-optical-sizing: 72;
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display-tight);
-}
-
-[data-skin='parchment'] .section-title,
-[data-skin='parchment'] .card-title,
-[data-skin='parchment'] .modal-title,
-[data-skin='parchment'] .empty-title,
-[data-skin='parchment'] .roster-name,
-[data-skin='parchment'] .stub-lead,
-[data-skin='parchment'] h1,
-[data-skin='parchment'] h2,
-[data-skin='parchment'] h3,
-[data-skin='parchment'] h4,
-[data-skin='parchment'] h5,
-[data-skin='parchment'] h6 {
-  font-family: var(--font-display);
-  font-variation-settings: var(--display-variation);
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display-tight);
-}
-
-[data-skin='parchment'] .page-subtitle,
-[data-skin='parchment'] .empty-desc {
-  font-family: var(--font-display);
-  font-variation-settings: var(--display-variation);
-  font-style: italic;
-  line-height: var(--leading-display);
-  letter-spacing: var(--track-display-tight);
-}
-
-[data-skin='parchment'] body {
-  font-family: var(--font-body);
-  font-variation-settings: 'wght' 400, 'wdth' 97;
-  line-height: var(--leading-body);
-}
-
-[data-skin='parchment'] .field-label,
-[data-skin='parchment'] .sheet-stat dt,
-[data-skin='parchment'] .ability-name,
-[data-skin='parchment'] .divider-label,
-[data-skin='parchment'] .create-list-title {
-  font-family: var(--font-display);
-  font-variation-settings: 'wght' 600, 'SOFT' 35, 'WONK' 1;
-  font-optical-sizing: 72;
-  text-transform: uppercase;
-  letter-spacing: var(--track-label);
-  line-height: var(--leading-body);
-}
-
-/* --- 5.5 Signature details --- */
-
-/* 5.5.1 Wax seal — .tag--solid and .page-head::after as ~22px disc in --accent */
-@media screen {
-  [data-skin='parchment'] .tag--solid {
-    position: relative;
-    width: 22px;
-    height: 22px;
-    background: var(--accent);
-    border-radius: 47% 53% 50% 50%;
-    box-shadow:
-      inset 0 -2px 3px rgba(0,0,0,0.3),
-      inset 0 1px 1px rgba(255,255,255,0.2),
-      0 0 0 1px rgba(0,0,0,0.15);
-  }
-
-  [data-skin='parchment'] .page-head {
-    position: relative;
-  }
-
-  [data-skin='parchment'] .page-head::after {
-    position: absolute;
-    /* base rule pins left:0 — ornaments render at the head's left edge
-       (visual QA approved), so state it instead of dead right:0. */
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 22px;
-    height: 22px;
-    /* highlight baked into the background: ::after::after never renders
-       (no pseudos on pseudos) — 10px radial centered over the accent. */
-    background:
-      radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%) 50% 50% / 10px 10px no-repeat,
-      var(--accent);
-    border-radius: 47% 53% 50% 50%;
-    box-shadow:
-      inset 0 -2px 3px rgba(0,0,0,0.3),
-      inset 0 1px 1px rgba(255,255,255,0.2),
-      0 0 0 1px rgba(0,0,0,0.15);
-  }
-
-  [data-skin='parchment'] .tag--solid::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-  }
-}
-
-/* S7 fix: PARCHMENT border width — 1px (--bw) solid --border on .card/.empty-state */
-[data-skin='parchment'] .card,
-[data-skin='parchment'] .empty-state {
-  border: var(--bw) solid var(--border);
-  border-radius: var(--radius-md);
-}
-
-/* 5.5.2 Perforated card head — .card-head::after with ticket perforation mask */
-@media screen {
-  [data-skin='parchment'] .card-head {
-    position: relative;
-    overflow: visible;
-  }
-
-  [data-skin='parchment'] .card-head::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: var(--border);
-    mask-image: radial-gradient(circle 3px at 8px 100%, transparent 96%, #000 100%);
-    mask-size: 16px 8px;
-    mask-repeat: repeat-x;
-    mask-position: 0 bottom;
-    pointer-events: none;
-  }
-}
-
-/* 5.5.3 Ink rules — .page-head double rule, .divider--labelled ruled box */
-@media screen {
-  [data-skin='parchment'] .page-head {
-    border-bottom: 2px solid var(--border-strong);
-    position: relative;
-  }
-
-  [data-skin='parchment'] .page-head::before {
-    content: '';
-    position: absolute;
-    bottom: -3px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--border);
-  }
-
-  [data-skin='parchment'] .divider--labelled {
-    position: relative;
-    text-align: center;
-  }
-
-  [data-skin='parchment'] .divider--labelled::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--border);
-    z-index: 0;
-  }
-
-  [data-skin='parchment'] .divider--labelled .divider-label {
-    position: relative;
-    z-index: 1;
-    background: var(--bg);
-    padding: 0 var(--space-3);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    display: inline-block;
-  }
-}
-
-/* 5.5.4 Paper grain — body::before fixed overlay, SVG feTurbulence, off in compact & print
-   v2 "duplexed stock": laid-line fibres (anisotropic turbulence) under a fine
-   speckle pass, desaturated so it reads as fibre not colour noise. Alpha raised
-   (10% light / 8.5% dark — was 4%/3%) so grain is visible in BOTH modes; still
-   far below any level that could threaten the §0 text-contrast contract. */
-@media screen {
-  [data-skin='parchment'] body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.1;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.25'/%3E%3C/filter%3E%3Cfilter id='l'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.7' numOctaves='2' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23l)' opacity='0.5'/%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='0.8'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 320px 320px;
-    mix-blend-mode: multiply;
-  }
-
-  [data-skin='parchment'][data-theme='dark'] body::before {
-    opacity: 0.085;
-    mix-blend-mode: overlay;
-  }
-
-  [data-density='compact'][data-skin='parchment'] body::before,
-  [data-skin='parchment'][data-density='compact'] body::before {
-    display: none;
-  }
-}
-
-/* 5.5.5 Stamped labels + notice rail — .field-label/.sheet-stat dt/.divider-label get hairline ::before;
-     roster-row gets accent pin/tack ::before at left */
-@media screen {
-  [data-skin='parchment'] .field-label::before,
-  [data-skin='parchment'] .sheet-stat dt::before,
-  [data-skin='parchment'] .divider-label::before {
-    content: '';
-    display: inline-block;
-    width: 10px;
-    height: 1px;
-    background: var(--border);
-    margin-right: var(--space-2);
-    vertical-align: middle;
-  }
-
-  [data-skin='parchment'] .roster-row {
-    position: relative;
-  }
-
-  [data-skin='parchment'] .roster-row::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    background: var(--accent);
-    border: 2px solid var(--text);
-    border-radius: 50%;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-}
-
-/* --- §6 Shared-signature matrix (parchment column) --- */
-
-/* .app-header::before replaced by double ink rule */
-@media screen {
-  [data-skin='parchment'] .app-header::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, var(--border-strong) 0%, var(--border-strong) 100%) 0 0 / 100% 2px no-repeat,
-      linear-gradient(90deg, var(--border) 0%, var(--border) 100%) 0 4px / 100% 1px no-repeat;
-    pointer-events: none;
-  }
-}
-
-/* .page-head::after centred fleuron ornament (already handled as wax seal above) */
-/* .roster-row rail — accent pin/tack ::before (handled in 5.5.5) */
-/* .brand-mark — keep gradient, seal-shaped radius */
-@media screen {
-  [data-skin='parchment'] .brand-mark {
-    border-radius: 47% 53% 50% 50%;
-  }
-}
-
-/* .divider-line ruled box with fleuron */
-@media screen {
-  [data-skin='parchment'] .divider-line {
-    position: relative;
-    border: none;
-    height: 4px;
-    text-align: center;
-  }
-
-  [data-skin='parchment'] .divider-line::before {
-    content: '';
-    position: absolute;
-    top: 1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--border-strong);
-  }
-
-  [data-skin='parchment'] .divider-line::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
-    background: var(--accent);
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21L12 17.77L5.82 21L7 14.14L2 9.27L8.91 8.26L12 2Z'/%3E%3C/svg%3E");
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    background-color: var(--accent);
-  }
-}
-
-/* .card — perforated head + grain (handled in 5.5.2 and 5.5.4) */
-
-/* --- 5.6 Micro-interaction character: weighty and damped ---
-     Hover: lift 1px + spread shadow; Press: settle 1px;
-     Wax seal scales 1.04 on hover; links draw underline via background-size;
-     Reduced-motion: colour-only, instant underline, no lift --- */
-[data-skin='parchment'] .card,
-[data-skin='parchment'] .panel,
-[data-skin='parchment'] .btn,
-[data-skin='parchment'] .tag,
-[data-skin='parchment'] .roster-row {
-  transition: transform 150ms ease-out,
-              box-shadow 150ms ease-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-skin='parchment'] .card,
-  [data-skin='parchment'] .panel,
-  [data-skin='parchment'] .btn,
-  [data-skin='parchment'] .tag,
-  [data-skin='parchment'] .roster-row {
-    transition: background-color 120ms, color 120ms, box-shadow 120ms;
-    transform: none !important;
-  }
-
-  [data-skin='parchment'] .card:hover,
-  [data-skin='parchment'] .panel:hover,
-  [data-skin='parchment'] .btn:hover,
-  [data-skin='parchment'] .tag:hover,
-  [data-skin='parchment'] .roster-row:hover {
-    transform: none;
-  }
-
-  [data-skin='parchment'] .btn:active,
-  [data-skin='parchment'] .tag:active {
-    transform: none;
-  }
-
-  [data-skin='parchment'] .tag--solid:hover,
-  [data-skin='parchment'] .page-head::after:hover {
-    transform: none !important;
-  }
-}
-
-[data-skin='parchment'] .card:hover,
-[data-skin='parchment'] .panel:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-}
-
-[data-skin='parchment'] .btn:hover,
-[data-skin='parchment'] .tag:hover {
-  transform: translateY(-1px);
-}
-
-[data-skin='parchment'] .btn:active,
-[data-skin='parchment'] .tag:active {
-  transform: translateY(1px);
-}
-
-@media screen {
-  [data-skin='parchment'] .tag--solid:hover,
-  [data-skin='parchment'] .page-head::after:hover {
-    transform: scale(1.04);
-  }
-}
-
-/* Link underline draw via background-size (global link style enhancement) */
-[data-skin='parchment'] a:not(.btn):not(.nav-link) {
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-size: 0 1px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
-  transition: background-size 180ms ease-out;
-}
-
-[data-skin='parchment'] a:not(.btn):not(.nav-link):hover {
-  background-size: 100% 1px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  [data-skin='parchment'] a:not(.btn):not(.nav-link) {
-    transition: none;
-  }
-
-  [data-skin='parchment'] a:not(.btn):not(.nav-link):hover {
-    background-size: 100% 1px;
-  }
-}
-
-/* --- 5.5.7 Paper realness pass — deckled edges, card-stock duplex, page browning ---
-     Screen-only (§7.2); decorative texture gated off in compact (§7.1);
-     private --deco-* props only, decoration never carries state (§7.5).
-     Edges: clip-path polygon deckle with FIXED ±5px amplitude, so small and
-     large surfaces both read as hand-torn instead of proportionally stretched.
-     clip-path clips outer box-shadows, so depth is carried by inset rims.
-     Focus-visible drops the clip so the ring renders complete. */
-@media screen {
-  [data-skin='parchment'] {
-    --deco-deckle: polygon(
-      0px 3px, 3% 0px, 7% 4px, 11% 1px, 15% 5px, 20% 1px, 25% 4px, 30% 0px,
-      35% 5px, 40% 2px, 45% 5px, 50% 1px, 55% 4px, 60% 0px, 65% 5px, 70% 2px,
-      75% 4px, 80% 0px, 85% 5px, 90% 1px, 94% 4px, 97% 0px, 100% 3px,
-      calc(100% - 3px) 18%, 100% 32%, calc(100% - 4px) 46%, 100% 60%,
-      calc(100% - 3px) 74%, 100% 88%, calc(100% - 4px) 96%,
-      97% 100%, 93% calc(100% - 4px), 88% 100%, 83% calc(100% - 5px),
-      78% 100%, 72% calc(100% - 3px), 67% 100%, 62% calc(100% - 5px),
-      56% 100%, 51% calc(100% - 3px), 46% 100%, 40% calc(100% - 4px),
-      35% 100%, 29% calc(100% - 2px), 24% 100%, 18% calc(100% - 5px),
-      13% 100%, 8% calc(100% - 3px), 3% 100%, 0px calc(100% - 3px),
-      3px 90%, 0px 78%, 4px 66%, 0px 54%, 5px 42%, 0px 30%, 4px 18%, 0px 9%
-    );
-    /* Card-stock fibre: desaturated speckle, alpha baked into the SVG so it
-       can sit as a background layer and blend into whatever surface colour
-       the cascade provides (light, dark, tone variants). */
-    --deco-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.4'/%3E%3C/svg%3E");
-
-    /* 5.5.8 — tea stains: ONE 420px tile carrying two cup rings, a spill
-       blotch and the drip that ran off the lower ring. Shapes and alpha are
-       baked into the SVG (same trick as the fibre), so it can ride as a
-       background layer and multiply into whatever surface the cascade
-       provides.
-       Contrast contract (SPEC §5.7, "re-measure with the overlay on"): the
-       light tile peaks at ~0.08 alpha over `--surface`, which leaves
-       `--text-faint` at ~4.7:1 — the ring is a warm shift, not a darkening
-       that can eat a label. The dark tile uses a deeper warm at higher alpha
-       because multiply on a near-black ground can only make the paper
-       DARKER, and darker under cream text can only raise the ratio. */
-    --deco-tea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cdefs%3E%3Cfilter id='tea' x='-40%25' y='-40%25' width='180%25' height='180%25'%3E%3CfeGaussianBlur stdDeviation='6'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='%23a8642a' stroke-linecap='round'%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='12' stroke-opacity='.045' filter='url(%23tea)'/%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='3.5' stroke-opacity='.05'/%3E%3Cellipse cx='286' cy='96' rx='48' ry='43' stroke-width='1.5' stroke-opacity='.026'/%3E%3Cpath d='M300 136q7 30 -2 58' stroke-width='6' stroke-opacity='.03' filter='url(%23tea)'/%3E%3C/g%3E%3Cg fill='%23a8642a' filter='url(%23tea)'%3E%3Cellipse cx='96' cy='302' rx='44' ry='30' fill-opacity='.042'/%3E%3Cellipse cx='120' cy='288' rx='21' ry='14' fill-opacity='.03'/%3E%3C/g%3E%3C/svg%3E");
-  }
-
-  /* Same tile, darker ground: identical geometry so the sheet reads as one
-     stock in both modes — only the ink changes, and the alpha rises because
-     a mark this dark has to, to be visible at all on #272019. */
-  [data-skin='parchment'][data-theme='dark'],
-  [data-theme='dark'] [data-skin='parchment'] {
-    --deco-tea: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cdefs%3E%3Cfilter id='tead' x='-40%25' y='-40%25' width='180%25' height='180%25'%3E%3CfeGaussianBlur stdDeviation='6'/%3E%3C/filter%3E%3C/defs%3E%3Cg fill='none' stroke='%232a1505' stroke-linecap='round'%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='12' stroke-opacity='.3' filter='url(%23tead)'/%3E%3Cellipse cx='288' cy='94' rx='54' ry='49' stroke-width='3.5' stroke-opacity='.42'/%3E%3Cellipse cx='286' cy='96' rx='48' ry='43' stroke-width='1.5' stroke-opacity='.2'/%3E%3Cpath d='M300 136q7 30 -2 58' stroke-width='6' stroke-opacity='.24' filter='url(%23tead)'/%3E%3C/g%3E%3Cg fill='%232a1505' filter='url(%23tead)'%3E%3Cellipse cx='96' cy='302' rx='44' ry='30' fill-opacity='.3'/%3E%3Cellipse cx='120' cy='288' rx='21' ry='14' fill-opacity='.22'/%3E%3C/g%3E%3C/svg%3E");
-  }
-
-  /* Deckled paper stock: borders get nibbled away with the fill at the edge,
-     which is what sells "torn off the sheet". Interior stays clean. */
-  [data-skin='parchment'] .card,
-  [data-skin='parchment'] .panel,
-  [data-skin='parchment'] .empty-state,
-  [data-skin='parchment'] .roster-row {
-    clip-path: var(--deco-deckle);
-    background-image: var(--deco-fibre);
-    background-repeat: repeat;
-    background-size: 220px 220px;
-    background-blend-mode: overlay;
-    box-shadow:
-      inset 0 0 0 1px color-mix(in srgb, var(--border) 55%, transparent),
-      inset 0 1px 0 color-mix(in srgb, var(--edge) 80%, transparent),
-      inset 0 -2px 6px color-mix(in srgb, var(--border) 22%, transparent);
-  }
-
-  /* 5.5.8 — the stain pass: the same four surfaces that carry the deckle and
-     the fibre get the tea tile on top of them, multiplied into the stock.
-       • layer order — `background-image` paints first-listed ON TOP, so the
-         stain multiplies down through the fibre layer and into the paper
-         colour: the mark soaked into the stock, the grain was printed over it;
-       • per-surface offsets (below) stop the 420px tile landing in the same
-         corner of every notice — a pinned page shows its rings wherever the
-         cup happened to sit, and a tall card picks the tile up again rather
-         than repeating a stamp;
-       • §7.1 — the compact block further down sets `background-image: none`
-         at higher specificity, taking the whole stack (fibre + stain) out of
-         the working view;
-       • §7.2 — this pass lives inside `@media screen`, and the print block
-         below restates the gate so it survives a refactor. */
-  [data-skin='parchment'] .card,
-  [data-skin='parchment'] .panel,
-  [data-skin='parchment'] .empty-state,
-  [data-skin='parchment'] .roster-row {
-    background-image: var(--deco-tea), var(--deco-fibre);
-    background-repeat: repeat, repeat;
-    background-size: 420px 420px, 220px 220px;
-    background-blend-mode: multiply, overlay;
-  }
-
-  /* One position value cycled over both layers, so stain and grain shift
-     together and no two surfaces show the same crop of the tile. */
-  [data-skin='parchment'] .panel {
-    background-position: 42% 78%;
-  }
-
-  [data-skin='parchment'] .empty-state {
-    background-position: 78% 14%;
-  }
-
-  [data-skin='parchment'] .roster-row {
-    background-position: 26% 54%;
-  }
-
-  /* Hover (state = accent token, §7.5): the old external lift-shadow is
-     clipped by the deckle, so deepen the rim instead — weighty, not floaty. */
-  [data-skin='parchment'] .card:hover,
-  [data-skin='parchment'] .panel:hover,
-  [data-skin='parchment'] .roster-row:hover {
-    box-shadow:
-      inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, var(--border)),
-      inset 0 1px 0 color-mix(in srgb, var(--edge) 90%, transparent),
-      inset 0 -3px 8px color-mix(in srgb, var(--border) 30%, transparent);
-  }
-
-  /* Focus: un-deckle so the focus ring is never nibbled. */
-  [data-skin='parchment'] .card:focus-visible,
-  [data-skin='parchment'] .panel:focus-visible,
-  [data-skin='parchment'] .empty-state:focus-visible,
-  [data-skin='parchment'] .roster-row:focus-visible {
-    clip-path: none;
-  }
-
-  /* Torn double rule under the page head — replaces the clean 2px border-bottom
-     with a wobbled strong line + hairline drawn on ::before (already positioned
-     there by 5.5.3, re-purposed here). */
-  [data-skin='parchment'] .page-head {
-    border-bottom: none;
-  }
-
-  [data-skin='parchment'] .page-head::before {
-    bottom: -5px;
-    height: 6px;
-    background:
-      linear-gradient(var(--border-strong), var(--border-strong)) 0 0 / 100% 2px no-repeat,
-      linear-gradient(var(--border), var(--border)) 0 5px / 100% 1px no-repeat;
-    clip-path: polygon(
-      0 2px, 4% 0px, 9% 2px, 14% 0px, 20% 2px, 26% 0px, 33% 2px, 40% 1px,
-      47% 2px, 54% 0px, 61% 2px, 68% 1px, 75% 2px, 82% 0px, 89% 2px, 95% 1px, 100% 2px,
-      100% calc(100% - 1px), 95% 100%, 89% calc(100% - 1px), 82% 100%,
-      75% calc(100% - 1px), 68% 100%, 61% calc(100% - 2px), 54% 100%,
-      47% calc(100% - 1px), 40% 100%, 33% calc(100% - 2px), 26% 100%,
-      20% calc(100% - 1px), 14% 100%, 9% calc(100% - 2px), 4% 100%, 0 calc(100% - 1px)
-    );
-  }
-
-  /* Page browning: corner vignette + two faint spill stains, under the fibre
-     overlay (z 9998) so grain reads on top of the tonal variation. Multiply
-     in light (darkens the ground only — contrast rises), soft-light in dark
-     kept gentle; falloff starts beyond ~58% so text areas are untouched.
-     5.5.8 rides four MORE layers on top of that list, kept deliberately
-     INSIDE the untouched zone (r < 0.58 of the vignette ellipse) so the two
-     passes layer around each other instead of doubling the browning:
-     two cup rings in the side gutters, a spill in the bottom-right margin and
-     one soft crease where the sheet was folded in thirds. Peaks ≤0.052 alpha
-     in light, which holds `--text-faint` at ≥4.7:1 even if a narrow layout
-     runs a label under a ring; the dark pass uses a deep warm because
-     soft-light can only darken this ground, and darker under cream text can
-     only raise the ratio. Screen-only (§7.2), off in compact via the
-     `display: none` below (§7.1) — both gates already exist for the
-     browning, so the stains inherit them untouched. */
-  [data-skin='parchment'] body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 9998;
-    background:
-      radial-gradient(circle 78px at 5% 74%, transparent 0 70%, rgba(168, 100, 42, 0.052) 82%, rgba(168, 100, 42, 0.024) 92%, transparent 100%),
-      radial-gradient(circle 54px at 94% 26%, transparent 0 68%, rgba(168, 100, 42, 0.046) 82%, rgba(168, 100, 42, 0.02) 93%, transparent 100%),
-      radial-gradient(ellipse 130px 76px at 92% 90%, rgba(168, 100, 42, 0.044) 0%, rgba(168, 100, 42, 0.016) 55%, transparent 100%),
-      linear-gradient(90deg, transparent 0 30%, rgba(168, 100, 42, 0.014) 33%, rgba(168, 100, 42, 0.032) 34.6%, rgba(168, 100, 42, 0.014) 36%, transparent 40%),
-      radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 7%, transparent) 0%, transparent 42%),
-      radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 38%),
-      radial-gradient(150% 130% at 50% 44%, transparent 58%, rgba(96, 70, 38, 0.28) 100%);
-    mix-blend-mode: multiply;
-  }
-
-  [data-skin='parchment'][data-theme='dark'] body::after {
-    background:
-      radial-gradient(circle 78px at 5% 74%, transparent 0 70%, rgba(60, 30, 10, 0.42) 82%, rgba(60, 30, 10, 0.2) 92%, transparent 100%),
-      radial-gradient(circle 54px at 94% 26%, transparent 0 68%, rgba(60, 30, 10, 0.36) 82%, rgba(60, 30, 10, 0.16) 93%, transparent 100%),
-      radial-gradient(ellipse 130px 76px at 92% 90%, rgba(60, 30, 10, 0.38) 0%, rgba(60, 30, 10, 0.14) 55%, transparent 100%),
-      linear-gradient(90deg, transparent 0 30%, rgba(60, 30, 10, 0.12) 33%, rgba(60, 30, 10, 0.26) 34.6%, rgba(60, 30, 10, 0.12) 36%, transparent 40%),
-      radial-gradient(140% 110% at 12% 8%, color-mix(in srgb, var(--accent) 6%, transparent) 0%, transparent 42%),
-      radial-gradient(110% 90% at 88% 76%, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 38%),
-      radial-gradient(150% 130% at 50% 44%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
-    mix-blend-mode: soft-light;
-  }
-
-  /* §7.1 — decorative paper effects OFF in compact; clean radius + border
-     return (5.5 S7 block), perforations and seals kept. */
-  [data-density='compact'][data-skin='parchment'] .card,
-  [data-skin='parchment'][data-density='compact'] .card,
-  [data-density='compact'][data-skin='parchment'] .panel,
-  [data-skin='parchment'][data-density='compact'] .panel,
-  [data-density='compact'][data-skin='parchment'] .empty-state,
-  [data-skin='parchment'][data-density='compact'] .empty-state,
-  [data-density='compact'][data-skin='parchment'] .roster-row,
-  [data-skin='parchment'][data-density='compact'] .roster-row {
-    clip-path: none;
-    background-image: none;
-  }
-
-  [data-density='compact'][data-skin='parchment'] body::after,
-  [data-skin='parchment'][data-density='compact'] body::after {
-    display: none;
-  }
-
-  [data-density='compact'][data-skin='parchment'] .page-head,
-  [data-skin='parchment'][data-density='compact'] .page-head {
-    border-bottom: 2px solid var(--border-strong);
-  }
-
-  [data-density='compact'][data-skin='parchment'] .page-head::before,
-  [data-skin='parchment'][data-density='compact'] .page-head::before {
-    clip-path: none;
-    bottom: -3px;
-    height: 1px;
-    background: var(--border);
-  }
-}
-
-/* --- §7.1 Density: parchment grain OFF in compact (handled above), tea stains
-       OFF with it (5.5.8 rides the same `background-image` the compact block
-       already clears), perforations kept --- */
-/* No additional compact block needed */
-
-/* --- §7.2 Print: gate all decorative pseudo-elements and transforms --- */
-@media print {
-  [data-skin='parchment'] {
-    /* Print.css already handles accent→ink, shadow nulling, color-scheme */
-    /* No additional bw adjustments needed for parchment (1px is fine) */
-  }
-
-  /* Ensure grain and browning are off */
-  [data-skin='parchment'] body::before,
-  [data-skin='parchment'] body::after {
-    display: none;
-  }
-
-  /* 5.5.8 tea stains: the whole stack already lives in the §5.5.7
-     `@media screen` block, so nothing here would paint on paper anyway —
-     state it so the gate survives a refactor (§7.2: every texture is
-     screen-only). Grain and stain both go; the deckle, the fibre and the
-     stain share one `background-image`, so this clears the lot. */
-  [data-skin='parchment'] .card,
-  [data-skin='parchment'] .panel,
-  [data-skin='parchment'] .empty-state,
-  [data-skin='parchment'] .roster-row {
-    background-image: none;
-  }
-}
-
-/* End of parchment skin */
-
-/* ==========================================================================
    Site-wide entrance pass — one micro-animation recipe per skin
    ==========================================================================
    A route change re-mounts the page, so the surfaces that carry the skin
    settle in once, at 160–340ms, and then hold perfectly still. Nothing here
-   loops: there is no `infinite` anywhere in this file, and no perpetual
-   motion is added by any rule below.
+   loops: these entrance keyframes play once. The one held, perpetual motion
+   in this file is §3.8's brutalist press rattle — a press state, not an
+   entrance.
 
    Every gate lives in this one place:
      • `@media screen` (§7.2) — paper never fades in; it is printed.
@@ -1884,12 +1166,12 @@
      • `animation-fill-mode: backwards` — the from-state only holds through
        the delay; the moment an entrance finishes the element sits on its
        plain resting styles, so every `:hover` / `:active` rule in §2.6
-       (playful), §3.8 (brutalist) and §5.6 (parchment) keeps sole ownership
+       (playful) and §3.8 (brutalist) keeps sole ownership
        of `transform` from then on. The entrance therefore cannot fight the
        press work: it is over before the user can reach the surface.
 
    Character comes from four tokens per skin, read by ONE shared keyframe —
-   so all five recipes stay structurally identical while the tempo, travel
+   so all four recipes stay structurally identical while the tempo, travel
    and easing say whose skin it is. */
 @media screen and (prefers-reduced-motion: no-preference) {
   @keyframes skin-entrance {
@@ -1937,15 +1219,6 @@
     --_entrance-ease: cubic-bezier(0.34, 1.4, 0.64, 1);
     --_entrance-rise: 8px;
     --_entrance-scale: 0.985;
-  }
-
-  /* parchment — §5.6 weighty and damped: 4px, no scale, nothing that could
-     read as a sheet sliding off the board. */
-  [data-skin='parchment'] {
-    --_entrance-dur: 320ms;
-    --_entrance-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
-    --_entrance-rise: 4px;
-    --_entrance-scale: 1;
   }
 
   /* --- what moves -----------------------------------------------------
@@ -2097,19 +1370,6 @@
       color-mix(in srgb, var(--accent) 14%, transparent) 1px,
       transparent 1px
     ) 0 0 / 5px 5px repeat,
-    var(--surface);
-}
-
-/* Parchment: subtle radius, perforation hint, grain hint */
-[data-skin='parchment'] .skin-thumb {
-  border-radius: var(--radius-md);
-  border-width: var(--bw);
-}
-
-[data-skin='parchment'] .skin-thumb::before {
-  border-radius: var(--radius-sm);
-  background:
-    radial-gradient(circle 1.5px at 4px 100%, transparent 95%, var(--border) 100%) 0 100% / 8px 4px repeat-x,
     var(--surface);
 }
 

@@ -15,10 +15,10 @@
 
    Why the accent trio is re-derived per accent instead of reused:
    every one of the eight accents is a mid-lightness hue tuned for a dark
-   ground (6.2:1 against --bg at worst). On parchment the same fills collapse
+   ground (6.2:1 against --bg at worst). On paper the same fills collapse
    to ~2.3:1 as link text, which fails AA, so each hue gets a genuinely
    darker sibling here and its `--accent-contrast` flips to the near-white
-   parchment tint. A `filter: invert()` or `hue-rotate` would drag the
+   paper tint. A `filter: invert()` or `hue-rotate` would drag the
    neutrals with it and cannot be contrast-checked — this is a per-hue
    derivation, verified ratio by ratio (see the report for the method).
 
@@ -40,14 +40,14 @@
   color-scheme: light;
 
   /* Surfaces — same ladder as dark, inverted in value: the page is warm
-     parchment, panels sit slightly brighter, hover drops one step. */
+     paper, panels sit slightly brighter, hover drops one step. */
   --bg: #f4efe3;
   --bg-elevated: #fbf8f0;
   --surface: #fffdf7;
   --surface-hover: #ece5d6;
   /* Sunken ground: wells, progress tracks, readouts that sit *below* the
      surface instead of above it. On light ladder this is a deeper, more
-     saturated parchment shade (consistent with how dark mode makes
+     saturated paper shade (consistent with how dark mode makes
      --surface-sunken darker than --surface). */
   --surface-sunken: #e8e0d0;
 
@@ -65,7 +65,7 @@
      --surface-hover. */
   --text: #221e17;
   /* Brightest tier: headline figures (HP current, coin amounts). Darker than
-     --text for maximum legibility on parchment. #1a1712 is 16.8:1 on
+     --text for maximum legibility on paper. #1a1712 is 16.8:1 on
      --surface, 15.9:1 on --bg. */
   --text-strong: #1a1712;
   --text-muted: #565041;
@@ -80,7 +80,7 @@
   /* Accent trio default. This only applies in the window before
      `initAccent()` writes `data-accent`, and as the fallback for a missing
      or stale accent — the paired blocks below always win when an accent is
-     chosen. Gold is re-derived, not reused: #c9a84c is 2.3:1 on parchment. */
+     chosen. Gold is re-derived, not reused: #c9a84c is 2.3:1 on paper. */
   --accent: #7a5c12;
   --accent-hover: #6b4f0d;
   --accent-contrast: #fffdf7;
@@ -93,7 +93,7 @@
   --success: #1d6f43;
 
   /* Ability score hues — same six hues, re-derived dark enough to read as
-     `--hp-color` text on parchment. `--hp-color`, `--temp-hp-color` and
+     `--hp-color` text on paper. `--hp-color`, `--temp-hp-color` and
      `--ac-color` are aliases declared on `:root`, so they resolve against
      these values without being repeated. */
   --ability-str: #a52d36;
@@ -104,7 +104,7 @@
   --ability-cha: #a52d36;
 
   /* Warm, low-alpha shadows: pure black at the dark-mode alphas reads as a
-     smudge on parchment. */
+     smudge on paper. */
   --shadow-sm: 0 1px 2px rgba(62, 52, 34, 0.12);
   --shadow-md: 0 4px 8px rgba(62, 52, 34, 0.14);
   --shadow-lg: 0 8px 24px rgba(62, 52, 34, 0.18);

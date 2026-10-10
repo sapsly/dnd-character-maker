@@ -24,7 +24,7 @@ import { APP_ID } from '../types/character';
  * default classic skin.
  */
 
-export type Skin = 'classic' | 'playful' | 'brutalist' | 'cozy' | 'parchment';
+export type Skin = 'classic' | 'playful' | 'brutalist' | 'cozy';
 
 export interface SkinOption {
   readonly value: Skin;
@@ -42,7 +42,6 @@ export const SKINS: readonly SkinOption[] = [
   { value: 'playful', label: 'Playful' },
   { value: 'brutalist', label: 'Brutalist' },
   { value: 'cozy', label: 'Cozy' },
-  { value: 'parchment', label: 'Parchment' },
 ];
 
 /**

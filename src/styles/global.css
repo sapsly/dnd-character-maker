@@ -212,7 +212,7 @@
 
   /* Focus Ring — accent core plus a dark outer halo, so the ring stays
      visible on top of an accent-filled button (where an accent-only ring
-     would disappear into the fill) and on parchment in light mode. */
+     would disappear into the fill) and on paper in light mode. */
   --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
   --focus-ring-inset: inset 0 0 0 2px var(--accent);
 

@@ -6,8 +6,11 @@ import LevelUpPage from './components/levelup/LevelUpPage'
 import CreateCharacterPage from './components/create/CreateCharacterPage'
 import EditCharacterPage from './components/create/EditCharacterPage'
 import CompendiumPage from './components/compendium/CompendiumPage'
+import CampaignsPage from './components/campaigns/CampaignsPage'
+import CampaignDetail from './components/campaigns/CampaignDetail'
 import { HeaderSettings } from './components/ui/HeaderSettings'
 import { AccountMenu } from './components/auth/AccountMenu'
+import { AuthDialogProvider } from './context/AuthDialogContext'
 
 function NotFoundPage() {
   return (
@@ -61,6 +64,12 @@ function AppShell() {
               >
                 Compendium
               </NavLink>
+              <NavLink
+                to="/campaigns"
+                className={({ isActive }) => (isActive ? 'nav-link is-active' : 'nav-link')}
+              >
+                Campaigns
+              </NavLink>
             </nav>
             <div className="app-header-settings">
               {/* Account leads the strip: it is the control that must stay
@@ -81,6 +90,8 @@ function AppShell() {
         <Routes>
           <Route path="/" element={<RosterPage />} />
           <Route path="/compendium" element={<CompendiumPage />} />
+          <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/campaigns/:campaignId" element={<CampaignDetail />} />
           <Route path="/create" element={<CreateCharacterPage />} />
           <Route path="/character/:id/edit" element={<EditCharacterPage />} />
           <Route path="/character/:id" element={<CharacterSheetPage />} />
@@ -95,7 +106,9 @@ function AppShell() {
 export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <AppShell />
+      <AuthDialogProvider>
+        <AppShell />
+      </AuthDialogProvider>
     </BrowserRouter>
   )
 }

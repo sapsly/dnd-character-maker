@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { useAuthDialog } from '../../context/AuthDialogContext'
 import { Icon } from '../ui/Icon'
-import { AuthModal } from './AuthModal'
 import '../../styles/auth.css'
 
 /**
@@ -13,33 +13,33 @@ import '../../styles/auth.css'
  * pulsing dot, so the strip neither jumps nor flashes "Sign in" at somebody
  * who is already signed in.
  *
- * The dialog is rendered from here and portals itself to `<body>`, which is
- * what keeps it clear of the header's `backdrop-filter` containing block and
- * the ≤1200px strip's scroll clip — the same reason `HeaderSettings` portals.
+ * The dialog itself is rendered once by `AuthDialogProvider` (so any screen
+ * can ask for sign-in); this strip only triggers it, and tracks `signInOpen`
+ * for the focus hand-off below.
  */
 export function AccountMenu() {
   const { user, loading, logout } = useAuth()
-  const [open, setOpen] = useState(false)
+  const { openSignIn, signInOpen } = useAuthDialog()
   const [signingOut, setSigningOut] = useState(false)
   const accountRef = useRef<HTMLDivElement | null>(null)
-  // True while a dialog opened from this component is (or has just been) on
-  // screen. It tells a sign-in made *in that dialog* — which must hand focus
-  // to the account chip, because its own trigger has just unmounted — apart
-  // from the session merely resolving on page load, which must not steal focus.
+  // True while the shared sign-in dialog is (or has just been) on screen. It
+  // tells a sign-in made *in that dialog* — which must hand focus to the
+  // account chip, because its own trigger has just unmounted — apart from the
+  // session merely resolving on page load, which must not steal focus.
   const dialogWasOpen = useRef(false)
 
   useEffect(() => {
-    if (open) dialogWasOpen.current = true
-  }, [open])
+    if (signInOpen) dialogWasOpen.current = true
+  }, [signInOpen])
 
   // The dialog restores focus to the control it opened from, but that control
   // is gone the moment the user is signed in and focus would fall on <body>.
   // Park it on the account group instead, so keyboard users stay in the header.
   useEffect(() => {
-    if (!user || open || !dialogWasOpen.current) return
+    if (!user || signInOpen || !dialogWasOpen.current) return
     dialogWasOpen.current = false
     accountRef.current?.focus()
-  }, [user, open])
+  }, [user, signInOpen])
 
   const handleSignOut = async () => {
     if (signingOut) return
@@ -92,13 +92,12 @@ export function AccountMenu() {
           type="button"
           className="auth-signin-btn"
           aria-haspopup="dialog"
-          onClick={() => setOpen(true)}
+          onClick={openSignIn}
         >
           <Icon name="user" size={14} />
           <span>Sign in</span>
         </button>
       )}
-      <AuthModal open={open} onClose={() => setOpen(false)} />
     </>
   )
 }

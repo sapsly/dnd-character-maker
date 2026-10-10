@@ -8,6 +8,7 @@ import { getSpell } from '../../data/spells'
 import { ARTISAN_TOOLS, GAMING_SETS, MUSICAL_INSTRUMENTS } from '../../data/tools'
 import { startingEquipmentFor } from '../../data/startingEquipment'
 import { lineagesForSpecies } from '../../data/lineages'
+import { FEATS } from '../../data/feats'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Divider } from '../ui/Divider'
@@ -32,6 +33,9 @@ import {
   useCreateCharacter,
 } from './useCreateCharacter'
 
+/** Origin feats a species or background can grant at 1st level. */
+const ORIGIN_FEATS = FEATS.filter((feat) => feat.usableAsOriginFeat)
+
 function modifierText(score: number): string {
   const mod = abilityModifier(score)
   return mod >= 0 ? `+${mod}` : `${mod}`
@@ -55,6 +59,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
     pointsSpent: spent,
     pointsRemaining: remaining,
     stepErrors,
+    speciesFeatErrors,
     equipmentErrors,
     canAdvance,
     canCreate,
@@ -67,6 +72,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
     setPlayerName,
     setSpeciesId,
     setLineageId,
+    setSpeciesFeatId,
     setClassId,
     setBackgroundId,
     setScoreMethod,
@@ -93,6 +99,11 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
   const lineageOptions = lineagesForSpecies(state.speciesId)
   const selectedLineage =
     lineageOptions.find((option) => option.id === state.lineageId) ?? null
+
+  // Only Human grants an Origin feat at 1st level; the wizard asks for it here
+  // so the character sheet never opens with a permanent "outstanding choice".
+  const speciesGrantsOriginFeat = species?.featLevels?.includes(1) ?? false
+  const selectedSpeciesFeat = FEATS.find((feat) => feat.id === state.speciesFeatId) ?? null
 
   return (
     <section className="page create-page">
@@ -202,6 +213,31 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                 Species grant no ability score increases in 2024. Your background supplies those.
               </p>
             </div>
+          ) : null}
+
+          {speciesGrantsOriginFeat ? (
+            <>
+              <Divider label="Origin feat" />
+              <p className="create-note">
+                {species?.name} grants an Origin feat of your choice at 1st level. Pick it here so
+                your character sheet records it.
+              </p>
+              <Field label="Origin feat (species)" htmlFor="create-species-feat">
+                <Select
+                  id="create-species-feat"
+                  value={state.speciesFeatId ?? ''}
+                  onValueChange={(value) => setSpeciesFeatId(value || null)}
+                  options={ORIGIN_FEATS.map((feat) => ({ value: feat.id, label: feat.name }))}
+                  placeholder="Choose an Origin feat"
+                />
+              </Field>
+              {selectedSpeciesFeat ? (
+                <p className="create-trait-desc">{selectedSpeciesFeat.description}</p>
+              ) : null}
+              {speciesFeatErrors.length > 0 ? (
+                <p className="create-error">{speciesFeatErrors[0]}</p>
+              ) : null}
+            </>
           ) : null}
 
           {lineageOptions.length > 0 ? (
@@ -1087,7 +1123,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
             </li>
           </ul>
           <p className="create-note">
-            Species feat (if any) is recorded as an outstanding choice so the character sheet can show it.
+            A species-granted Origin feat is chosen on the Name &amp; species step and recorded on
+            your character sheet.
           </p>
         </Card>
       ) : null}
