@@ -19,6 +19,7 @@ import { Select } from '../ui/Select'
 import { Tag } from '../ui/Tag'
 import { TextInput } from '../ui/TextInput'
 import { SpellPicker } from './SpellPicker'
+import LevelReviewPanel from './LevelReviewPanel'
 import { abilityModifier } from '../../lib/rules/ability'
 import {
   ABILITY_KEYS,
@@ -1127,6 +1128,13 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
             your character sheet.
           </p>
         </Card>
+      ) : null}
+
+      {/* Editor-only read-only panels: the class-feature ladder and the
+          level-up choices already made. Shown alongside the Review step so the
+          origins form stays the only thing that writes to the character. */}
+      {isEdit && isReview && existing ? (
+        <LevelReviewPanel character={existing} />
       ) : null}
 
       <div className="create-actions">
