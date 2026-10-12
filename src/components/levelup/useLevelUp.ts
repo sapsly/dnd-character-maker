@@ -19,6 +19,7 @@ import type { NextLevelChoicesResult, NextLevelChoicesInput } from '../../lib/ru
 import { FEATS } from '../../data/feats'
 import { lineageGrantsAtLevel } from '../../data/lineages'
 import { getSpell } from '../../data/spells'
+import { isEntryAllowed } from '../../lib/rules/sources'
 
 export type LevelUpStatus = 'loading' | 'ready' | 'not-found' | 'error' | 'saved' | 'save-error'
 
@@ -172,14 +173,15 @@ function emptyDraft(): LevelUpDraft {
  * data/feats.ts), so the UI shows them and leaves enforcement to the player
  * rather than parsing strings that would be fragile to reword.
  */
-function buildFeatOptions(): FeatOption[] {
-  return FEATS.map((feat) => ({
-    id: feat.id,
-    name: feat.name,
-    description: feat.description,
-    source: feat.source ?? 'general',
-    prerequisite: feat.prerequisites,
-  }))
+function buildFeatOptions(character: Character): FeatOption[] {
+  return FEATS.filter((feat) => isEntryAllowed(character, feat))
+    .map((feat) => ({
+      id: feat.id,
+      name: feat.name,
+      description: feat.description,
+      source: feat.source ?? 'general',
+      prerequisite: feat.prerequisites,
+    }))
 }
 
 export function useLevelUp(): LevelUpModel {
@@ -286,6 +288,7 @@ export function useLevelUp(): LevelUpModel {
       // Bonus Proficiencies arrive at the subclass level), so the picks must
       // appear as soon as the player picks the subclass.
       subclassId: draft.subclassId || targetEntry.subclassId,
+      sources: character.sources,
     } as NextLevelChoicesInput)
   }, [character, derived, targetEntry, newClassLevel, draft.subclassId])
 
@@ -294,7 +297,7 @@ export function useLevelUp(): LevelUpModel {
     return derived.classDefs.find((c) => c.id === entry.classId)?.name ?? entry.classId
   }, [entry, derived])
 
-  const featOptions = useMemo(() => buildFeatOptions(), [])
+  const featOptions = useMemo(() => character ? buildFeatOptions(character) : [], [character])
 
   // Classes not already on the character that can be added as a new class (multiclass)
   const availableNewClasses = useMemo(() => {

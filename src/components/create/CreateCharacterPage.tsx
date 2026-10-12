@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { AbilityKey, Character } from '../../types/character'
+import type { AbilityKey, Character, SourceKey } from '../../types/character'
 import { SPECIES } from '../../data/species'
 import { BACKGROUNDS } from '../../data/backgrounds'
 import { CLASSES } from '../../data/classes'
@@ -9,9 +9,11 @@ import { ARTISAN_TOOLS, GAMING_SETS, MUSICAL_INSTRUMENTS } from '../../data/tool
 import { startingEquipmentFor } from '../../data/startingEquipment'
 import { lineagesForSpecies } from '../../data/lineages'
 import { FEATS } from '../../data/feats'
+import { ALL_SOURCES, SOURCE_LABELS, backgroundSourceKey, enabledSources, entrySource } from '../../lib/rules/sources'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Divider } from '../ui/Divider'
+import { EmptyState } from '../ui/EmptyState'
 import { Field } from '../ui/Field'
 import { Icon } from '../ui/Icon'
 import { NumberInput } from '../ui/NumberInput'
@@ -36,6 +38,17 @@ import {
 
 /** Origin feats a species or background can grant at 1st level. */
 const ORIGIN_FEATS = FEATS.filter((feat) => feat.usableAsOriginFeat)
+
+/** One plain line per book, shown under its checkbox on the Books step. */
+const BOOK_NOTES: Record<SourceKey, string> = {
+  core: 'The 2024 Player\u2019s Handbook rules — everything this app is built on first.',
+  eberron: 'Dragonmarked houses, warforged and the artificer.',
+  faerun: 'Forgotten Realms factions — the Harpers, the Zhentarim, the Cult of the Dragon and friends.',
+  ravenloft: 'Dark gifts, the Mists and the dhampir.',
+  lorwyn: 'Lorwyn and Shadowmoor species and their lineages.',
+  exotic: 'The Duskling and other one-off species, lineages and backgrounds.',
+  'arcana-unleashed': 'The site\u2019s magic-supplement backgrounds.',
+}
 
 function modifierText(score: number): string {
   const mod = abilityModifier(score)
@@ -69,6 +82,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
     setStep,
     next,
     back,
+    sources,
+    setSources,
     setName,
     setPlayerName,
     setSpeciesId,
@@ -93,11 +108,50 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
 
   const isReview = state.step === 'review'
 
+  // One book selection drives every choice list below: species, class,
+  // backgrounds, Origin feats, lineages and spells are all filtered through it,
+  // so unticking a book on the Books step re-filters them together. Nothing
+  // already picked is ever cleared — a pick from a book you switch off simply
+  // keeps working, and only new picks are narrowed.
+  //
+  // `enabledSources` reads an empty array as "everything on" (a back-compat
+  // rule for characters saved before books existed), which is the opposite of
+  // what zero ticked boxes means here — so an empty selection offers nothing,
+  // and the empty states below point back at the Books step.
+  const enabledBooks = sources.length > 0 ? enabledSources({ sources }) : new Set<SourceKey>()
+  const bookAllows = (def: { source?: string } | null | undefined) =>
+    enabledBooks.has(entrySource(def))
+  const speciesOptions = SPECIES.filter((option) => bookAllows(option))
+  const classOptions = CLASSES.filter((option) => bookAllows(option))
+  const backgroundOptions = BACKGROUNDS.filter((option) =>
+    enabledBooks.has(backgroundSourceKey(option.source)),
+  )
+  // The feat already chosen is always kept in the dropdown, otherwise the
+  // select would render blank for a pick the wizard refuses to clear.
+  const originFeatOptions = ORIGIN_FEATS.filter(
+    (option) => bookAllows(option) || option.id === state.speciesFeatId,
+  )
+
+  // True when the current pick is still offered — i.e. its book is ticked. When
+  // it is not, the pick is kept anyway and the step explains why it is missing
+  // from its own list instead of silently dropping it.
+  const speciesAllowed = speciesOptions.some((option) => option.id === state.speciesId)
+  const classAllowed = classOptions.some((option) => option.id === state.classId)
+  const backgroundAllowed = backgroundOptions.some((option) => option.id === state.backgroundId)
+
+  // Keeps the ALL_SOURCES order no matter which box was toggled last.
+  const toggleSource = (key: SourceKey) =>
+    setSources(
+      sources.includes(key)
+        ? sources.filter((k) => k !== key)
+        : ALL_SOURCES.filter((k) => k === key || sources.includes(k)),
+    )
+
   // Elf, Gnome and Tiefling offer a lineage; every other species renders
   // nothing extra. `setSpeciesId` in the hook already clears a stale lineage
   // when the player switches to a species that has none, so this list is the
   // only gate the UI needs.
-  const lineageOptions = lineagesForSpecies(state.speciesId)
+  const lineageOptions = lineagesForSpecies(state.speciesId).filter((option) => bookAllows(option))
   const selectedLineage =
     lineageOptions.find((option) => option.id === state.lineageId) ?? null
 
@@ -154,6 +208,42 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
         </div>
       ) : null}
 
+      {state.step === 'books' ? (
+        <Card title="Books" className="create-card">
+          <p className="create-note">
+            Tick the books this character may draw from. Every choice after this step — species,
+            class, backgrounds, feats, lineages and spells — is filtered to the books ticked here,
+            so you only ever see what you actually own.
+          </p>
+
+          <div className="create-choices create-choices--grid" role="group" aria-label="Source books">
+            {ALL_SOURCES.map((key) => {
+              const checked = sources.includes(key)
+              return (
+                <label key={key} className={`create-choice${checked ? ' is-selected' : ''}`}>
+                  <input
+                    type="checkbox"
+                    name="create-source"
+                    value={key}
+                    checked={checked}
+                    onChange={() => toggleSource(key)}
+                  />
+                  <span className="create-choice-body">
+                    <span className="create-choice-name">{SOURCE_LABELS[key]}</span>
+                    <span className="create-choice-meta">{BOOK_NOTES[key]}</span>
+                  </span>
+                </label>
+              )
+            })}
+          </div>
+
+          <p className="create-note">
+            Choices you have already made keep their books; new picks are filtered. Leave every box
+            ticked to see everything.
+          </p>
+        </Card>
+      ) : null}
+
       {state.step === 'identity' ? (
         <Card title="Who are they?" className="create-card">
           <Field label="Character name" htmlFor="create-name">
@@ -178,29 +268,43 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
           </Field>
 
           <Divider label="Species" />
-          <div className="create-choices" role="radiogroup" aria-label="Species">
-            {SPECIES.map((option) => {
-              const checked = state.speciesId === option.id
-              return (
-                <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="create-species"
-                    value={option.id}
-                    checked={checked}
-                    onChange={() => setSpeciesId(option.id)}
-                  />
-                  <span className="create-choice-body">
-                    <span className="create-choice-name">{option.name}</span>
-                    <span className="create-choice-meta">
-                      {option.size}
-                      {option.featLevels?.includes(1) ? ' · feat at 1' : ''}
+          {speciesOptions.length === 0 ? (
+            <EmptyState
+              title="No species in your books"
+              description="Every book offering species is switched off on the Books step. Turn one back on and this list fills up again."
+            />
+          ) : (
+            <div className="create-choices" role="radiogroup" aria-label="Species">
+              {speciesOptions.map((option) => {
+                const checked = state.speciesId === option.id
+                return (
+                  <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="create-species"
+                      value={option.id}
+                      checked={checked}
+                      onChange={() => setSpeciesId(option.id)}
+                    />
+                    <span className="create-choice-body">
+                      <span className="create-choice-name">{option.name}</span>
+                      <span className="create-choice-meta">
+                        {option.size}
+                        {option.featLevels?.includes(1) ? ' · feat at 1' : ''}
+                      </span>
                     </span>
-                  </span>
-                </label>
-              )
-            })}
-          </div>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+
+          {species && !speciesAllowed ? (
+            <p className="create-note">
+              {species.name} comes from a book you have switched off, so it is not listed. It stays
+              your pick until you switch that book back on or choose a different one.
+            </p>
+          ) : null}
 
           {species ? (
             <div className="create-detail">
@@ -228,7 +332,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                   id="create-species-feat"
                   value={state.speciesFeatId ?? ''}
                   onValueChange={(value) => setSpeciesFeatId(value || null)}
-                  options={ORIGIN_FEATS.map((feat) => ({ value: feat.id, label: feat.name }))}
+                  options={originFeatOptions.map((feat) => ({ value: feat.id, label: feat.name }))}
                   placeholder="Choose an Origin feat"
                 />
               </Field>
@@ -313,26 +417,40 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
 
       {state.step === 'class' ? (
         <Card title="Class" className="create-card">
-          <div className="create-choices create-choices--grid" role="radiogroup" aria-label="Class">
-            {CLASSES.map((option) => {
-              const checked = state.classId === option.id
-              return (
-                <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="create-class"
-                    value={option.id}
-                    checked={checked}
-                    onChange={() => setClassId(option.id)}
-                  />
-                  <span className="create-choice-body">
-                    <span className="create-choice-name">{option.name}</span>
-                    <span className="create-choice-meta">d{option.hitDie}</span>
-                  </span>
-                </label>
-              )
-            })}
-          </div>
+          {classOptions.length === 0 ? (
+            <EmptyState
+              title="No classes in your books"
+              description="Every book offering classes is switched off on the Books step. Turn one back on and this list fills up again."
+            />
+          ) : (
+            <div className="create-choices create-choices--grid" role="radiogroup" aria-label="Class">
+              {classOptions.map((option) => {
+                const checked = state.classId === option.id
+                return (
+                  <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="create-class"
+                      value={option.id}
+                      checked={checked}
+                      onChange={() => setClassId(option.id)}
+                    />
+                    <span className="create-choice-body">
+                      <span className="create-choice-name">{option.name}</span>
+                      <span className="create-choice-meta">d{option.hitDie}</span>
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+
+          {classDef && !classAllowed ? (
+            <p className="create-note">
+              {classDef.name} comes from a book you have switched off, so it is not listed. It stays
+              your pick until you switch that book back on or choose a different one.
+            </p>
+          ) : null}
 
           {classDef ? (
             <div className="create-detail">
@@ -500,33 +618,47 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
 
       {state.step === 'background' ? (
         <Card title="Background" className="create-card">
-          <div className="create-choices create-choices--grid" role="radiogroup" aria-label="Background">
-            {BACKGROUNDS.map((option) => {
-              const checked = state.backgroundId === option.id
-              return (
-                <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
-                  <input
-                    type="radio"
-                    name="create-background"
-                    value={option.id}
-                    checked={checked}
-                    onChange={() => setBackgroundId(option.id)}
-                  />
-                  <span className="create-choice-body">
-                    <span className="create-choice-name">
-                      {option.name}
-                      {option.source === 'phb' ? (
-                        <Tag tone="muted" className="create-source-tag">
-                          PHB
-                        </Tag>
-                      ) : null}
+          {backgroundOptions.length === 0 ? (
+            <EmptyState
+              title="No backgrounds in your books"
+              description="Every book offering backgrounds is switched off on the Books step. Turn one back on and this list fills up again."
+            />
+          ) : (
+            <div className="create-choices create-choices--grid" role="radiogroup" aria-label="Background">
+              {backgroundOptions.map((option) => {
+                const checked = state.backgroundId === option.id
+                return (
+                  <label key={option.id} className={`create-choice${checked ? ' is-selected' : ''}`}>
+                    <input
+                      type="radio"
+                      name="create-background"
+                      value={option.id}
+                      checked={checked}
+                      onChange={() => setBackgroundId(option.id)}
+                    />
+                    <span className="create-choice-body">
+                      <span className="create-choice-name">
+                        {option.name}
+                        {option.source === 'phb' ? (
+                          <Tag tone="muted" className="create-source-tag">
+                            PHB
+                          </Tag>
+                        ) : null}
+                      </span>
+                      <span className="create-choice-meta">{option.originFeatName}</span>
                     </span>
-                    <span className="create-choice-meta">{option.originFeatName}</span>
-                  </span>
-                </label>
-              )
-            })}
-          </div>
+                  </label>
+                )
+              })}
+            </div>
+          )}
+
+          {background && !backgroundAllowed ? (
+            <p className="create-note">
+              {background.name} comes from a book you have switched off, so it is not listed. It
+              stays your pick until you switch that book back on or choose a different one.
+            </p>
+          ) : null}
 
           {background ? (
             <>
@@ -875,6 +1007,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                         classId={classDef.id}
                         lineageId={state.lineageId}
                         speciesId={state.speciesId}
+                        sources={sources}
                         characterLevel={1}
                         minLevel={0}
                         maxLevel={0}
@@ -896,6 +1029,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                         classId={classDef.id}
                         lineageId={state.lineageId}
                         speciesId={state.speciesId}
+                        sources={sources}
                         characterLevel={1}
                         minLevel={1}
                         maxLevel={maxSpellLevel}

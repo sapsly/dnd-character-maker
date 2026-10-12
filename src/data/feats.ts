@@ -23,7 +23,7 @@ export const FEATS: FeatDef[] = [
     id: 'alert',
     name: 'Alert',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll. Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can\'t make this swap if you or the ally has the Incapacitated condition.',
@@ -33,7 +33,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-artist',
     name: 'Arcane Artist',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Minor Illusion cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Inspiring Magic. When you cast a spell from the Illusion school, you can choose one ally within 30 feet of yourself who can see you. That ally gains Heroic Inspiration. Once you use this benefit, you can\'t use it again until you finish a Long Rest.',
@@ -43,7 +43,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-eloquence',
     name: 'Arcane Eloquence',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Vicious Mockery cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Smooth Talker. When you make a Charisma (Deception, Intimidation, or Persuasion) check, you can roll 1d4 and add the number rolled to the ability check.',
@@ -53,7 +53,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-infiltrator',
     name: 'Arcane Infiltrator',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Friends cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Cunning Diversion. You can take the Dodge action as a Bonus Action. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
@@ -63,7 +63,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-omens',
     name: 'Arcane Omens',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Guidance cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Helpful Premonition. When you or a creature you can see within 30 feet of yourself fails a saving throw, you can take a Reaction to roll 1d4 and add the number rolled to the save\'s total, potentially turning the failure into a success. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
@@ -73,7 +73,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-overload',
     name: 'Arcane Overload',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Fire Bolt cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Power Surge. When you cast an Evocation spell and deal damage with it, you can add your Proficiency Bonus to one damage roll of that spell. Once you use this benefit, you can\'t do so again until you finish a Long Rest.',
@@ -83,7 +83,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-safeguard',
     name: 'Arcane Safeguard',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn the Resistance cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast the Resistance cantrip as a Bonus Action. You can do so a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. Sheltering Aid. When you take the Help action to assist with an ally\'s ability check, that ally gains a number of Temporary Hit Points equal to your Proficiency Bonus.',
@@ -93,7 +93,7 @@ export const FEATS: FeatDef[] = [
     id: 'arcane-undertaker',
     name: 'Arcane Undertaker',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Cantrip. You learn one Cleric or Wizard cantrip of your choice. The cantrip must be from the Necromancy school. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Knowledge from the Dead. When you make an Intelligence (History) or Wisdom (Medicine) check, you can roll 1d4 and add the number rolled to the ability check. Understanding of Death. When you take the Help action to stabilize a creature with 0 Hit Points, you gain Heroic Inspiration. Once you use this benefit, you can\'t use it again until you finish a Long Rest.',
@@ -103,7 +103,7 @@ export const FEATS: FeatDef[] = [
     id: 'crafter',
     name: 'Crafter',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Tool Proficiency. You gain proficiency with three different Artisan\'s Tools of your choice from the Fast Crafting table. Discount. Whenever you buy a nonmagical item, you receive a 20 percent discount on it. Fast Crafting. When you finish a Long Rest, you can craft one piece of gear from the Fast Crafting table, provided you have the Artisan\'s Tools associated with that item and have proficiency with those tools. The item lasts until you finish another Long Rest, at which point the item falls apart. Carpenter\'s Tools: Ladder, Torch / Leatherworker\'s Tools: Case, Pouch / Mason\'s Tools: Block and Tackle / Potter\'s Tools: Jug, Lamp / Smith\'s Tools: Ball Bearings, Bucket, Caltrops, Grappling Hook, Iron Pot / Tinker\'s Tools: Bell, Shovel, Tinder Box / Weaver\'s Tools: Basket, Rope, Net, Tent / Woodcarver\'s Tools: Club, Greatclub, Quarterstaff',
@@ -113,7 +113,7 @@ export const FEATS: FeatDef[] = [
     id: 'familiar-friend',
     name: 'Familiar Friend',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Faithful Companion. You always have the Find Familiar spell prepared. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot or Material components, and you regain the ability to cast it in this way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Fortified Familiar. When you cast the Find Familiar spell, your familiar\'s Hit Point maximum and current Hit Points are increased by an amount equal to twice your character level. Helpful Friend. When you make an ability check using a skill in which you have proficiency while your familiar is within 5 feet of you, you gain Advantage on the check. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
@@ -123,7 +123,7 @@ export const FEATS: FeatDef[] = [
     id: 'healer',
     name: 'Healer',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Battle Medic. If you have a Healer\'s Kit, you can expend one use of it and tend to a creature within 5 feet of yourself as a Utilize action. That creature can expend one of its Hit Point Dice, and you then roll that die. The creature regains a number of Hit Points equal to the roll plus your Proficiency Bonus. Healing Rerolls. Whenever you roll a die to determine the number of Hit Points you restore with a spell or with this feat\'s Battle Medic benefit, you can reroll the die if it rolls a 1, and you must use the new roll.',
@@ -133,7 +133,7 @@ export const FEATS: FeatDef[] = [
     id: 'lucky',
     name: 'Lucky',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Luck Points. You have a number of Luck Points equal to your Proficiency Bonus and can spend the points on the benefits below. You regain your expended Luck Points when you finish a Long Rest. Advantage. When you roll a d20 for a D20 Test, you can spend 1 Luck Point to give yourself Advantage on the roll. Disadvantage. When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose Disadvantage on that roll.',
@@ -143,7 +143,7 @@ export const FEATS: FeatDef[] = [
     id: 'magic-initiate',
     name: 'Magic Initiate',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat\'s spells (choose when you select this feat). Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat\'s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list. Repeatable. You can take this feat more than once, but you must choose a different spell list each time.',
@@ -153,7 +153,7 @@ export const FEATS: FeatDef[] = [
     id: 'musician',
     name: 'Musician',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Instrument Training. You gain proficiency with three Musical Instruments of your choice. Encouraging Song. As you finish a Short or Long Rest, you can play a song on a Musical Instrument with which you have proficiency and give Heroic Inspiration to allies who hear the song. The number of allies you can affect in this way equals your Proficiency Bonus.',
@@ -163,7 +163,7 @@ export const FEATS: FeatDef[] = [
     id: 'portal-jumper',
     name: 'Portal Jumper',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Otherworldly Resilience. You have Resistance to one of the following damage types: Necrotic, Psychic, or Radiant (choose when you select this feat). Portal Step. You can spend 15 feet of movement to teleport to an unoccupied space you can see within 15 feet of yourself. You can use this benefit a number of times equal to your Proficiency Bonus but only once per turn, and you regain all expended uses when you finish a Long Rest.',
@@ -173,7 +173,7 @@ export const FEATS: FeatDef[] = [
     id: 'savage-attacker',
     name: 'Savage Attacker',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'You\'ve trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon\'s damage dice twice and use either roll against the target.',
@@ -183,7 +183,7 @@ export const FEATS: FeatDef[] = [
     id: 'sharp-eye',
     name: 'Sharp Eye',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'When you take the Search or Study action, you can give yourself Advantage on any ability check made as part of that action. You can use this feature a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. If the check fails, the use of this feature isn\'t expended.',
@@ -193,7 +193,7 @@ export const FEATS: FeatDef[] = [
     id: 'skilled',
     name: 'Skilled',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'You gain proficiency in any combination of three skills or tools of your choice. Repeatable. You can take this feat more than once.',
@@ -203,7 +203,7 @@ export const FEATS: FeatDef[] = [
     id: 'survivor',
     name: 'Survivor',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'You gain the following benefits. Hypervigilance. Whenever you roll Initiative, you can reroll the d20 if the number rolled is 9 or lower. You must use the new roll. Steel Yourself. When you fail a saving throw to avoid or end the Charmed or Frightened condition, you can take a Reaction to add a bonus to the roll potentially causing it to succeed. The bonus is equal to your Proficiency Bonus. Once you take this Reaction, you can\'t do so again until you finish a Long Rest.',
@@ -213,7 +213,7 @@ export const FEATS: FeatDef[] = [
     id: 'tavern-brawler',
     name: 'Tavern Brawler',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Enhanced Unarmed Strike. When you hit with your Unarmed Strike and deal damage, you can deal Bludgeoning damage equal to 1d4 plus your Strength modifier instead of the normal damage of an Unarmed Strike. Damage Rerolls. Whenever you roll a damage die for your Unarmed Strike, you can reroll the die if it rolls a 1, and you must use the new roll. Improvised Weaponry. You have proficiency with improvised weapons. Push. When you hit a creature with an Unarmed Strike as part of the Attack action on your turn, you can deal damage to the target and also push it 5 feet away from you. You can use this benefit only once per turn.',
@@ -223,7 +223,7 @@ export const FEATS: FeatDef[] = [
     id: 'tough',
     name: 'Tough',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Your Hit Point maximum increases by an amount equal to twice your character level when you gain this feat. Whenever you gain a character level thereafter, your Hit Point maximum increases by an additional 2 Hit Points.',
@@ -233,7 +233,7 @@ export const FEATS: FeatDef[] = [
     id: 'transmuted-anatomy',
     name: 'Transmuted Anatomy',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Lengthened Stride. Your Speed increases by 5 feet. Resilient Anatomy. You have Advantage on saving throws against effects that would compel you to shape-shift against your will. Additionally, when you fail a Constitution saving throw, you can take a Reaction to roll 1d4 and add the number rolled to the save, potentially turning the failure into a success. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
@@ -243,7 +243,7 @@ export const FEATS: FeatDef[] = [
     id: 'cult-of-the-dragon-initiate',
     name: 'Cult of the Dragon Initiate',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Dragon\'s Tongue. You know Draconic. If you already know Draconic when you select this feat, you instead learn one language of your choice from the language tables in the Player\'s Handbook or chapter 2 of this book. Dragon\'s Terror. You can take a Magic action to instill terror in a creature you can see within 30 feet of yourself. The target must succeed on a Wisdom saving throw (DC 8 plus your Wisdom modifier and Proficiency Bonus) or have the Frightened condition until the end of your next turn. If the target succeeds on the save or when the effect ends for a target, the target is immune to this effect for 24 hours. Inspired by Fear. When you cause a creature to have the Frightened condition and you are the source of its fear, you can gain Heroic Inspiration if you lack it. Once you use this benefit, you can\'t use it again until you finish a Short or Long Rest.',
@@ -253,7 +253,7 @@ export const FEATS: FeatDef[] = [
     id: 'emerald-enclave-fledgling',
     name: 'Emerald Enclave Fledgling',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Speak with Animals. You always have the Speak with Animals spell prepared and can cast it with any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). When you cast this spell as a Ritual, its duration is 8 hours. Tag Team. When you take the Help action, you can switch places with a willing ally within 5 feet of yourself as part of that same action. This movement doesn\'t provoke Opportunity Attacks. You can\'t use this benefit if the ally has the Incapacitated condition.',
@@ -263,17 +263,17 @@ export const FEATS: FeatDef[] = [
     id: 'harper-agent',
     name: 'Harper Agent',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Thieves\' Cant. You know Thieves\' Cant. Instrument Training. You gain proficiency with a Musical Instrument of your choice. Distracting Melody. When you take the Help action to assist an ally\'s attack roll, the enemy you\'re distracting can be within 30 feet of you, rather than within 5 feet of you, provided the enemy can see or hear you.',
   },
 
   {
-    id: 'lords-alliance-agent',
-    name: 'Lords\' Alliance Agent',
+id: 'lords-alliance-agent',
+    name: "Lords' Alliance Agent",
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Inspiring Strike. Once per turn when you score a Critical Hit against a creature, you can choose an ally within 30 feet of yourself who can see or hear you and who lacks Heroic Inspiration. That ally gains Heroic Inspiration. Reassert Honor. When an enemy you can see deals damage to an ally of yours that is within 5 feet of you, you have Advantage on your next attack roll against that enemy before the end of your next turn.',
@@ -283,7 +283,7 @@ export const FEATS: FeatDef[] = [
     id: 'purple-dragon-rook',
     name: 'Purple Dragon Rook',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Entreat. You gain proficiency in one of the following skills: Insight, Performance, or Persuasion. Rallying Cry. When you roll Initiative and don\'t have the Incapacitated condition, you can choose a number of creatures equal to your Proficiency Bonus that you can see within 30 feet of yourself. Those creatures gain Heroic Inspiration. Once you use this benefit, you can\'t do so again until you finish a Long Rest.',
@@ -293,7 +293,7 @@ export const FEATS: FeatDef[] = [
     id: 'spellfire-spark',
     name: 'Spellfire Spark',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Magic Absorption. Once per turn, when you take damage from a spell or magical effect, you reduce the total damage taken by 1d4. You can\'t use this benefit if you have the Incapacitated condition. Spellfire Flame. You learn the Sacred Flame cantrip. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can also cast this cantrip as a Bonus Action a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.',
@@ -303,17 +303,17 @@ export const FEATS: FeatDef[] = [
     id: 'tyro-of-the-gauntlet',
     name: 'Tyro of the Gauntlet',
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Stand as One. When an ally within 5 feet of you is subjected to an effect that would push or pull it, you can take a Reaction to prevent that ally from being pushed or pulled. To receive this benefit, the ally can\'t have the Incapacitated condition. Vigilant. When you take the Ready action, the next attack roll made against you has Disadvantage before the start of your next turn.',
   },
 
   {
-    id: 'zhentarim-ruffian',
-    name: 'Zhentarim Ruffian',
+id: 'zhentarim-ruffian',
+    name: "Zhentarim Ruffian",
     category: 'origin',
-    source: 'origin',
+    source: 'faerun',
     usableAsOriginFeat: true,
     description:
       'Exploit Opening. When you roll damage for an Opportunity Attack, you can roll the damage dice twice and use either roll against the target. Family First. If you have Heroic Inspiration when you roll Initiative, you can expend it to give yourself and your allies Advantage on that Initiative roll.',
@@ -323,7 +323,7 @@ export const FEATS: FeatDef[] = [
     id: 'child-of-the-sun',
     name: 'Child of the Sun',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Eyes of Eirdu. You and allies within 10 feet of you have Advantage on saving throws made to avoid or end the Blinded condition. Faerie Fire. You learn the Faerie Fire spell. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. When you cast Faerie Fire without a spell slot using this benefit, taking damage can\'t break your Concentration on the spell.',
@@ -333,7 +333,7 @@ export const FEATS: FeatDef[] = [
     id: 'shadowmoor-hexer',
     name: 'Shadowmoor Hexer',
     category: 'origin',
-    source: 'origin',
+    source: 'lorwyn',
     usableAsOriginFeat: true,
     description:
       'Hex. You always have the Hex spell prepared. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have. Curse Magic. When a creature that you\'ve cursed with Hex hits you with an attack roll, the creature takes Psychic damage equal to your Proficiency Bonus. A creature takes this damage only once per turn.',
@@ -343,7 +343,7 @@ export const FEATS: FeatDef[] = [
     id: 'tireless-reveler',
     name: 'Tireless Reveler',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'When an ally you can see within 60 feet of yourself expends Heroic Inspiration, you can gain Heroic Inspiration if you lack it. You can use this benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.',
@@ -353,7 +353,7 @@ export const FEATS: FeatDef[] = [
     id: 'vampire-hunter',
     name: 'Vampire Hunter',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Adroit Escape. You have Advantage on checks to escape from nonmagical restraints or the Grappled condition. Vitality Ward. When you take Necrotic damage, you can take a Reaction to mitigate the damage. Roll a number of d6s equal to your Proficiency Bonus, and add them together. Reduce the Necrotic damage you take by this total. Once you use this benefit, you can\'t use it again until you finish a Short or Long Rest.',
@@ -363,7 +363,7 @@ export const FEATS: FeatDef[] = [
     id: 'vampire-s-plaything',
     name: 'Vampire\'s Plaything',
     category: 'origin',
-    source: 'origin',
+    source: 'core',
     usableAsOriginFeat: true,
     description:
       'Decanting. When you finish a Long Rest, you can create one Potion of Healing or an Antitoxin, as long as you have an empty vial or flask. These liquids evaporate when you finish another Long Rest. Timely Retreat. You can take a Bonus Action to take the Dash action or the Disengage action. You can use this benefit a number of times equal to your Proficiency Bonus, and you recover all expended uses when you finish a Long Rest. Vampiric Connection. The DM determines the fate of your former vampire master. While you and your former vampire master are on the same plane of existence, the vampire can communicate with you telepathically, and you can choose to allow the vampire to perceive through your senses.',
@@ -1486,7 +1486,7 @@ export const FEATS: FeatDef[] = [
     id: 'boon-of-siberys',
     name: 'Boon of Siberys',
     category: 'epic-boon',
-    source: 'item',
+    source: 'eberron',
     prerequisites: 'Level 19+, Eberron Campaign',
     description:
       'Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30. Aberrant Magic. Choose a level 8 or lower spell from the Sorcerer spell list or a spell from the Siberys Dragonmark Spells table (the table includes dragonmark suggestions if you\'d like to associate a spell with one of the marks). You always have that spell prepared. You can cast it once without a spell slot or spell components, and you regain the ability to cast it in that way when you finish a Short or Long Rest. You can also cast this spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you gain this feat). Siberys Dragonmark Spells Animal Shapes: Handling / Control Weather: Storm / Demiplane: Making / Heroes\' Feast: Hospitality / Maze: Warding / Mind Blank: Sentinel / Plane Shift: Passage / Project Image: Shadow / Regenerate: Healing / Symbol: Scribing / Teleport: Finding / True Seeing: Detection',
@@ -1657,7 +1657,7 @@ export const FEATS: FeatDef[] = [
     id: 'aberrant-dragonmark',
     name: 'Aberrant Dragonmark',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1668,7 +1668,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-detection',
     name: 'Mark of Detection',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t have another Dragonmark Feat',
     description:
@@ -1679,7 +1679,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-finding',
     name: 'Mark of Finding',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t have another Dragonmark Feat',
     description:
@@ -1690,7 +1690,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-handling',
     name: 'Mark of Handling',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t have another Dragonmark Feat',
     description:
@@ -1701,7 +1701,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-healing',
     name: 'Mark of Healing',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t have another Dragonmark Feat',
     description:
@@ -1712,7 +1712,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-hospitality',
     name: 'Mark of Hospitality',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t have another Dragonmark Feat',
     description:
@@ -1723,7 +1723,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-making',
     name: 'Mark of Making',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1734,7 +1734,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-passage',
     name: 'Mark of Passage',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     description:
       'Dragonmark Feat (Prerequisite: Eberron Campaign, Can\'t have another Dragonmark Feat) Courier\'s Speed. Your Speed increases by 5 feet. Intuitive Motion. When you make a Strength (Athletics) or Dexterity (Acrobatics) check, you can roll 1d4 and add the number rolled to the ability check. Magical Passage. You always have the Misty Step spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast it using any spell slots you have. Intelligence, Wisdom, or Charisma is your spellcasting ability for this spell (choose when you select this feat). Spells of the Mark. If you have the Spellcasting or Pact Magic feature, the spells on the Mark of Passage Spells table are added to that feature\'s spell list. Mark of Passage Spells 1: Expeditious Retreat, Jump / 2: Find Steed, Pass without Trace / 3: Blink, Phantom Steed / 4: Dimension Door, Freedom of Movement / 5: Teleportation Circle',
@@ -1744,7 +1744,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-scribing',
     name: 'Mark of Scribing',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1755,7 +1755,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-sentinel',
     name: 'Mark of Sentinel',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1766,7 +1766,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-shadow',
     name: 'Mark of Shadow',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1777,7 +1777,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-storm',
     name: 'Mark of Storm',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1788,7 +1788,7 @@ export const FEATS: FeatDef[] = [
     id: 'mark-of-warding',
     name: 'Mark of Warding',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Eberron Campaign, Can\'t Have Another Dragonmark Feat',
     description:
@@ -1799,7 +1799,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-aberrant-mark',
     name: 'Greater Aberrant Mark',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Aberrant Dragonmark Feat',
     description:
@@ -1810,7 +1810,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-detection',
     name: 'Greater Mark of Detection',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Detection Feat',
     description:
@@ -1821,7 +1821,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-finding',
     name: 'Greater Mark of Finding',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Finding Feat',
     description:
@@ -1832,7 +1832,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-handling',
     name: 'Greater Mark of Handling',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Handling Feat',
     description:
@@ -1843,7 +1843,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-healing',
     name: 'Greater Mark of Healing',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Healing Feat',
     description:
@@ -1854,7 +1854,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-hospitality',
     name: 'Greater Mark of Hospitality',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Hospitality Feat',
     description:
@@ -1865,7 +1865,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-making',
     name: 'Greater Mark of Making',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Making Feat',
     description:
@@ -1876,7 +1876,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-passage',
     name: 'Greater Mark of Passage',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Passage Feat',
     description:
@@ -1887,7 +1887,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-scribing',
     name: 'Greater Mark of Scribing',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Scribing Feat',
     description:
@@ -1898,7 +1898,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-sentinel',
     name: 'Greater Mark of Sentinel',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Sentinel Feat',
     description:
@@ -1909,7 +1909,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-shadow',
     name: 'Greater Mark of Shadow',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Shadow Feat',
     description:
@@ -1920,7 +1920,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-storm',
     name: 'Greater Mark of Storm',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Storm Feat',
     description:
@@ -1931,7 +1931,7 @@ export const FEATS: FeatDef[] = [
     id: 'greater-mark-of-warding',
     name: 'Greater Mark of Warding',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Mark of Warding Feat',
     description:
@@ -1942,7 +1942,7 @@ export const FEATS: FeatDef[] = [
     id: 'potent-dragonmark',
     name: 'Potent Dragonmark',
     category: 'dragonmark',
-    source: 'origin',
+    source: 'eberron',
     usableAsOriginFeat: true,
     prerequisites: 'Level 4+, Any Dragonmark Feat',
     description:
@@ -2045,7 +2045,7 @@ export const FEATS: FeatDef[] = [
     id: 'aberrant-anatomy',
     name: 'Aberrant Anatomy',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2056,7 +2056,7 @@ export const FEATS: FeatDef[] = [
     id: 'echoing-soul',
     name: 'Echoing Soul',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2067,7 +2067,7 @@ export const FEATS: FeatDef[] = [
     id: 'gathered-whispers',
     name: 'Gathered Whispers',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2078,7 +2078,7 @@ export const FEATS: FeatDef[] = [
     id: 'living-shadow',
     name: 'Living Shadow',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2089,7 +2089,7 @@ export const FEATS: FeatDef[] = [
     id: 'mist-walker',
     name: 'Mist Walker',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2100,7 +2100,7 @@ export const FEATS: FeatDef[] = [
     id: 'second-skin',
     name: 'Second Skin',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2111,7 +2111,7 @@ export const FEATS: FeatDef[] = [
     id: 'symbiotic-being',
     name: 'Symbiotic Being',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2122,7 +2122,7 @@ export const FEATS: FeatDef[] = [
     id: 'touch-of-death',
     name: 'Touch of Death',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:
@@ -2133,7 +2133,7 @@ export const FEATS: FeatDef[] = [
     id: 'watchers',
     name: 'Watchers',
     category: 'dark-gift',
-    source: 'origin',
+    source: 'ravenloft',
     usableAsOriginFeat: true,
     prerequisites: 'Ravenloft Campaign',
     description:

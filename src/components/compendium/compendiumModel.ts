@@ -20,6 +20,7 @@ import type {
   WeaponDef,
 } from '../../types/character'
 import { ABILITY_ABBREV } from '../../types/character'
+import { SOURCE_LABELS } from '../../lib/rules/sources'
 import { SPECIES } from '../../data/species'
 import { BACKGROUNDS } from '../../data/backgrounds'
 import { CLASSES } from '../../data/classes'
@@ -137,6 +138,25 @@ const FEAT_CATEGORY_LABELS: Record<NonNullable<FeatDef['category']>, string> = {
 
 export function featCategoryLabel(category: FeatDef['category']): string | null {
   return category ? FEAT_CATEGORY_LABELS[category] : null
+}
+
+const FEAT_SOURCE_LABELS: Record<string, string> = {
+  core: SOURCE_LABELS.core,
+  eberron: SOURCE_LABELS.eberron,
+  faerun: SOURCE_LABELS.faerun,
+  ravenloft: SOURCE_LABELS.ravenloft,
+  lorwyn: SOURCE_LABELS.lorwyn,
+  exotic: SOURCE_LABELS.exotic,
+  'arcana-unleashed': SOURCE_LABELS['arcana-unleashed'],
+  general: 'General',
+  origin: 'Origin',
+  species: 'Species',
+  item: 'Item',
+}
+
+/** Human label for a feat's source — book keys (eberron, ravenloft, …) or the legacy acquisition buckets. */
+export function featSourceLabel(source: FeatDef['source'] | undefined | null): string | null {
+  return source ? (FEAT_SOURCE_LABELS[source] ?? null) : null
 }
 
 const BACKGROUND_SOURCE_LABELS: Record<BackgroundDef['source'], string> = {

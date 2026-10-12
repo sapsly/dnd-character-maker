@@ -173,6 +173,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Shape-Shifter', description: 'As an action, you can shape-shift to change your appearance and your voice. You determine the specifics of the changes, including your coloration, hair length, and sex. You can also adjust your height and weight and can change your size between Medium and Small. You can make yourself appear as a member of another playable species, though none of your game statistics change. You can\'t duplicate the appearance of an individual you\'ve never seen, and you must adopt a form that has the same basic arrangement of limbs that you have. This trait doesn\'t change your clothing and equipment. While shape-shifted with this trait, you have Advantage on Charisma checks. You stay in the new form until you take an action to revert to your true form.' },
     ],
     description: 'With ever-changing appearances, changelings reside in many societies undetected. Each changeling can supernaturally adopt any face they like. For some changelings, a new face may reveal an aspect of their soul. The first changelings in the multiverse appeared in the Feywild, and the wondrous, mutable essence of that plane lingers in changelings today - even in those who have never set foot in the fey realm. In their true form, changelings appear faded, their features almost devoid of detail. It is rare to see one in that form, for a typical changeling alters their shape the way others might change clothes. However, many changelings develop identities with more depth, crafting a persona complete with history and beliefs to go with each shape. A changeling adventurer might have personas for many situations, including negotiation, investigation, and combat. Multiple changelings can share a persona. Personas can even pass down through a family, allowing a younger changeling to take advantage of contacts established by the persona\'s previous users.',
+    source: 'eberron',
   },
 
   {
@@ -188,6 +189,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Severed from Dreams', description: 'You can\'t be the target of the Dream spell. In addition, when you finish a Long Rest, you gain proficiency in one skill of your choice. This proficiency lasts until you finish another Long Rest.' },
     ],
     description: 'Kalashtar (pronounced kal-ASH-tar) are created from the union of humanity and renegade spirits called quori from the plane of dreams. Kalashtar appear human, but their spiritual connection affects them in a variety of ways. They have symmetrical, slightly angular features, and their eyes often glow when they are concentrating or expressing strong emotions. Kalashtar can\'t communicate directly with their quori spirits. Rather, kalashtar might experience them as a source of instinct and inspiration, drawing on the spirits\' memories when the kalashtar sleep. This connection grants kalashtar minor psionic abilities, as well as protection from psionic attacks.',
+    source: 'eberron',
   },
 
   {
@@ -204,6 +206,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Skill Versatility', description: 'You gain proficiency in one skill or with one tool of your choice. Whenever you finish a Long Rest, you can replace it with another skill or tool proficiency.' },
     ],
     description: 'Over the course of centuries, those descended from both humans and elves have developed their own communities and traditions in Khorvaire. The rise of House Lyrandar and House Medani has strengthened this identity. Members of these communities call themselves Khoravar, an Elvish term meaning "children of Khorvaire," as they dislike the term "half-elf." Many Khoravar espouse the idea of being "the bridge between," believing they are called to facilitate communication and cooperation between members of different cultures or species. Khoravar who follow this philosophy often become bards, diplomats, mediators, or translators. Others, fascinated by their distant connection to the Fey, seek to build bridges between the Material Plane and the Feywild of Thelanis. These Khoravar often become druids or warlocks with archfey patrons.',
+    source: 'eberron',
   },
 
   {
@@ -222,6 +225,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Wildhunt', description: 'While shifted, you have Advantage on Wisdom checks. Additionally, no creature within 30 feet of you can have Advantage on an attack roll against you unless you have the Incapacitated condition.' },
     ],
     description: 'Shifters - sometimes called "weretouched" - descend from people who contracted full or partial lycanthropy. Humanoids with a bestial aspect, shifters can\'t change shape fully, but they can enhance their animalistic features temporarily in a process they call "shifting." Shifters resemble humans in height and build but are typically more lithe and flexible. Their facial features have a bestial cast, often with large eyes and pointed ears; most shifters also possess prominent canine teeth. They grow fur-like hair on nearly every part of their bodies. While a shifter\'s appearance might remind an onlooker of an animal, the shifter remains clearly identifiable as a Humanoid even when at their most feral.',
+    source: 'eberron',
   },
 
   {
@@ -238,6 +242,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Tireless', description: 'You don\'t gain Exhaustion levels from dehydration, malnutrition, or suffocation.' },
     ],
     description: 'Warforged are mechanical beings built as weapons to fight in the Last War. An unexpected breakthrough produced sentient beings made from wood and metal that nevertheless can feel pain and emotion. Warforged comprise a blend of organic and inorganic materials. Rootlike cords infused with alchemical fluids serve as their muscles, wrapped around a framework of steel, darkwood, or stone. Armored plates form a protective outer shell and reinforce joints. The more a warforged cultivates their individuality, the more likely they are to modify their body, seeking out an artificer to customize the look of their face, limbs, and plating.',
+    source: 'eberron',
   },
 
   {
@@ -253,6 +258,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Nimble Escape', description: 'You can take the Disengage or Hide action as a bonus action on each of your turns.' },
     ],
     description: 'Boggarts are Small, squat goblinoids found in the realm of Lorwyn-Shadowmoor. They possess bestial physical features, including horns and animal-like snouts. Beyond these commonalities, boggart appearances vary widely. One boggart may look like a hedgehog, with spiky fur and beady eyes, while another might sport the snout and fleshy ears of a swine. Boggarts tend to love crafting potions and commonly gravitate to specific areas of expertise, as noted in the sections below.',
+    source: 'lorwyn',
   },
 
   {
@@ -266,6 +272,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Flight', description: 'Because of your wings, you have a flying speed equal to your walking speed. You can\'t use this flying speed if you\'re wearing medium or heavy armor. In addition, Shadowmoor faeries have Darkvision with a range of 120 feet.' },
     ],
     description: 'Known for their mischief, faeries resemble insects with humanoid features. Their size and shape may vary, but all have antennae, black eyes, chitinous skin, and insectoid legs and wings. Every faerie is born from a flower and possesses innate magic, which many use to play pranks. Some Lorwyn faeries serve Queen Oura, who has proclaimed herself the faeries\' ruler. Not all faeries recognize Oura\'s authority, however. In Shadowmoor, faeries might instead worship Queen Maralen, the elf who overthrew the previous faerie queen and, some say, ushered in the clashing of Lorwyn and Shadowmoor.',
+    source: 'lorwyn',
   },
 
   {
@@ -280,6 +287,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Reach to the Blaze', description: 'You know the Produce Flame cantrip. Starting at 3rd level, you can cast the Burning Hands spell with this trait. Starting at 5th level, you can also cast the Flame Blade spell with this trait, without requiring a material component. Once you cast Burning Hands or Flame Blade with this trait, you can\'t cast that spell with it again until you finish a long rest. You can also cast either of those spells using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for these spells when you cast them with this trait (choose when you select this race).' },
     ],
     description: 'Flamekin are people made from two key elements of creation: fire and stone. As a result, many flamekin feel a strong connection to the natural world. Flamekin\'s bodies radiate harmless magical flames, though they possess innate magic that allows them to create burning flames in a multitude of forms. Flamekin view self-discovery and self-expression the noblest of aspirations and believe that self-realization is the most important thing an individual can do with their life. Flamekin call this lifelong pursuit the Path of Flame. Flamekin dwell in either Lorwyn or Shadowmoor. Physically and culturally, they are similar in both lands.',
+    source: 'lorwyn',
   },
 
   {
@@ -295,6 +303,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Unpredictable Movement', description: 'When you roll Initiative and don\'t have Disadvantage on that roll, you can take the Dash action as a Reaction.' },
     ],
     description: 'The changelings of Lorwyn are charismatic shapeshifters able to crudely mimic the forms of creatures and plants. Unlike most shapeshifters, however, their innate powers don\'t allow them to truly disguise themselves; rather, their transformations are purely surface level. No matter their form, Lorwyn changelings keep their key traits: blue-green skin, tufts of tentacle-like fur, and bulbous yellow eyes with slitted pupils. The true changeling identity of a bug-eyed tree, teal elk, or furry boulder is always easy to spot. These counterfeits are so plain that many Lorwyn denizens find the effect inexplicably charming. Changelings from Lorwyn live in a vast, mystical cave called Velis Vel Grotto. Once per year, many changelings make a pilgrimage to the grotto to contemplate their past deeds.',
+    source: 'lorwyn',
   },
 
   {
@@ -309,6 +318,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Darkvision', description: 'You have Darkvision with a range of 60 feet.' },
     ],
     description: 'Rimekin hail from both Lorwyn and Shadowmoor, though the first rimekin arose from flamekin during the Phyrexian invasion. These flamekin approached their problems with cold logic and rejected reactionary responses. As a result, the magical flames that engulfed their bodies took on a frigid air, and they became rimekin. Like flamekin, rimekin possess innate magic, but the flames they conjure burn icy blue rather than red hot. Further, these "flames" emanate a chilling cold rather than blazing heat. This effect extends, superficially, to the items rimekin touch. Any armor worn or weapons wielded by rimekin become coated in layers of spiky yet harmless hoarfrost.',
+    source: 'lorwyn',
   },
 
   {
@@ -326,6 +336,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Strengthen', description: 'You gain a bonus to the next ability check or attack roll you make within the next minute; the bonus is equal to the Piercing damage dealt. You can empower yourself with this trait a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.' },
     ],
     description: 'Dhampirs are living people who possess vampiric prowess but are cursed with macabre hunger. Most dhampirs thirst for blood, but some gain sustenance from dreams, life energy, or other vital sources. Dhampirs must choose whether to fight to control their hunger or give in to predatory urges. Dhampirs often arise from encounters with vampires; some are the descendants of a powerful vampire, while others are partially transformed by a vampire\'s bite. All manner of macabre bargains and necromantic influences might also give rise to a dhampir. Regardless of their origins, dhampirs exhibit their vampiric nature in various ways, including increased speed and a life-draining bite.',
+    source: 'ravenloft',
   },
 
   {
@@ -341,6 +352,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Hex Magic', description: 'You always have the Disguise Self and Hex spells prepared. You can cast each spell once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select this species).' },
     ],
     description: 'Hexbloods are individuals infused with fey magic as a result of eldritch energy or mysterious witchcraft. Many hexbloods are transformed into such beings after making a deal with a powerful hag, but other strange forces can result in the birth of a hexblood. A hexblood\'s strange fey power manifests as eerie clairvoyance and beguiling magic.',
+    source: 'ravenloft',
   },
 
   {
@@ -355,6 +367,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Werewolf Instincts', description: 'You have proficiency in the Perception, Stealth, or Survival skill.' },
     ],
     description: 'With their bristling fur and snarling muzzles, lupins cast imposing shadows in the Mists. Lupins often arise from encounters with werewolves in which the curse of lycanthropy didn\'t fully take hold. Unlike true werewolves, lupins can\'t shift between wolf and humanoid form but are instead stuck as a hybrid transformation. This cursed wolflike physiology affords lupins bestial might, enhanced instincts, and a dread-inducing howl.',
+    source: 'ravenloft',
   },
 
   {
@@ -369,6 +382,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Strange Endurance', description: 'You have Resistance to one of the following damage types of your choice: Cold, Necrotic, or Poison.' },
     ],
     description: 'Reborn are individuals who have died yet inexplicably still live. Some reborn exhibit the scars of fatal ends, their ashen flesh or bloodless veins making it clear that they\'ve escaped death. Other reborn are marvels of magic or science, being stitched together from disparate beings or bearing mysterious minds in manufactured bodies. Whatever their origins, reborn know a new life and seek experiences and answers all their own.',
+    source: 'ravenloft',
   },
 
   {
@@ -386,6 +400,7 @@ export const SPECIES: SpeciesDef[] = [
       { name: 'Vigor', description: 'You gain a number of Temporary Hit Points equal to your Proficiency Bonus, and you have Advantage on Strength (Athletics) and Dexterity (Acrobatics) checks.' },
     ],
     description: 'Dusklings are a people who\'ve left the Feywild to settle in forested lands of both the Outer Planes and the Material Plane. The inherent magic of the Feywild still runs through them, giving dusklings the ability to suffuse themselves with magical effects. Dusklings that travel the planes often live in migratory communities that follow livestock herds they tend. When the resources run out in one place, they move to another. Young dusklings play daring games that encourage them to harness and utilize their inner powers.',
+    source: 'exotic',
   },
 ];
 

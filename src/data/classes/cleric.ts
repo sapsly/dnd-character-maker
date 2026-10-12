@@ -54,6 +54,7 @@ export const cleric: ClassDef = {
       classId: 'cleric',
       name: 'Knowledge Domain',
       description: 'Unearth Secrets and Master the Mind The Knowledge Domain values learning and understanding above all. Clerics who tap into this domain study esoteric lore, collect old tomes, delve into secret places, and examine the processes of the mind. To them, knowledge is more valuable than material wealth, and learning is an act of worship. Libraries, universities, and other educational institutions also draw on the power of the Knowledge Domain. Gods of knowledge vary from masters of arcane magic to patrons of craft and invention. In Faerûn, Clerics of the Knowledge Domain worship deities of learning and ingenuity such as Oghma and Gond, among many others.',
+      source: 'faerun',
       features: [
         { level: 3, name: 'Blessings of Knowledge', description: 'You gain proficiency with one type of Artisan\'s Tools of your choice and in two of the following skills of your choice: Arcana, History, Nature, or Religion. You have Expertise in those two skills.' },
         { level: 3, name: 'Knowledge Domain Spells', description: 'When you reach a Cleric level specified in the Knowledge Domain Spells table, you thereafter always have the listed spells prepared.' },

@@ -7,6 +7,7 @@ import type {
   CoinPurse,
 } from '../types/character';
 import { createId } from './storage';
+import { ALL_SOURCES } from './rules/sources';
 
 /**
  * Constructors and defaults for characters.
@@ -79,6 +80,9 @@ export function createCharacter(options: NewCharacterOptions = {}): Character {
 
     abilityScoreMethod: 'standard',
     abilityScoreBase: standardArrayScores(),
+
+    /** All source books enabled by default for new characters. */
+    sources: [...ALL_SOURCES],
 
     choices: [],
 

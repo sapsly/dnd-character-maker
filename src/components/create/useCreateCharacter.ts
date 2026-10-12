@@ -34,10 +34,25 @@ import {
 } from '../../lib/characterFactory'
 import { createId, upsertCharacter } from '../../lib/storage'
 import { abilityModifier } from '../../lib/rules/ability'
+import { ALL_SOURCES } from '../../lib/rules/sources'
+import type { SourceKey } from '../../types/character'
 
-export type WizardStep = 'identity' | 'class' | 'background' | 'abilities' | 'spells' | 'review'
+export type WizardStep =
+  | 'books'
+  | 'identity'
+  | 'class'
+  | 'background'
+  | 'abilities'
+  | 'spells'
+  | 'review'
 
+/**
+ * The step rail, in play order. `books` leads so the content filters are set
+ * before the player sees a single choice; the six original steps follow in
+ * their existing order and keep their existing behaviour.
+ */
 export const WIZARD_STEPS: { id: WizardStep; label: string }[] = [
+  { id: 'books', label: 'Books' },
   { id: 'identity', label: 'Name & species' },
   { id: 'class', label: 'Class' },
   { id: 'background', label: 'Background' },
@@ -52,6 +67,14 @@ export type BackgroundBonusMode = 'plus2plus1' | 'plus1each'
 
 export interface WizardState {
   step: WizardStep
+  /**
+   * Source books the player allows in this wizard session. Drives every
+   * filtered choice list (species, class, backgrounds, feats, lineages, spells).
+   * It may briefly be empty while the boxes are being toggled — validation
+   * blocks advancing, because `enabledSources` reads an empty array as
+   * "everything enabled", which is not what an unchecked box means here.
+   */
+  sources: SourceKey[]
   name: string
   playerName: string
   speciesId: string
@@ -87,6 +110,8 @@ export interface CreateCharacterModel {
   state: WizardState
   /** True when the wizard is editing a saved character rather than creating one. */
   isEdit: boolean
+  /** The draft's current book selection — what the choice lists filter against. */
+  sources: SourceKey[]
   stepIndex: number
   species: SpeciesDef | null
   classDef: ClassDef | null
@@ -111,6 +136,8 @@ export interface CreateCharacterModel {
   setStep: (step: WizardStep) => void
   next: () => void
   back: () => void
+  /** Replaces the whole book selection; the caller enforces "keep at least one". */
+  setSources: (sources: SourceKey[]) => void
   setName: (value: string) => void
   setPlayerName: (value: string) => void
   setSpeciesId: (value: string) => void
@@ -198,7 +225,10 @@ function modeForBonuses(bonuses: AbilityBonusMap, choices: AbilityKey[]): Backgr
 function initialState(existing?: Character | null): WizardState {
   if (!existing) {
     return {
-      step: 'identity',
+      step: 'books',
+      // Everything on by default, so the create flow behaves exactly as it did
+      // before books existed unless the player opts into filtering.
+      sources: [...ALL_SOURCES],
       name: '',
       playerName: '',
       speciesId: 'human',
@@ -228,6 +258,9 @@ function initialState(existing?: Character | null): WizardState {
 
   return {
     step: 'identity',
+    // Preserve the character's own book selection; characters saved before
+    // books existed read as "everything", which is what `??` gives them.
+    sources: existing.sources && existing.sources.length > 0 ? [...existing.sources] : [...ALL_SOURCES],
     name: existing.meta.name ?? '',
     playerName: existing.meta.playerName ?? '',
     speciesId: existing.species?.speciesId ?? 'human',
@@ -583,8 +616,17 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     return errors
   }, [state.abilityScoreBase, state.scoreMethod, remaining])
 
+  // "At least one book stays on": an empty selection would hide every choice,
+  // so it blocks the books step (and, belt-and-braces, the save button).
+  const sourcesErrors = useMemo(
+    () => (state.sources.length === 0 ? ['Keep at least one book checked so you have something to pick from.'] : []),
+    [state.sources],
+  )
+
   const stepErrors = useMemo(() => {
     switch (state.step) {
+      case 'books':
+        return sourcesErrors
       case 'identity':
         return [...nameErrors, ...speciesErrors, ...speciesFeatErrors]
       case 'class':
@@ -596,19 +638,26 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
       case 'spells':
         return []
       case 'review':
-        return [...nameErrors, ...speciesErrors, ...speciesFeatErrors, ...backgroundErrors, ...scoreErrors, ...skillErrors, ...weaponMasteryErrors, ...equipmentErrors]
+        return [...sourcesErrors, ...nameErrors, ...speciesErrors, ...speciesFeatErrors, ...backgroundErrors, ...scoreErrors, ...skillErrors, ...weaponMasteryErrors, ...equipmentErrors]
       default:
         return []
     }
-  }, [state.step, nameErrors, speciesErrors, speciesFeatErrors, backgroundErrors, scoreErrors, toolErrors, classDef, skillErrors, weaponMasteryErrors, equipmentErrors])
+  }, [state.step, sourcesErrors, nameErrors, speciesErrors, speciesFeatErrors, backgroundErrors, scoreErrors, toolErrors, classDef, skillErrors, weaponMasteryErrors, equipmentErrors])
 
   const canAdvance = stepErrors.length === 0
-  const canCreate = canAdvance && nameErrors.length === 0 && speciesFeatErrors.length === 0 && backgroundErrors.length === 0 && scoreErrors.length === 0 && skillErrors.length === 0 && weaponMasteryErrors.length === 0 && equipmentErrors.length === 0
+  const canCreate = canAdvance && sourcesErrors.length === 0 && nameErrors.length === 0 && speciesFeatErrors.length === 0 && backgroundErrors.length === 0 && scoreErrors.length === 0 && skillErrors.length === 0 && weaponMasteryErrors.length === 0 && equipmentErrors.length === 0
 
   const setStep = useCallback((step: WizardStep) => {
     setSaveError(null)
     setState((s) => ({ ...s, step }))
   }, [])
+
+  // Replacing the selection outright (never clearing picks elsewhere), so a
+  // book toggled off only narrows what is offered from here on.
+  const setSources = useCallback(
+    (sources: SourceKey[]) => setState((s) => ({ ...s, sources: [...sources] })),
+    [],
+  )
 
   const next = useCallback(() => {
     setState((s) => {
@@ -804,6 +853,8 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
         },
         abilityScoreMethod: state.scoreMethod,
         abilityScoreBase: { ...state.abilityScoreBase },
+        // The wizard owns the book selection: always write what is on screen.
+        sources: [...state.sources],
         coins: startingCoins,
         choices: classChanged || speciesChanged ? [] : existing.choices,
       }
@@ -851,6 +902,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
         ...base,
         abilityScoreMethod: state.scoreMethod,
         abilityScoreBase: { ...state.abilityScoreBase },
+        sources: [...state.sources],
         species: { ...base.species, speciesId: state.speciesId, lineageId: state.lineageId },
         background: { ...base.background, abilityBonuses: { ...state.backgroundBonuses }, toolProficiencies: state.backgroundTool ? [state.backgroundTool] : [], startingEquipmentOptionId: state.backgroundStartingEquipmentOptionId ?? undefined },
         classes: base.classes.map((entry, index) =>
@@ -901,6 +953,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
   return {
     state,
     isEdit,
+    sources: state.sources,
     stepIndex,
     species,
     classDef,
@@ -924,6 +977,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     setStep,
     next,
     back,
+    setSources,
     setName,
     setPlayerName,
     setSpeciesId,

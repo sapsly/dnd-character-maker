@@ -26,6 +26,7 @@ import {
   armorCategoryLabel,
   backgroundSourceLabel,
   featCategoryLabel,
+  featSourceLabel,
   gearCategoryLabel,
   ordinal,
   spellLevelName,
@@ -300,7 +301,9 @@ function FeatDetail({ def }: { def: FeatDef }) {
         <Stat label="Category" value={featCategoryLabel(def.category) ?? '—'} />
         <Stat label="Prerequisite" value={def.prerequisites ?? 'None'} />
         <Stat label="Usable as Origin feat" value={def.usableAsOriginFeat ? 'Yes' : 'No'} />
-        {def.source ? <Stat label="Source" value={def.source} /> : null}
+        {featSourceLabel(def.source) ? (
+          <Stat label="Source" value={featSourceLabel(def.source) as string} />
+        ) : null}
       </Stats>
       <p className="compendium-prose">{def.description}</p>
     </>

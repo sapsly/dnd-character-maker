@@ -156,6 +156,30 @@ export type SpellKey = string;
  */
 export type ItemKey = string;
 
+/**
+ * Source book identifiers for content filtering.
+ *
+ * - 'core' = Player's Handbook (2024) / SRD 5.2 baseline content
+ * - 'eberron' = Eberron setting content
+ * - 'faerun' = Forgotten Realms / Faerûn setting content
+ * - 'ravenloft' = Ravenloft setting content
+ * - 'lorwyn' = Lorwyn setting content (Elf sub-lineages)
+ * - 'exotic' = Exotic/homebrew content
+ * - 'arcana-unleashed' = Arcana Unleashed setting content
+ *
+ * When a definition lacks a `source` field it is treated as 'core'.
+ * When a Character lacks a `sources` array (or it is empty), ALL books are
+ * enabled — this preserves backward compatibility with existing characters.
+ */
+export type SourceKey =
+  | 'core'
+  | 'eberron'
+  | 'faerun'
+  | 'ravenloft'
+  | 'lorwyn'
+  | 'exotic'
+  | 'arcana-unleashed';
+
 // ---------------------------------------------------------------------------
 // Static rules data (populated in `src/data`)
 // ---------------------------------------------------------------------------
@@ -181,6 +205,8 @@ export interface SpeciesDef {
   /** Character levels at which this species grants a bonus feat, if any. */
   featLevels?: number[];
   description: string;
+  /** Source book this species comes from. Missing = 'core'. */
+  source?: SourceKey;
 }
 
 export interface FeatDef {
@@ -190,9 +216,12 @@ export interface FeatDef {
   prerequisites?: string;
   /** True when the feat is legal as a species feat or Origin Feat. */
   usableAsOriginFeat?: boolean;
-  source?: 'general' | 'origin' | 'species' | 'item';
+  /** Feat source type (legacy): general, origin, species, or item. Kept for back-compat with existing data. */
+  featSource?: 'general' | 'origin' | 'species' | 'item';
   /** Wiki feat category (the /feat:all sections); used for compendium grouping. */
   category?: 'origin' | 'general' | 'fighting-style' | 'epic-boon' | 'dragonmark' | 'planar-pact' | 'dark-gift';
+  /** Source book this feat comes from. Missing = 'core'. Accepts legacy feat-source-type values for back-compat. */
+  source?: SourceKey | 'general' | 'origin' | 'species' | 'item';
 }
 
 /**
@@ -289,6 +318,8 @@ export interface SubclassDef {
   name: string;
   description: string;
   features: SubclassFeature[];
+  /** Source book this subclass comes from. Missing = 'core'. */
+  source?: SourceKey;
 }
 
 /**
@@ -417,6 +448,8 @@ export interface ClassDef {
   asiLevels: number[];
   /** Source used to sort/verify the class list. */
   sourceNote?: string;
+  /** Source book this class comes from. Missing = 'core'. */
+  source?: SourceKey;
 }
 
 export interface WeaponDef {
@@ -531,6 +564,37 @@ export interface SpellDef {
    */
   speciesGrants?: string[];
   description: string;
+  /** Source book this spell comes from. Missing = 'core'. */
+  source?: SourceKey;
+}
+
+/**
+ * A species lineage that grants spells (e.g., Elf sub-lineages, Gnome sub-lineages, Tiefling legacies).
+ */
+export interface SpeciesLineageDef {
+  id: SpeciesLineageId;
+  /** The species this lineage belongs to, matching `SpeciesDef.id`. */
+  speciesId: string;
+  name: string;
+  summary: string;
+  /** Signature cantrip plus the level 3 and 5 grants. */
+  grants: LineageGrant[];
+  /**
+   * 2024 lets these species use Int, Wis or Cha for lineage spells. The player
+   * picks one; it does not have to match the class casting ability.
+   */
+  spellcastingAbilityOptions: AbilityKey[];
+  /** Extra trait text shown on the sheet alongside the spells. */
+  bonusTrait?: string;
+  /** Source book this lineage comes from. Missing = 'core'. */
+  source?: SourceKey;
+}
+
+export interface LineageGrant {
+  /** Character level at which this spell is added. Cantrips are level 0. */
+  atLevel: number;
+  /** The spell's id in `src/data/spells-*.ts`. */
+  spellId: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -773,6 +837,15 @@ export interface Character {
    * existed loading without a forced default.
    */
   lineageSpellcastingAbility?: AbilityKey | null;
+
+  /**
+   * Enabled source books for content filtering.
+   *
+   * Missing or empty array = ALL books enabled (backward compatibility).
+   * When present, only content from the listed source books is available in
+   * the create wizard and level-up flows.
+   */
+  sources?: SourceKey[];
 
   abilityScoreMethod: AbilityScoreMethod;
   /**

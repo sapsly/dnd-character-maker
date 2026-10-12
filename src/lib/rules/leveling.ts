@@ -18,6 +18,7 @@ import type {
   AbilityKey,
   AbilityBonusMap,
   WeaponMasteryProperty,
+  SourceKey,
 } from '../../types/character';
 import { proficiencyBonusForLevel, MAX_CHARACTER_LEVEL } from './proficiency';
 import {
@@ -29,6 +30,7 @@ import {
   subclassSpellMinLevel,
   subclassSpellPickCount,
 } from './subclassPicks';
+import { isEntryAllowed } from './sources';
 
 export { proficiencyBonusForLevel, MAX_CHARACTER_LEVEL };
 
@@ -124,7 +126,7 @@ export function canTakeSubclassAtLevel(
 }
 
 /**
- * Compute what choices become available when gaining a level.
+ * Determine what choices become available when gaining a level.
  */
 export interface NextLevelChoicesInput {
   character: Character;
@@ -142,6 +144,8 @@ export interface NextLevelChoicesInput {
    * only appear once the player has picked the subclass.
    */
   subclassId?: string;
+  /** Enabled source books for filtering content. Missing/empty = all books. */
+  sources?: SourceKey[];
 }
 
 /**
@@ -209,7 +213,7 @@ export interface NextLevelChoicesResult {
 }
 
 export function nextLevelChoices(input: NextLevelChoicesInput): NextLevelChoicesResult {
-  const { character, classDefs, gainingEntry, newClassLevel } = input;
+  const { character, classDefs, gainingEntry, newClassLevel, sources } = input;
   const classDef = classDefs.find((c) => c.id === gainingEntry.classId);
 
   const result: NextLevelChoicesResult = {
@@ -224,12 +228,13 @@ export function nextLevelChoices(input: NextLevelChoicesInput): NextLevelChoices
 
   if (!classDef) return result;
 
-  // Subclass choice
+  // Subclass choice - filter by enabled source books
   if (classDef.subclassLevel === newClassLevel) {
+    const enabledSubclasses = classDef.subclasses.filter((s) => isEntryAllowed({ sources }, s));
     result.subclassChoice = {
       classId: classDef.id,
       className: classDef.name,
-      subclasses: classDef.subclasses.map((s) => ({ id: s.id, name: s.name })),
+      subclasses: enabledSubclasses.map((s) => ({ id: s.id, name: s.name })),
     };
   }
 

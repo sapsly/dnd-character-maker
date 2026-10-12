@@ -571,6 +571,7 @@ export default function LevelUpPage() {
                     }))
                   }
                   showDescription={false}
+                  sources={character.sources}
                 />
               </Card>
             );
@@ -607,6 +608,7 @@ export default function LevelUpPage() {
                     label={`Cantrips (choose ${cantripCount})`}
                     hint={`Select ${cantripCount} cantrip${cantripCount === 1 ? '' : 's'} from the ${entryClassName} spell list.`}
                     showDescription
+                    sources={character.sources}
                   />
                 )}
 
@@ -626,6 +628,7 @@ export default function LevelUpPage() {
                     label={`Level ${minSpellLevel}${minSpellLevel !== maxSpellLevel ? `–${maxSpellLevel}` : ''} spells (choose ${spellCount})`}
                     hint={`Select ${spellCount} spell${spellCount === 1 ? '' : 's'} to ${spellKind}.`}
                     showDescription
+                    sources={character.sources}
                   />
                 )}
 

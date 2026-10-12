@@ -1,4 +1,4 @@
-import type { AbilityKey, SpeciesLineageId } from '../types/character';
+import type { SpeciesLineageDef, LineageGrant } from '../types/character';
 
 /**
  * 2024 species lineages that grant spells, rebuilt from dnd2024.wikidot.com.
@@ -60,30 +60,6 @@ export function speciesSpellGrantsUpTo(
     .filter((g): g is { spellId: string; name: string; level: number; grantedAt: number } => g.name != null);
 }
 
-export interface LineageGrant {
-  /** Character level at which this spell is added. Cantrips are level 0. */
-  atLevel: number;
-  /** The spell's id in `src/data/spells-*.ts`. */
-  spellId: string;
-}
-
-export interface SpeciesLineageDef {
-  id: SpeciesLineageId;
-  /** The species this lineage belongs to, matching `SpeciesDef.id`. */
-  speciesId: string;
-  name: string;
-  summary: string;
-  /** Signature cantrip plus the level 3 and 5 grants. */
-  grants: LineageGrant[];
-  /**
-   * 2024 lets these species use Int, Wis or Cha for lineage spells. The player
-   * picks one; it does not have to match the class casting ability.
-   */
-  spellcastingAbilityOptions: AbilityKey[];
-  /** Extra trait text shown on the sheet alongside the spells. */
-  bonusTrait?: string;
-}
-
 export const SPECIES_LINEAGES: SpeciesLineageDef[] = [
   {
     id: 'elf-drow',
@@ -120,6 +96,7 @@ export const SPECIES_LINEAGES: SpeciesLineageDef[] = [
     grants: [{ atLevel: 0, spellId: 'thorn-whip' }, { atLevel: 3, spellId: 'command' }, { atLevel: 5, spellId: 'silence' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
     bonusTrait: 'You know the Thorn Whip cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Druid spell list.',
+    source: 'lorwyn',
   },
   {
     id: 'elf-shadowmoor-elf',
@@ -129,6 +106,7 @@ export const SPECIES_LINEAGES: SpeciesLineageDef[] = [
     grants: [{ atLevel: 0, spellId: 'starry-wisp' }, { atLevel: 3, spellId: 'heroism' }, { atLevel: 5, spellId: 'gentle-repose' }],
     spellcastingAbilityOptions: ['int', 'wis', 'cha'],
     bonusTrait: 'The range of your Darkvision increases to 120 feet. You also know the Starry Wisp cantrip.',
+    source: 'lorwyn',
   },
   {
     id: 'tiefling-abyssal',

@@ -13,6 +13,7 @@ export const artificer: ClassDef = {
     choices: ['arcana', 'history', 'investigation', 'medicine', 'nature', 'perception', 'sleightOfHand'],
     choiceCount: 2,
   },
+  source: 'eberron',
   spellcasting: {
     ability: 'int',
     cantripsMode: 'known',

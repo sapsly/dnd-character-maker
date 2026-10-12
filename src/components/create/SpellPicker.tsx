@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import type { SpellDef, SpeciesLineageId } from '../../types/character'
+import type { SpellDef, SpeciesLineageId, SourceKey } from '../../types/character'
 import { SPELLS, spellsForClass } from '../../data/spells'
 import { speciesSpellGrantsUpTo } from '../../data/lineages'
+import { ALL_SOURCES, enabledSources, entrySource } from '../../lib/rules/sources'
 import { Card } from '../ui/Card'
 import { Field } from '../ui/Field'
 import { Select } from '../ui/Select'
@@ -32,6 +33,13 @@ export interface SpellPickerProps {
    * (e.g., Tiefling Thaumaturgy), not just a lineage choice.
    */
   speciesId?: string
+  /**
+   * Source books the player has ticked for this character. When provided,
+   * spells from a switched-off book drop out of the pool. A spell already
+   * picked stays listed regardless — books never steal a choice back, and the
+   * row has to remain visible for it to be un-ticked.
+   */
+  sources?: SourceKey[]
   /** Minimum spell level to show (0 = cantrips, 1 = 1st level, etc.) */
   minLevel?: number
   /** Maximum spell level to show */
@@ -106,6 +114,7 @@ export function SpellPicker({
   classIds,
   lineageId,
   speciesId,
+  sources,
   minLevel = 0,
   maxLevel = 9,
   characterLevel = 1,
@@ -159,11 +168,20 @@ export function SpellPicker({
         SPELLS.filter((s) => speciesGrantIds.includes(s.id) && !inPool.has(s.id)),
       )
     }
+    // Books run first, before the search and level facets, so the level filter
+    // only ever offers levels the enabled books actually contain. An empty
+    // selection means "no books ticked", not "all books" (that back-compat rule
+    // belongs to saved characters, not to a box the player just unticked).
+    if (sources) {
+      const enabled = sources.length > 0 ? enabledSources({ sources }) : new Set<SourceKey>()
+      const alreadyPicked = new Set(pickedIds)
+      spells = spells.filter((s) => enabled.has(entrySource(s)) || alreadyPicked.has(s.id))
+    }
     const excluded = excludeIds && excludeIds.length > 0 ? new Set(excludeIds) : null
     return spells.filter(
       (s) => s.level >= minLevel && s.level <= maxLevel && !(excluded && excluded.has(s.id))
     )
-  }, [classId, classIds, lineageId, speciesId, characterLevel, excludeIds, minLevel, maxLevel])
+  }, [classId, classIds, lineageId, speciesId, sources, pickedIds, characterLevel, excludeIds, minLevel, maxLevel])
 
   const filteredSpells = useMemo((): SpellDef[] => {
     let result = candidateSpells
@@ -257,7 +275,11 @@ export function SpellPicker({
         {filteredSpells.length === 0 ? (
           <li className="spell-picker-empty">
             <p>No spells match your filters.</p>
-            {search && <p>Try clearing the search or level filter.</p>}
+            {search ? (
+              <p>Try clearing the search or level filter.</p>
+            ) : sources && sources.length < ALL_SOURCES.length ? (
+              <p>Some spell books may be switched off on the Books step.</p>
+            ) : null}
           </li>
         ) : (
           filteredSpells.map((spell) => {
