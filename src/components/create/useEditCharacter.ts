@@ -25,6 +25,7 @@ import {
 } from '../../lib/characterFactory'
 import { loadCharacters, upsertCharacter } from '../../lib/storage'
 import { abilityModifier } from '../../lib/rules/ability'
+import { asiIncreases } from '../../lib/rules/asi'
 
 export type WizardStep = 'identity' | 'class' | 'background' | 'abilities' | 'review'
 
@@ -225,6 +226,10 @@ export function useEditCharacter(): EditCharacterModel {
   const backgroundErrors = useMemo(() => {
     if (!background) return ['That background is not in the SRD set.']
 
+    // Include existing ASI increases from the choice log
+    // so the 20-cap validation accounts for all bonuses.
+    const existingAsiBonuses = character ? asiIncreases(character.choices) : {};
+
     const allowed = new Set<AbilityKey>(background.abilityBonusChoices)
     const errors: string[] = []
 
@@ -256,7 +261,9 @@ export function useEditCharacter(): EditCharacterModel {
 
     for (const ability of background.abilityBonusChoices) {
       const final =
-        state.abilityScoreBase[ability] + (state.backgroundBonuses[ability] ?? 0)
+        state.abilityScoreBase[ability] +
+        (state.backgroundBonuses[ability] ?? 0) +
+        (existingAsiBonuses[ability] ?? 0)
       if (final > MAX_FINAL_SCORE) {
         errors.push(
           `${ABILITY_LABELS[ability]} would reach ${final}, above the maximum of ${MAX_FINAL_SCORE}.`,
@@ -265,7 +272,7 @@ export function useEditCharacter(): EditCharacterModel {
     }
 
     return errors
-  }, [background, state.backgroundBonuses, state.abilityScoreBase])
+  }, [background, state.backgroundBonuses, state.abilityScoreBase, character])
 
   const scoreErrors = useMemo(() => {
     const errors: string[] = []

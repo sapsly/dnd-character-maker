@@ -10,6 +10,8 @@ import type {
   SkillProficiencyEntry,
 } from '../../types/character'
 import type { DerivedCharacter } from '../../lib/derived'
+import { deriveWeaponAttacks } from '../../lib/rules/attacks'
+import type { WeaponAttack } from '../../lib/rules/attacks'
 import type { GearCategory } from '../../data/equipment'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
@@ -17,6 +19,7 @@ import { Divider } from '../ui/Divider'
 import { EmptyState } from '../ui/EmptyState'
 import { Field } from '../ui/Field'
 import { CharacterAccentPicker } from '../ui/CharacterAccentPicker'
+import { ExpandableText } from '../ui/ExpandableText'
 import { Icon } from '../ui/Icon'
 import { NumberInput } from '../ui/NumberInput'
 import { Select } from '../ui/Select'
@@ -176,19 +179,19 @@ function HitPointTracker({
       </div>
 
       <div className="sheet-hp-quick">
-        <Button variant="danger" size="sm" onClick={() => onAdjustHp(-5)} disabled={missing === 0}>
+        <Button variant="danger" size="sm" onClick={() => onAdjustHp(-5)} disabled={current <= 0}>
           −5
         </Button>
-        <Button variant="danger" size="sm" onClick={() => onAdjustHp(-1)} disabled={missing === 0}>
+        <Button variant="danger" size="sm" onClick={() => onAdjustHp(-1)} disabled={current <= 0}>
           −1
         </Button>
         <Button variant="ghost" size="sm" onClick={onHealFull} disabled={missing === 0}>
           Full heal
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => onAdjustHp(1)}>
+        <Button variant="secondary" size="sm" onClick={() => onAdjustHp(1)} disabled={missing === 0}>
           +1
         </Button>
-        <Button variant="secondary" size="sm" onClick={() => onAdjustHp(5)}>
+        <Button variant="secondary" size="sm" onClick={() => onAdjustHp(5)} disabled={missing === 0}>
           +5
         </Button>
       </div>
@@ -326,6 +329,35 @@ function CombatBlock({ derived }: { derived: DerivedCharacter }) {
         ) : null}
       </Card>
     </>
+  )
+}
+
+function AttacksBlock({ character }: { character: Character }) {
+  const attacks: WeaponAttack[] = deriveWeaponAttacks(character)
+  return (
+    <Card title="Attacks" className="sheet-card">
+      {attacks.length === 0 ? (
+        <p className="sheet-empty-note">No equipped weapons.</p>
+      ) : (
+        <dl className="sheet-stats">
+          {attacks.map((attack) => (
+            <div key={attack.id} className="sheet-stat">
+              <dt>{attack.label}</dt>
+              <dd className="sheet-stat-value">{formatModifier(attack.attackBonus)}</dd>
+              <dd className="sheet-stat-note">
+                {attack.damage} {attack.damageType}
+                {attack.kind === 'unarmed' ? (
+                  <Tag tone="muted">Unarmed</Tag>
+                ) : null}
+                {!attack.proficient ? (
+                  <Tag tone="warning">Not proficient</Tag>
+                ) : null}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </Card>
   )
 }
 
@@ -647,7 +679,11 @@ function LineageSpellsBlock({ derived }: { derived: DerivedCharacter }) {
         swapped out.
       </p>
 
-      {lineage?.summary ? <p className="sheet-species-desc">{lineage.summary}</p> : null}
+      {lineage?.summary ? (
+        <ExpandableText className="sheet-species-desc" lines={4}>
+          {lineage.summary}
+        </ExpandableText>
+      ) : null}
       {lineage?.bonusTrait ? (
         <>
           <Divider label="Bonus trait" />
@@ -749,7 +785,9 @@ function ClassesBlock({ derived }: { derived: DerivedCharacter }) {
                 {subclass ? (
                   <div className="sheet-subclass">
                     <h3 className="sheet-subclass-name">{subclass.name}</h3>
-                    <p className="sheet-subclass-desc">{subclass.description}</p>
+                    <ExpandableText className="sheet-subclass-desc" lines={5}>
+                      {subclass.description}
+                    </ExpandableText>
                   </div>
                 ) : classDef.subclassLevel > entry.level ? (
                   <p className="sheet-hint">
@@ -765,7 +803,9 @@ function ClassesBlock({ derived }: { derived: DerivedCharacter }) {
                           <span className="sheet-feature-level">L{feature.level}</span>
                           <div>
                             <p className="sheet-feature-name">{feature.name}</p>
-                            <p className="sheet-feature-desc">{feature.description}</p>
+                            <ExpandableText className="sheet-feature-desc" lines={4}>
+                              {feature.description}
+                            </ExpandableText>
                           </div>
                         </li>
                       ))}
@@ -790,7 +830,9 @@ function SpeciesBackgroundBlock({ derived }: { derived: DerivedCharacter }) {
           <p className="sheet-hint">
             {species.size} · {species.speed} ft base speed
           </p>
-          <p className="sheet-species-desc">{species.description}</p>
+          <ExpandableText className="sheet-species-desc" lines={5}>
+            {species.description}
+          </ExpandableText>
           {species.traits.length > 0 ? (
             <>
               <Divider label="Traits" />
@@ -799,7 +841,9 @@ function SpeciesBackgroundBlock({ derived }: { derived: DerivedCharacter }) {
                   <li key={trait.name} className="sheet-feature">
                     <div>
                       <p className="sheet-feature-name">{trait.name}</p>
-                      <p className="sheet-feature-desc">{trait.description}</p>
+                      <ExpandableText className="sheet-feature-desc" lines={4}>
+                        {trait.description}
+                      </ExpandableText>
                     </div>
                   </li>
                 ))}
@@ -811,7 +855,9 @@ function SpeciesBackgroundBlock({ derived }: { derived: DerivedCharacter }) {
 
       {background ? (
         <Card title={background.name} className="sheet-card">
-          <p className="sheet-species-desc">{background.description}</p>
+          <ExpandableText className="sheet-species-desc" lines={5}>
+            {background.description}
+          </ExpandableText>
           {background.skillsGranted.length > 0 ? (
             <p className="sheet-hint">
               Proficient in {background.skillsGranted.map((s) => skillName(s)).join(', ')}.
@@ -843,7 +889,9 @@ function SpeciesBackgroundBlock({ derived }: { derived: DerivedCharacter }) {
 })()}
             <Divider label="Origin feat" />
             <p className="sheet-feature-name">{background.originFeatName}</p>
-            <p className="sheet-feature-desc">{background.originFeatDescription}</p>
+            <ExpandableText className="sheet-feature-desc" lines={4}>
+              {background.originFeatDescription}
+            </ExpandableText>
 </Card>
         ) : null}
       </>
@@ -1608,6 +1656,7 @@ export default function CharacterSheetPage() {
       <div className="sheet-grid">
         <div className="sheet-column">
           <CombatBlock derived={derived} />
+          <AttacksBlock character={character} />
           <HitPointTracker
             derived={derived}
             combat={character.combat}

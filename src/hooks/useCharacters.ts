@@ -15,6 +15,8 @@ import {
 } from '../lib/firebase';
 import {
   removeCharacterFromUserCampaigns,
+  listMyCampaigns,
+  syncCharacterToCampaign,
 } from '../lib/campaigns';
 import { useCallback, useEffect, useState } from 'react';
 import type { Character } from '../types/character';
@@ -82,6 +84,21 @@ export function useCharacters() {
               ? prev.map((c) => (c.id === character.id ? character : c))
               : [...prev, character];
           });
+
+          // Auto-sync to all campaigns the user belongs to (except localStorage path)
+          try {
+            const campaignsResult = await listMyCampaigns(user.uid);
+            if (campaignsResult.ok && campaignsResult.value.length > 0) {
+              for (const campaign of campaignsResult.value) {
+                // Fire-and-forget sync; errors are logged but don't block the save
+                syncCharacterToCampaign(user.uid, campaign.id, character.id, character).catch((err) => {
+                  console.warn(`Auto-sync to campaign ${campaign.id} failed:`, err);
+                });
+              }
+            }
+          } catch (syncErr) {
+            console.warn('Failed to list campaigns for auto-sync:', syncErr);
+          }
         } else {
           setError(result.error ?? 'Failed to save character');
         }

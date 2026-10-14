@@ -22,6 +22,7 @@ import {
   combineAbilityScores,
   allAbilityModifiers,
 } from './rules/ability';
+import { asiIncreases } from './rules/asi';
 import { proficiencyBonusForLevel } from './rules/proficiency';
 import { computeArmorClass } from './rules/armorClass';
 import { computeHitPoints } from './rules/hitPoints';
@@ -98,13 +99,15 @@ export function deriveCharacter(character: Character): DerivedCharacter {
     }
   }
 
-  // Combine ability scores: base + species + background
+  // Combine ability scores: base + species + background + ASI (from choices log)
   const speciesBonuses = species?.abilityBonuses ?? {};
   const backgroundBonuses = character.background.abilityBonuses;
+  const asiBonuses = asiIncreases(character.choices);
   const combined = combineAbilityScores(
     character.abilityScoreBase,
     speciesBonuses,
-    backgroundBonuses
+    backgroundBonuses,
+    asiBonuses
   );
   warnings.push(...combined.warnings);
 

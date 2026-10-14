@@ -12,6 +12,7 @@ import type {
 import { Card } from '../ui/Card'
 import { Divider } from '../ui/Divider'
 import { EmptyState } from '../ui/EmptyState'
+import { ExpandableText } from '../ui/ExpandableText'
 import { Tag } from '../ui/Tag'
 
 /**
@@ -39,7 +40,9 @@ function FeatureRow({ row }: { row: LevelFeatureRow }) {
           ) : null}
         </p>
         {row.description ? (
-          <p className="sheet-feature-desc">{row.description}</p>
+          <ExpandableText className="sheet-feature-desc" lines={4}>
+            {row.description}
+          </ExpandableText>
         ) : null}
       </div>
     </li>
@@ -50,7 +53,11 @@ function ChoiceRow({ row }: { row: ChoiceReviewRow }) {
   return (
     <li>
       <span className="create-choice-name">{row.label}</span>
-      {row.detail ? <p className="create-list-body">{row.detail}</p> : null}
+      {row.detail ? (
+        <ExpandableText className="create-list-body" lines={4}>
+          {row.detail}
+        </ExpandableText>
+      ) : null}
     </li>
   )
 }

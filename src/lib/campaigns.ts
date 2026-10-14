@@ -8,7 +8,9 @@ import {
   updateDoc,
   serverTimestamp,
   deleteField,
+  onSnapshot,
   type DocumentSnapshot,
+  type Unsubscribe,
 } from 'firebase/firestore';
 
 import { db, type FirestoreResult } from './firebase';
@@ -471,4 +473,60 @@ export async function deleteCampaign(
       error: `Could not delete campaign: ${error instanceof Error ? error.message : 'unknown error'}`,
     };
   }
+}
+
+/**
+ * Subscribe to real-time updates for a campaign document.
+ * Returns an unsubscribe function.
+ */
+export function subscribeCampaign(
+  campaignId: string,
+  onData: (campaign: Campaign | null) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  if (!db) {
+    onError(new Error('Firebase backend is not configured'));
+    return () => {};
+  }
+
+  const ref = doc(db, CAMPAIGNS_COLLECTION, campaignId);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      const campaign = campaignDocToCampaign(snap);
+      onData(campaign);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
+}
+
+/**
+ * Subscribe to real-time updates for all characters in a campaign.
+ * Returns an unsubscribe function.
+ */
+export function subscribeCampaignCharacters(
+  campaignId: string,
+  onData: (characters: CampaignCharacter[]) => void,
+  onError: (error: Error) => void
+): Unsubscribe {
+  if (!db) {
+    onError(new Error('Firebase backend is not configured'));
+    return () => {};
+  }
+
+  const ref = collection(db, CAMPAIGNS_COLLECTION, campaignId, CHARACTERS_SUBCOLLECTION);
+  return onSnapshot(
+    ref,
+    (snap) => {
+      const characters = snap.docs
+        .map((d) => campaignCharacterDocToCampaignCharacter(d, campaignId))
+        .filter((c): c is CampaignCharacter => c !== null);
+      onData(characters);
+    },
+    (error) => {
+      onError(error);
+    }
+  );
 }

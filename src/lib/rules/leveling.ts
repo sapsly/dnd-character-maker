@@ -52,7 +52,8 @@ export function validateAsiAllocation(
   speciesBonuses: AbilityBonusMap,
   backgroundBonuses: AbilityBonusMap,
   asiIncreases: AbilityBonusMap,
-  takingFeat: boolean
+  takingFeat: boolean,
+  existingAsiBonuses: AbilityBonusMap = {}
 ): AsiValidationResult {
   const errors: string[] = [];
   const abilityIncreases: AbilityBonusMap = {};
@@ -84,11 +85,11 @@ export function validateAsiAllocation(
     errors.push('Can increase at most two abilities');
   }
 
-  // Check 20 cap against current final scores
+  // Check 20 cap against current final scores (including existing ASI from choice log)
   if (errors.length === 0) {
     for (const [ability, increase] of entries) {
       if (increase <= 0) continue;
-      const currentFinal = baseScores[ability] + (speciesBonuses[ability] ?? 0) + (backgroundBonuses[ability] ?? 0);
+      const currentFinal = baseScores[ability] + (speciesBonuses[ability] ?? 0) + (backgroundBonuses[ability] ?? 0) + (existingAsiBonuses[ability] ?? 0);
       if (currentFinal + increase > 20) {
         errors.push(`${ability.toUpperCase()}: would exceed 20 (current ${currentFinal} + ${increase})`);
       } else {

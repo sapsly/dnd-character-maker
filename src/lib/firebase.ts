@@ -12,6 +12,7 @@ import {
   serverTimestamp,
   writeBatch,
   collection,
+  deleteField,
   type DocumentSnapshot,
 } from 'firebase/firestore';
 
@@ -127,10 +128,15 @@ export async function upsertCharacterFirestore(
 ): Promise<FirestoreResult<Character>> {
   try {
     const ref = getCharacterRef(userId, character.id);
+    const hasHpOverride = character.combat?.hpOverride !== undefined && character.combat?.hpOverride !== null;
     const payload = {
       ...character,
       updatedAt: serverTimestamp(),
       ...(character.createdAt ? {} : { createdAt: serverTimestamp() }),
+      combat: {
+        ...character.combat,
+        hpOverride: hasHpOverride ? character.combat.hpOverride : deleteField(),
+      },
     };
     await setDoc(ref, payload, { merge: true });
     return { ok: true, value: character };
@@ -176,10 +182,15 @@ export async function migrateLocalCharactersToFirestore(
     let count = 0;
     for (const char of localCharacters) {
       const ref = getCharacterRef(userId, char.id);
+      const hasHpOverride = char.combat?.hpOverride !== undefined && char.combat?.hpOverride !== null;
       const payload = {
         ...char,
         updatedAt: serverTimestamp(),
         createdAt: char.createdAt ? serverTimestamp() : serverTimestamp(),
+        combat: {
+          ...char.combat,
+          hpOverride: hasHpOverride ? char.combat.hpOverride : deleteField(),
+        },
       };
       batch.set(ref, payload, { merge: true });
       count++;

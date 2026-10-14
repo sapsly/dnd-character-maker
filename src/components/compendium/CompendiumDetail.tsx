@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Card } from '../ui/Card'
 import { Divider } from '../ui/Divider'
+import { ExpandableText } from '../ui/ExpandableText'
 import { Tag } from '../ui/Tag'
 import { ABILITY_ABBREV, ABILITY_LABELS } from '../../types/character'
 import type {
@@ -106,14 +107,18 @@ function SpeciesDetail({ def }: { def: SpeciesDef }) {
           <Stat label="Bonus feat" value={`Level ${def.featLevels.join(', Level ')}`} />
         ) : null}
       </Stats>
-      <p className="compendium-prose">{def.description}</p>
+      <ExpandableText className="compendium-prose" lines={5}>
+        {def.description}
+      </ExpandableText>
       {def.traits.length > 0 ? (
         <div className="compendium-block">
           <p className="compendium-subhead">Traits</p>
           {def.traits.map((trait) => (
             <div key={trait.name} className="compendium-feature">
               <p className="compendium-feature-name">{trait.name}</p>
-              <p className="compendium-feature-desc">{trait.description}</p>
+              <ExpandableText className="compendium-feature-desc" lines={4}>
+                {trait.description}
+              </ExpandableText>
             </div>
           ))}
         </div>
@@ -217,7 +222,9 @@ function ClassDetail({ def }: { def: ClassDef }) {
             {def.featuresByLevel[level]?.map((feature) => (
               <div key={feature.id} className="compendium-feature">
                 <p className="compendium-feature-name">{feature.name}</p>
-                <p className="compendium-feature-desc">{feature.description}</p>
+                <ExpandableText className="compendium-feature-desc" lines={4}>
+                  {feature.description}
+                </ExpandableText>
                 {featureOptions(feature.options)}
               </div>
             ))}
@@ -236,14 +243,18 @@ function ClassDetail({ def }: { def: ClassDef }) {
           {def.subclasses.map((subclass) => (
             <div key={subclass.id} className="compendium-subclass">
               <p className="compendium-subclass-name">{subclass.name}</p>
-              <p className="compendium-prose">{subclass.description}</p>
+              <ExpandableText className="compendium-prose" lines={5}>
+                {subclass.description}
+              </ExpandableText>
               <ul className="compendium-feature-list">
                 {subclass.features.map((feature, index) => (
                   <li key={`${subclass.id}-${index}`} className="compendium-feature">
                     <p className="compendium-feature-name">
                       Level {feature.level} · {feature.name}
                     </p>
-                    <p className="compendium-feature-desc">{feature.description}</p>
+                    <ExpandableText className="compendium-feature-desc" lines={4}>
+                      {feature.description}
+                    </ExpandableText>
                     {featureOptions(feature.options)}
                   </li>
                 ))}
@@ -284,11 +295,15 @@ function BackgroundDetail({ def }: { def: BackgroundDef }) {
         />
         <Stat label="Ability increases" value={<AbilityTags keys={def.abilityBonusChoices} />} />
       </Stats>
-      <p className="compendium-prose">{def.description}</p>
+      <ExpandableText className="compendium-prose" lines={5}>
+        {def.description}
+      </ExpandableText>
       <div className="compendium-block">
         <p className="compendium-subhead">Origin feat</p>
         <p className="compendium-block-title">{def.originFeatName}</p>
-        <p className="compendium-prose">{def.originFeatDescription}</p>
+        <ExpandableText className="compendium-prose" lines={5}>
+          {def.originFeatDescription}
+        </ExpandableText>
       </div>
     </>
   )
@@ -305,7 +320,9 @@ function FeatDetail({ def }: { def: FeatDef }) {
           <Stat label="Source" value={featSourceLabel(def.source) as string} />
         ) : null}
       </Stats>
-      <p className="compendium-prose">{def.description}</p>
+      <ExpandableText className="compendium-prose" lines={5}>
+        {def.description}
+      </ExpandableText>
     </>
   )
 }
@@ -370,7 +387,9 @@ function GearDetail({ def }: { def: GearDef }) {
         <Stat label="Weight" value={def.weightLb !== undefined ? `${def.weightLb} lb` : '—'} />
       </Stats>
       {def.description ? (
-        <p className="compendium-prose">{def.description}</p>
+        <ExpandableText className="compendium-prose" lines={5}>
+          {def.description}
+        </ExpandableText>
       ) : (
         <p className="compendium-note">This entry records cost and weight only.</p>
       )}
@@ -465,7 +484,9 @@ function SpellDetail({ def }: { def: SpellDef }) {
       </Stats>
       <div className="compendium-block">
         <p className="compendium-subhead">Description</p>
-        <p className="compendium-prose">{def.description}</p>
+        <ExpandableText className="compendium-prose" lines={5}>
+          {def.description}
+        </ExpandableText>
       </div>
     </>
   )

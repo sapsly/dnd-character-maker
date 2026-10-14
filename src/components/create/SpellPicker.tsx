@@ -4,6 +4,7 @@ import { SPELLS, spellsForClass } from '../../data/spells'
 import { speciesSpellGrantsUpTo } from '../../data/lineages'
 import { ALL_SOURCES, enabledSources, entrySource } from '../../lib/rules/sources'
 import { Card } from '../ui/Card'
+import { ExpandableText } from '../ui/ExpandableText'
 import { Field } from '../ui/Field'
 import { Select } from '../ui/Select'
 import { Tag } from '../ui/Tag'
@@ -352,7 +353,9 @@ export function SpellPicker({
                       )}
                     </div>
                     {showDescription && (
-                      <p className="spell-picker-description">{spell.description}</p>
+                      <ExpandableText className="spell-picker-description" lines={3}>
+                        {spell.description}
+                      </ExpandableText>
                     )}
                   </div>
                 </label>

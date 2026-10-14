@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import type { Character } from '../../types/character'
-import { loadCharacters } from '../../lib/storage'
+import { useCharacters } from '../../hooks/useCharacters'
 import { Card } from '../ui/Card'
 import { Icon } from '../ui/Icon'
 import CreateCharacterPage from './CreateCharacterPage'
@@ -20,20 +20,29 @@ export default function EditCharacterPage() {
   const location = useLocation()
   const [character, setCharacter] = useState<Character | null>(null)
   const [status, setStatus] = useState<'loading' | 'missing' | 'ready'>('loading')
+  const { getOne, loading: charactersLoading } = useCharacters()
 
   useEffect(() => {
+    // Wait for the auth/session load to settle first: `getOne` closes over the
+    // signed-in user, so reading before auth resolves would fall back to the
+    // browser store and report a signed-in character as missing.
+    if (charactersLoading) return
+
     let cancelled = false
 
-    const result = loadCharacters()
-    const found = result.value.find((candidate) => candidate.id === id) ?? null
+    const load = async () => {
+      const result = await getOne(id)
+      if (cancelled) return
+      const found = result.ok ? result.value : null
+      setCharacter(found)
+      setStatus(found ? 'ready' : 'missing')
+    }
+    load()
 
-    if (cancelled) return
-    setCharacter(found)
-    setStatus(found ? 'ready' : 'missing')
     return () => {
       cancelled = true
     }
-  }, [id, location.key])
+  }, [id, location.key, getOne, charactersLoading])
 
   if (status === 'loading') {
     return (
@@ -50,7 +59,7 @@ export default function EditCharacterPage() {
           <div>
             <h1 className="page-title">Character not found</h1>
             <p className="page-subtitle">
-              This character is not in the local library, so there is nothing to edit.
+              We couldn't find this character in your library.
             </p>
           </div>
         </header>

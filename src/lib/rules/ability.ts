@@ -33,12 +33,16 @@ export function allAbilityModifiers(scores: AbilityScores): Record<AbilityKey, n
 }
 
 /**
- * Combine base scores with species and background bonuses.
+ * Combine base scores with species, background, and extra bonuses.
  * Returns final scores (capped at 20) and any warnings from clamping.
  *
  * 2024 rule: Species grants +2/+1/0. Background grants +2/+1 across two of
  * three listed abilities, or +1/+1/+1 across all three. A single ability can
  * reach +4 total bonus. Cap at 20 and surface warnings instead of throwing.
+ *
+ * The 4th parameter `extraBonuses` is additive and folded the same way as
+ * species/background bonuses (e.g., cumulative ASI increases from the choice log).
+ * Defaults to {} so existing callers compile unchanged.
  */
 export interface CombinedAbilityResult {
   abilityScores: AbilityScores;
@@ -49,7 +53,8 @@ export interface CombinedAbilityResult {
 export function combineAbilityScores(
   base: AbilityScores,
   speciesBonuses: AbilityBonusMap,
-  backgroundBonuses: AbilityBonusMap
+  backgroundBonuses: AbilityBonusMap,
+  extraBonuses: AbilityBonusMap = {}
 ): CombinedAbilityResult {
   const warnings: string[] = [];
   const abilityBonuses: AbilityBonusMap = {};
@@ -67,7 +72,8 @@ export function combineAbilityScores(
   for (const key of allKeys) {
     const species = speciesBonuses[key] ?? 0;
     const background = backgroundBonuses[key] ?? 0;
-    const totalBonus = species + background;
+    const extra = extraBonuses[key] ?? 0;
+    const totalBonus = species + background + extra;
     if (totalBonus !== 0) {
       abilityBonuses[key] = totalBonus;
     }

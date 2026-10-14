@@ -5,6 +5,7 @@ import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { Divider } from '../ui/Divider'
 import { EmptyState } from '../ui/EmptyState'
+import { ExpandableText } from '../ui/ExpandableText'
 import { Field } from '../ui/Field'
 import { Icon } from '../ui/Icon'
 import { NumberInput } from '../ui/NumberInput'
@@ -289,7 +290,9 @@ export default function LevelUpPage() {
                     <span className="levelup-option-body">
                       <span className="levelup-option-name">{subclass.name}</span>
                       {full ? (
-                        <span className="levelup-option-desc">{full.description}</span>
+                        <ExpandableText as="span" className="levelup-option-desc" lines={3}>
+                          {full.description}
+                        </ExpandableText>
                       ) : null}
                     </span>
                   </label>
@@ -483,7 +486,9 @@ export default function LevelUpPage() {
                         />
                         <span className="levelup-option-body">
                           <span className="levelup-option-name">{option.name}</span>
-                          <span className="levelup-option-desc">{option.description}</span>
+                          <ExpandableText as="span" className="levelup-option-desc" lines={3}>
+                            {option.description}
+                          </ExpandableText>
                         </span>
                       </label>
                     </li>
@@ -641,7 +646,7 @@ export default function LevelUpPage() {
         <Button
           variant="primary"
           icon="arrow-right"
-          disabled={blockers.length > 0}
+          disabled={blockers.length > 0 || status === 'saving'}
           onClick={apply}
         >
           Take {entryClassName} level {newClassLevel}
@@ -675,7 +680,9 @@ function FeatNote({
   return (
     <div className={tooEarly ? 'levelup-note levelup-note--warn' : 'levelup-note'}>
       <p className="levelup-note-name">{feat.name}</p>
-      <p className="levelup-note-desc">{feat.description}</p>
+      <ExpandableText className="levelup-note-desc" lines={4}>
+        {feat.description}
+      </ExpandableText>
       {feat.prerequisite ? (
         <p className="levelup-note-prereq">Prerequisite: {feat.prerequisite}</p>
       ) : null}

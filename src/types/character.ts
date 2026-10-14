@@ -876,7 +876,7 @@ export interface Character {
 // ---------------------------------------------------------------------------
 
 export const APP_ID = 'dnd-character-manager';
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export interface CharacterFile {
   kind: typeof APP_ID;

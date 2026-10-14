@@ -9,6 +9,7 @@ import type {
   SpellKey,
 } from '../types/character';
 import { isAccent } from './theme';
+import { asiIncreases } from './rules/asi';
 
 /**
  * Persistence for characters.
@@ -100,6 +101,49 @@ function isAbilityKey(value: unknown): value is AbilityKey {
 }
 
 /**
+ * Removes choices and picks that can no longer be valid for a character.
+ *
+ * Deliberately conservative: it only drops data it can positively prove stale,
+ * because a wrongly removed pick silently loses a player's decision.
+ *
+ * Rules:
+ *  1. A class-scoped choice whose owning class entry no longer exists is stale.
+ *  2. A `backgroundTools` choice with no picks is a legacy unresolved stub.
+ *  3. An individual pick with no option id carries no decision.
+ *  4. A choice emptied by the above has its `resolved` flag recomputed.
+ *
+ * Idempotent: running it over its own output changes nothing.
+ */
+export function pruneCharacterPicks(character: Character): Character {
+  if (!Array.isArray(character.choices)) return character;
+
+  const classEntryIds = new Set(character.classes.map((entry) => entry.id));
+  let changed = false;
+
+  const choices = character.choices
+    .filter((choice) => {
+      if (choice.classEntryId && !classEntryIds.has(choice.classEntryId)) {
+        changed = true;
+        return false;
+      }
+      if (choice.kind === 'backgroundTools' && choice.picks.length === 0) {
+        changed = true;
+        return false;
+      }
+      return true;
+    })
+    .map((choice) => {
+      const picks = choice.picks.filter((pick) => pick.optionId.trim().length > 0);
+      if (picks.length === choice.picks.length) return choice;
+      changed = true;
+      const resolved = choice.count > 0 ? picks.length >= choice.count : picks.length > 0;
+      return { ...choice, picks, resolved };
+    });
+
+  return changed ? { ...character, choices } : character;
+}
+
+/**
  * Normalizes a character loaded from storage, ensuring all optional fields
  * introduced after the initial schema have safe defaults. This is the single
  * migration path — call it once after parsing so the rest of the app never
@@ -132,8 +176,35 @@ export function normalizeCharacter(c: Character): Character {
   const lineageSpellcastingAbility = isAbilityKey(c.lineageSpellcastingAbility)
     ? c.lineageSpellcastingAbility
     : null;
-  return {
+
+  // ----------------------------------------------------------------
+  // SCHEMA_VERSION 2 migration: un-bake ASI from abilityScoreBase.
+  // ----------------------------------------------------------------
+  // Old saves (schemaVersion < 2) baked ASI increases directly into
+  // abilityScoreBase (capped at 20). The choice log (character.choices)
+  // still contains the original picks with abilityIncreases.
+  // We now derive ASI from the log at read time, so we must subtract
+  // the logged ASI from the stored base to avoid double-counting.
+  //
+  // This migration is IDEMPOTENT: it only runs when schemaVersion < 2,
+  // and bumps schemaVersion to 2 so it never runs again.
+  //
+  // NOTE: Characters whose base was clamped at 20 by the old bake
+  // lose the ability to recover their true pre-increase raw value.
+  // That is ACCEPTED and expected — the true raw is irretrievable.
+  let abilityScoreBase = { ...c.abilityScoreBase };
+  if ((c.schemaVersion ?? 1) < 2) {
+    const asiBonuses = asiIncreases(c.choices);
+    for (const [ability, increase] of Object.entries(asiBonuses)) {
+      const key = ability as AbilityKey;
+      // Subtract the logged ASI, floor at 1 per clampAbilityScore convention.
+      abilityScoreBase[key] = Math.max(1, abilityScoreBase[key] - increase);
+    }
+  }
+
+  return pruneCharacterPicks({
     ...c,
+    schemaVersion: Math.max(c.schemaVersion ?? 1, 2),
     coins,
     inventory,
     accent,
@@ -141,7 +212,8 @@ export function normalizeCharacter(c: Character): Character {
     classes,
     lineageSpellIds,
     lineageSpellcastingAbility,
-  };
+    abilityScoreBase,
+  });
 }
 
 /** localStorage can throw in private mode, sandboxed iframes, or when over quota. */

@@ -32,8 +32,10 @@ import {
   pointsRemaining,
   pointsSpent,
 } from '../../lib/characterFactory'
-import { createId, upsertCharacter } from '../../lib/storage'
+import { createId } from '../../lib/storage'
+import { useCharacters } from '../../hooks/useCharacters'
 import { abilityModifier } from '../../lib/rules/ability'
+import { asiIncreases } from '../../lib/rules/asi'
 import { ALL_SOURCES } from '../../lib/rules/sources'
 import type { SourceKey } from '../../types/character'
 
@@ -119,6 +121,8 @@ export interface CreateCharacterModel {
   standardValues: readonly number[]
   pointsSpent: number
   pointsRemaining: number
+  /** ASI bonuses from existing character's choices (for edited characters). */
+  asiBonuses: AbilityBonusMap
   /** Every unmet prerequisite for the current step, human-readable. */
   stepErrors: string[]
   nameErrors: string[]
@@ -416,6 +420,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const isEdit = existing !== null
+  const { upsert } = useCharacters()
 
   const species = useMemo(
     () => SPECIES.find((s) => s.id === state.speciesId) ?? null,
@@ -429,6 +434,9 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     () => BACKGROUNDS.find((b) => b.id === state.backgroundId) ?? null,
     [state.backgroundId],
   )
+
+  // ASI bonuses from existing character's choices (for edited characters)
+  const asiBonuses = useMemo(() => (existing ? asiIncreases(existing.choices) : {}), [existing])
 
   const stepIndex = WIZARD_STEPS.findIndex((s) => s.id === state.step)
 
@@ -455,6 +463,10 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
 
   const backgroundErrors = useMemo(() => {
     if (!background) return ['That background is not in the catalogue.']
+
+    // Include existing ASI increases from the choice log (for edited characters)
+    // so the 20-cap validation accounts for all bonuses.
+    const existingAsiBonuses = existing ? asiIncreases(existing.choices) : {};
 
     const allowed = new Set<AbilityKey>(background.abilityBonusChoices)
     const errors: string[] = []
@@ -487,7 +499,9 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
 
     for (const ability of background.abilityBonusChoices) {
       const final =
-        state.abilityScoreBase[ability] + (state.backgroundBonuses[ability] ?? 0)
+        state.abilityScoreBase[ability] +
+        (state.backgroundBonuses[ability] ?? 0) +
+        (existingAsiBonuses[ability] ?? 0)
       if (final > MAX_FINAL_SCORE) {
         errors.push(
           `${ABILITY_LABELS[ability]} would reach ${final}, above the maximum of ${MAX_FINAL_SCORE}.`,
@@ -496,7 +510,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     }
 
     return errors
-  }, [background, state.backgroundBonuses, state.abilityScoreBase])
+  }, [background, state.backgroundBonuses, state.abilityScoreBase, existing])
 
   const toolErrors = useMemo(() => {
     if (!background || background.toolChoiceCount === 0) return []
@@ -783,7 +797,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
   const setBackgroundStartingEquipmentOptionId = useCallback((id: string | null) => setState((s) => ({ ...s, backgroundStartingEquipmentOptionId: id })), [])
   const setClassStartingEquipmentOptionId = useCallback((id: string | null) => setState((s) => ({ ...s, classStartingEquipmentOptionId: id })), [])
 
-  const create = useCallback(() => {
+  const create = useCallback(async () => {
     if (!canCreate || saving) return
     setSaving(true)
     setSaveError(null)
@@ -933,7 +947,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
       }
     }
 
-    const saved = upsertCharacter(character)
+    const saved = await upsert(character)
     if (!saved.ok) {
       setSaveError(saved.error ?? 'That character could not be saved.')
       setSaving(false)
@@ -942,7 +956,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
 
     setSaving(false)
     navigate(`/character/${character.id}`)
-  }, [canCreate, saving, state, classDef, species, navigate, existing])
+  }, [canCreate, saving, state, classDef, species, navigate, existing, upsert])
 
   const reset = useCallback(() => {
     setState(initialState(existing))
@@ -999,6 +1013,7 @@ export function useCreateCharacter(existing: Character | null = null): CreateCha
     setClassStartingEquipmentOptionId,
     create,
     reset,
+    asiBonuses,
   }
 }
 

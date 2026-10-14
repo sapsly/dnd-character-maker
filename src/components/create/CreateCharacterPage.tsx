@@ -104,6 +104,7 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
     setBackgroundStartingEquipmentOptionId,
     setClassStartingEquipmentOptionId,
     create,
+    asiBonuses,
   } = model
 
   const isReview = state.step === 'review'
@@ -823,10 +824,13 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                       onValueChange={(value) => setBackgroundBonus(ability, value)}
                     />
                     <span className="create-bg-preview">
-                      {state.abilityScoreBase[ability] + (state.backgroundBonuses[ability] ?? 0)}{' '}
-                      ({modifierText(
-                        state.abilityScoreBase[ability] + (state.backgroundBonuses[ability] ?? 0),
-                      )})
+                      {(() => {
+                        const base = state.abilityScoreBase[ability]
+                        const bgBonus = state.backgroundBonuses[ability] ?? 0
+                        const asiBonus = asiBonuses[ability] ?? 0
+                        const total = base + bgBonus + asiBonus
+                        return `${total} (${modifierText(total)})`
+                      })()}
                     </span>
                   </li>
                 ))}
@@ -906,7 +910,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
             {ABILITY_KEYS.map((ability: AbilityKey) => {
               const base = state.abilityScoreBase[ability]
               const bonus = state.backgroundBonuses[ability] ?? 0
-              const final = base + bonus
+              const asiBonus = asiBonuses[ability] ?? 0
+              const final = base + bonus + asiBonus
               const low =
                 state.scoreMethod === 'rolled' ? MIN_ROLLED_SCORE : MIN_ALLOCATED_SCORE
               const high =
@@ -951,9 +956,9 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                   )}
 
                   <span className="create-score-preview">
-                    {bonus > 0
-                      ? `${base} + ${bonus} background = ${final}`
-                      : `No background increase · ${final}`}
+                    {bonus > 0 || asiBonus > 0
+                      ? `${base}${bonus > 0 ? ` + ${bonus} background` : ''}${asiBonus > 0 ? ` + ${asiBonus} ASI` : ''} = ${final}`
+                      : `No bonus · ${final}`}
                   </span>
                 </li>
               )
@@ -1094,7 +1099,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
             {ABILITY_KEYS.map((ability) => {
               const base = state.abilityScoreBase[ability]
               const bonus = state.backgroundBonuses[ability] ?? 0
-              const final = base + bonus
+              const asiBonus = asiBonuses[ability] ?? 0
+              const final = base + bonus + asiBonus
               return (
                 <li key={ability} className="create-score">
                   <div className="create-score-label">
@@ -1103,7 +1109,8 @@ export default function CreateCharacterPage({ existing = null }: { existing?: Ch
                   </div>
                   <span className="create-score-preview create-score-preview--final">
                     {base}
-                    {bonus > 0 ? ` + ${bonus} background` : ''} = {final} ({modifierText(final)})
+                    {bonus > 0 ? ` + ${bonus} background` : ''}
+                    {asiBonus > 0 ? ` + ${asiBonus} ASI` : ''} = {final} ({modifierText(final)})
                   </span>
                 </li>
               )

@@ -197,18 +197,19 @@ export function useCharacterSheet(): CharacterSheetModel {
     (value: number | undefined) => {
       const state = latest.current
       if (!state?.character) return
-      const patch: Partial<CharacterCombat> = {}
-      if (value === undefined) {
-        delete patch.hpOverride
-      } else if (Number.isFinite(value) && value > 0) {
-        patch.hpOverride = Math.round(value)
+      // Replace the whole combat object so clearing the override actually removes
+      // the key (a merged patch cannot delete an existing optional property).
+      const combat: CharacterCombat = { ...state.character.combat }
+      if (value === undefined || !Number.isFinite(value) || value <= 0) {
+        delete combat.hpOverride
+      } else {
+        combat.hpOverride = Math.round(value)
       }
-      const base = Math.max(patch.hpOverride ?? state.derived?.hitPoints.computed ?? 0, 0)
-      const current = state.character.combat.hitPointsCurrent
-      patch.hitPointsCurrent = Math.min(current, base)
-      commit(patch)
+      const base = Math.max(combat.hpOverride ?? state.derived?.hitPoints.computed ?? 0, 0)
+      combat.hitPointsCurrent = Math.min(state.character.combat.hitPointsCurrent, base)
+      commitCharacter({ combat })
     },
-    [commit]
+    [commitCharacter]
   )
 
   const healToFull = useCallback(() => {

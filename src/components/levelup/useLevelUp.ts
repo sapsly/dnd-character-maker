@@ -3,7 +3,6 @@ import type { Dispatch, SetStateAction } from 'react'
 import { useParams } from 'react-router-dom'
 import type {
   AbilityBonusMap,
-  AbilityKey,
   Character,
   Choice,
   ClassEntry,
@@ -13,15 +12,17 @@ import type {
 } from '../../types/character'
 import type { DerivedCharacter } from '../../lib/derived'
 import { deriveCharacter } from '../../lib/derived'
-import { createId, loadCharacters, upsertCharacter } from '../../lib/storage'
+import { createId } from '../../lib/storage'
+import { useCharacters } from '../../hooks/useCharacters'
 import { MAX_CHARACTER_LEVEL, nextLevelChoices, validateAsiAllocation } from '../../lib/rules/leveling'
+import { asiIncreases } from '../../lib/rules/asi'
 import type { NextLevelChoicesResult, NextLevelChoicesInput } from '../../lib/rules/leveling'
 import { FEATS } from '../../data/feats'
 import { lineageGrantsAtLevel } from '../../data/lineages'
 import { getSpell } from '../../data/spells'
 import { isEntryAllowed } from '../../lib/rules/sources'
 
-export type LevelUpStatus = 'loading' | 'ready' | 'not-found' | 'error' | 'saved' | 'save-error'
+export type LevelUpStatus = 'loading' | 'ready' | 'saving' | 'not-found' | 'error' | 'saved' | 'save-error'
 
 /** How the player spends this level's ASI: a feat, or raw score increases. */
 export type AsiMode = 'feat' | 'ability'
@@ -195,6 +196,8 @@ export function useLevelUp(): LevelUpModel {
   const [draft, setDraft] = useState<LevelUpDraft>(emptyDraft)
   const [attempt, setAttempt] = useState(0)
 
+  const { getOne, upsert } = useCharacters()
+
   const reload = useCallback(() => setAttempt((n) => n + 1), [])
 
   useEffect(() => {
@@ -205,39 +208,41 @@ export function useLevelUp(): LevelUpModel {
     let cancelled = false
     setStatus('loading')
 
-    const result = loadCharacters()
-    if (cancelled) return
+    getOne(id).then((result) => {
+      if (cancelled) return
 
-    if (!result.ok && result.value.length === 0) {
-      setError(result.error ?? 'Saved characters could not be read.')
-      setCharacter(null)
-      setDerived(null)
-      setStatus('error')
-      return
-    }
+      if (!result.ok) {
+        setError(result.error ?? 'Saved characters could not be read.')
+        setCharacter(null)
+        setDerived(null)
+        setStatus('error')
+        return
+      }
 
-    const found = result.value.find((c) => c.id === id)
-    if (!found) {
+      const found = result.value
+      if (!found) {
+        setError(result.ok ? null : (result.error ?? null))
+        setCharacter(null)
+        setDerived(null)
+        setStatus('not-found')
+        return
+      }
+
+      setCharacter(found)
+      setDerived(deriveCharacter(found))
       setError(result.ok ? null : (result.error ?? null))
-      setCharacter(null)
-      setDerived(null)
-      setStatus('not-found')
-      return
-    }
+      // Default to the highest-level class entry: that is the one a player most
+      // often means when they open "level up".
+      const top = [...found.classes].sort((a, b) => b.level - a.level)[0]
+      setEntryId(top?.id ?? null)
+      setDraft(emptyDraft())
+      setStatus('ready')
+    })
 
-    setCharacter(found)
-    setDerived(deriveCharacter(found))
-    setError(result.ok ? null : (result.error ?? null))
-    // Default to the highest-level class entry: that is the one a player most
-    // often means when they open "level up".
-    const top = [...found.classes].sort((a, b) => b.level - a.level)[0]
-    setEntryId(top?.id ?? null)
-    setDraft(emptyDraft())
-    setStatus('ready')
     return () => {
       cancelled = true
     }
-  }, [id, attempt])
+  }, [id, attempt, getOne])
 
   const entries = character?.classes ?? []
   const entry = useMemo(() => entries.find((e) => e.id === entryId) ?? null, [entries, entryId])
@@ -327,12 +332,16 @@ export function useLevelUp(): LevelUpModel {
     if (draft.asi.mode === 'feat') {
       return draft.asi.featId ? [] : ['Choose a feat, or switch to ability score increases.']
     }
+    // Include existing ASI increases from the choice log when validating the 20 cap.
+    // The base no longer includes baked ASI, so we must add them here to get the true current final scores.
+    const existingAsiBonuses = asiIncreases(character.choices);
     return validateAsiAllocation(
       character.abilityScoreBase,
       character.species.abilityBonuses,
       character.background.abilityBonuses,
       draft.asi.increases,
       false,
+      existingAsiBonuses,
     ).errors
   }, [character, choices, draft.asi])
 
@@ -421,23 +430,19 @@ export function useLevelUp(): LevelUpModel {
     }
 
     return out
-  }, [choices, draft, asiErrors, masteryRequired, derived])
+  }, [choices, draft, asiErrors, masteryRequired, derived, upsert])
 
-  const apply = useCallback(() => {
+  const apply = useCallback(async () => {
     if (!character || !targetEntry || !choices) return
     if (blockers.length > 0) return
 
     const newLevel = character.level + 1
     const asiApplied: AbilityBonusMap = draft.asi.mode === 'ability' ? draft.asi.increases : {}
 
-    // ASI increases fold into the stored base scores. deriveCharacter adds
-    // species and background bonuses on top at read time, so folding here
-    // keeps one source of truth and cannot double-apply a bonus.
+    // ASI increases are recorded in the choice log (asiAbilityIncrease / featOrAsi picks).
+    // They are NO LONGER baked into abilityScoreBase. deriveCharacter reads the choice log
+    // via asiIncreases() and adds them at read time, so past ASIs remain editable.
     const abilityScoreBase = { ...character.abilityScoreBase }
-    for (const [ability, increase] of Object.entries(asiApplied)) {
-      const key = ability as AbilityKey
-      abilityScoreBase[key] = Math.min(20, abilityScoreBase[key] + increase)
-    }
 
     const newChoices: Choice[] = [...character.choices]
     let counter = 0
@@ -700,7 +705,10 @@ export function useLevelUp(): LevelUpModel {
       // Coins are NOT modified for multiclass — 2024 rules grant no starting equipment/coins
     }
 
-    const saved = upsertCharacter(updated)
+    // Mark the write in flight before the await so a double click cannot queue a
+    // second save; the button reads this to disable itself.
+    setStatus('saving')
+    const saved = await upsert(updated)
     if (!saved.ok) {
       setSaveError(saved.error ?? 'That level could not be saved.')
       setStatus('save-error')

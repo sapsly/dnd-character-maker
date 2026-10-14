@@ -166,11 +166,12 @@ export function computeMulticlassSpellSlots(classes: Array<{
 
     const slotTable = getPactMagicSlots(entry.level);
     if (slotTable) {
-      // Warlock slotTable format is different from standard casters:
-      // It has a single-element array [numberOfSlots] where the slot level
-      // is determined by warlock level, not by array index.
-      // e.g., level 1: [1] = one 1st-level slot; level 3: [2] = two 2nd-level slots
-      const slotCount = slotTable[0];
+      // Warlock slotTable rows use the standard spell-level indexing
+      // (index 0 = 1st level), but every Pact Magic slot is the same level,
+      // so the row has a single non-zero entry and the slot level is derived
+      // from the warlock level rather than the array index.
+      // e.g., level 1: [1] = one 1st-level slot; level 5: [0, 0, 2] = two 3rd-level slots
+      const slotCount = slotTable.reduce((sum, count) => sum + count, 0);
       const slotLevel = getPactMagicSlotLevel(entry.level);
 
       if (slotCount > 0) {

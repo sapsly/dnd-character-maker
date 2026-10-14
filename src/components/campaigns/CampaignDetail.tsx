@@ -10,6 +10,8 @@ import {
   syncCharacterToCampaign,
   removeCharacterFromCampaign,
   leaveCampaign,
+  subscribeCampaign,
+  subscribeCampaignCharacters,
   type Campaign,
   type CampaignCharacter,
 } from '../../lib/campaigns'
@@ -24,6 +26,7 @@ import { Select } from '../ui/Select'
 import { Tag } from '../ui/Tag'
 import { Tooltip } from '../ui/Tooltip'
 import { ABILITY_KEYS, ABILITY_ABBREV } from '../../types/character'
+import { deriveCharacter } from '../../lib/derived'
 import '../../styles/campaigns.css'
 
 export default function CampaignDetail() {
@@ -69,52 +72,93 @@ export default function CampaignDetail() {
   const isDM = campaign?.dmUserId === user?.uid
   const myCampaignCharacter = campaignCharacters.find((c) => c.userId === user?.uid)
 
-  // Load campaign and characters
+  // Realtime listeners for campaign and characters
   useEffect(() => {
     if (authLoading || !user || !campaignId) {
       setLoading(false)
       return
     }
 
-    const load = async () => {
+    let campaignUnsub: (() => void) | null = null
+    let charactersUnsub: (() => void) | null = null
+    let mounted = true
+
+    const setupListeners = async () => {
       setLoading(true)
       setError(null)
       setNotMember(false)
 
+      // Initial campaign load (one-shot) to verify membership before subscribing
       const campaignResult = await getCampaign(user.uid, campaignId)
-      if (!campaignResult.ok) {
-        setError(campaignResult.error ?? 'Could not load campaign')
-        setLoading(false)
-        return
-      }
-      if (!campaignResult.value) {
-        setError('Campaign not found')
-        setLoading(false)
+      if (!campaignResult.ok || !campaignResult.value) {
+        if (mounted) {
+          setError(campaignResult.error ?? 'Campaign not found')
+          setLoading(false)
+        }
         return
       }
 
       const loadedCampaign = campaignResult.value
-      setCampaign(loadedCampaign)
 
       // Check membership
       if (!loadedCampaign.members[user.uid]) {
-        setNotMember(true)
-        setLoading(false)
+        if (mounted) {
+          setNotMember(true)
+          setLoading(false)
+        }
         return
       }
 
-      // Load characters
-      const charsResult = await getCampaignCharacters(loadedCampaign.id, user.uid)
-      if (charsResult.ok) {
-        setCampaignCharacters(charsResult.value)
-      } else {
-        setError(charsResult.error ?? 'Could not load campaign characters')
+      if (mounted) {
+        setCampaign(loadedCampaign)
       }
 
-      setLoading(false)
+      // Subscribe to campaign doc (for name/membership changes)
+      campaignUnsub = subscribeCampaign(
+        campaignId,
+        (campaignData) => {
+          if (!mounted) return
+          if (!campaignData) {
+            setError('Campaign not found')
+            return
+          }
+          // Check membership on updates
+          if (!campaignData.members[user.uid]) {
+            setNotMember(true)
+            return
+          }
+          setCampaign(campaignData)
+          setNotMember(false)
+        },
+        (err) => {
+          if (!mounted) return
+          setError(err.message ?? 'Campaign subscription error')
+        }
+      )
+
+      // Subscribe to campaign characters
+      charactersUnsub = subscribeCampaignCharacters(
+        campaignId,
+        (chars) => {
+          if (!mounted) return
+          setCampaignCharacters(chars)
+          setLoading(false)
+        },
+        (err) => {
+          if (!mounted) return
+          setError(err.message ?? 'Characters subscription error')
+          setLoading(false)
+        }
+      )
     }
 
-    load()
+    setupListeners()
+
+    return () => {
+      mounted = false
+      campaignUnsub?.()
+      charactersUnsub?.()
+    }
   }, [user, authLoading, campaignId])
 
   // Handle remove member (DM only)
@@ -427,14 +471,17 @@ export default function CampaignDetail() {
                 </div>
               </div>
               <div className="campaigns-synced-character-stats">
-                {ABILITY_KEYS.map((ability) => (
-                  <div key={ability} className="campaigns-stat">
-                    <span className="campaigns-stat-label">{ABILITY_ABBREV[ability]}</span>
-                    <span className="campaigns-stat-value">
-                      {myCampaignCharacter.combat[ability as keyof typeof myCampaignCharacter.combat] ?? 10}
-                    </span>
-                  </div>
-                ))}
+                {(() => {
+                  const derived = deriveCharacter(myCampaignCharacter)
+                  return ABILITY_KEYS.map((ability) => (
+                    <div key={ability} className="campaigns-stat">
+                      <span className="campaigns-stat-label">{ABILITY_ABBREV[ability]}</span>
+                      <span className="campaigns-stat-value">
+                        {derived.abilityScores[ability]} ({derived.abilityModifiers[ability] >= 0 ? '+' : ''}{derived.abilityModifiers[ability]})
+                      </span>
+                    </div>
+                  ))
+                })()}
               </div>
               <div className="campaigns-synced-character-actions">
                 <Tooltip text="Remove your character from this campaign" side="top">

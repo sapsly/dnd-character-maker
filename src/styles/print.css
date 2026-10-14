@@ -168,8 +168,9 @@
      Edit, Export JSON), every button and button-styled link app-wide, the
      +/- halves of every number stepper, the roster's row actions / avatar /
      filter, the transient notice banners (persistent character notes live in
-     .sheet-warnings and print), the delete dialog, and the loading
-     placeholder. */
+     .sheet-warnings and print), the delete dialog, the loading
+     placeholder, and the Show more control that only exists to un-compress
+     screen text (its prose is expanded in section 5 instead). */
   .app-header,
   .page-actions,
   .btn,
@@ -179,7 +180,8 @@
   .roster-filter,
   .banner,
   .modal-backdrop,
-  .roster-loading {
+  .roster-loading,
+  .expandable-toggle {
     display: none;
   }
 
@@ -207,6 +209,20 @@
   /* ======================================================================
      5. Things that print, but were drawn for a screen
      ====================================================================== */
+
+  /* Compressed prose is a screen affordance. Paper has room for all of it, the
+     control that would un-compress it is hidden in section 4, and the fade
+     would only lose words. Matched at both states so a block left open on
+     screen prints the same block as one left closed. */
+  .expandable-text,
+  .expandable-text.is-clipped,
+  .expandable-text.is-open {
+    display: block;
+    overflow: visible;
+    -webkit-line-clamp: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 
   /* The skills list draws its separators as a background showing through a
      1px grid gap. Browsers skip backgrounds in print by default, so the rows
